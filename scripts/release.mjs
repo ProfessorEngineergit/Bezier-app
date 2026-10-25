@@ -27,8 +27,10 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('..', import.meta.url).pathname;
+// fileURLToPath, not .pathname: on Windows the latter is "/D:/a/…", which join() turns into "D:\D:\a\…".
+const root = fileURLToPath(new URL('..', import.meta.url));
 const desktop = join(root, 'apps/desktop');
 const tauriConf = join(desktop, 'src-tauri/tauri.conf.json');
 const cargoToml = join(desktop, 'src-tauri/Cargo.toml');

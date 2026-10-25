@@ -37,9 +37,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # setup-node 5 turns on a pnpm cache by itself when package.json names pnpm, and then
+      # fails because this job never installs pnpm. The site build needs none.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
+          package-manager-cache: false
 
       - name: Build
         run: node website/build/build.mjs
