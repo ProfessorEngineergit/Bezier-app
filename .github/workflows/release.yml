@@ -152,9 +152,11 @@ jobs:
       # Betas publish only to the beta repository, stable releases only to the main one.
       - name: The right repository for the channel
         run: |
-          case "${{ inputs.publish }}/${{ github.repository }}/${{ inputs.version }}" in
-            beta/ProfessorEngineergit/bezier/*-beta.*) ;;
-            stable/ProfessorEngineergit/bezier-app/*) [[ "${{ inputs.version }}" != *-* ]] ;;
+          # GitHub spells the repository as it is capitalised ("Bezier-app"), so compare in lower case.
+          repo="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+          case "${{ inputs.publish }}/$repo/${{ inputs.version }}" in
+            beta/professorengineergit/bezier/*-beta.*) ;;
+            stable/professorengineergit/bezier-app/*) [[ "${{ inputs.version }}" != *-* ]] ;;
             *) echo "A ${{ inputs.publish }} release of ${{ inputs.version }} does not belong in ${{ github.repository }}."; exit 1 ;;
           esac
 
