@@ -1,0 +1,9 @@
+.stage .dwg-items-rail .rail--left {
+  top: var(--edge);
+}
+.stage .dwg-items-rail[data-open="false"] .rail--left {
+  left: var(--edge);
+}
+.stage .dwg-items-rail[data-open="true"] .rail--left {
+  left: calc(var(--dwg-items) + var(--edge));
+}

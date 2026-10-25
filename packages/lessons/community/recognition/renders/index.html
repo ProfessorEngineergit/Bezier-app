@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Ray-traced badges</title>
+<style>
+  body { margin: 0; font: 13px ui-sans-serif, system-ui; }
+  section { padding: 28px 32px; }
+  .dark { background: #141416; color: #e0e0e0; }
+  .light { background: #ececee; color: #1a1a1a; }
+  h1 { margin: 0 0 16px; font-size: 18px; }
+  table { border-spacing: 6px 0; }
+  th { text-align: left; font-weight: 600; width: 120px; font-size: 12px; }
+  thead th { text-align: center; font-weight: 400; opacity: 0.6; }
+  img { width: 112px; height: 112px; display: block; }
+</style>
+<body>
+  <script>
+    const marks = [
+      ['extrude', 'First lesson'], ['chapter', 'Chapter maker'], ['stepin', 'Stepped into'], ['teacher', 'Teacher'],
+      ['plugin', 'First plugin'], ['installs', 'Installed'], ['offline', 'Offline hero'], ['clean', 'Clean review'],
+      ['firststep', 'First step'], ['streak', 'Streak'], ['levelup', 'Level up'], ['remix', 'Made it mine'],
+    ];
+    const tiers = ['quartz', 'sapphire', 'emerald', 'diamond'];
+    const sheet = (cls, title, rows) =>
+      `<section class="${cls}"><h1>${title}</h1><table><thead><tr><th></th>${tiers
+        .map((t) => `<th>${t}</th>`)
+        .join('')}</tr></thead><tbody>${rows
+        .map(([m, name]) => `<tr><th>${name}</th>${tiers.map((t) => `<td><img src="${m}-${t}.png" alt="${name}, ${t}"></td>`).join('')}</tr>`)
+        .join('')}</tbody></table></section>`;
+    document.body.innerHTML =
+      sheet('dark', 'Ray-traced badges · on dark', marks) + sheet('light', 'On light', marks.filter((_, i) => i % 4 === 3));
+  </script>
+</body>

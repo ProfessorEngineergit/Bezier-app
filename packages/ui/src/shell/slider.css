@@ -1,0 +1,160 @@
+/*
+ * The slider (Slider.tsx), drawn like the loading bar (shell.css, `.status__track`): faint
+ * segments, lit in the text colour up to the value, the last lit one brightest. The whole control
+ * is draggable.
+ */
+
+.slider {
+  --slider-segment: 5px;
+  --slider-gap: 2px;
+
+  display: grid;
+  gap: 6px;
+  margin: 2px -6px;
+  padding: 6px;
+  border-radius: var(--radius-control);
+  outline: none;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.slider:focus-visible {
+  outline: 1.5px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+.slider__head {
+  display: flex;
+  min-width: 0;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.slider__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Name of the current stop, if any. */
+.slider__stop {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+/* Click to type, or type while hovering. Styled as plain text: no hover fill. */
+.slider__value {
+  min-width: 3ch;
+  padding: 1px 4px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: 500 var(--text-size-sm) / 1.3 var(--font);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  cursor: text;
+}
+
+.slider__field {
+  width: 7ch;
+  outline: none;
+  background: var(--surface-control-glass);
+  box-shadow: inset 0 0 0 1px var(--glass-border);
+}
+
+.slider__bar {
+  position: relative;
+  height: 8px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text) 16%, transparent) 0 var(--slider-segment),
+    transparent var(--slider-segment) calc(var(--slider-segment) + var(--slider-gap))
+  );
+}
+
+/* Custom track (e.g. a hue gradient) instead of segments; the edge still marks the value. */
+.slider__bar[data-track] {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--slider-track);
+}
+
+.slider__lit {
+  opacity: 0.78;
+  transition: opacity var(--fast) var(--ease);
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--slider-lit);
+  overflow: hidden;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--text) 0 var(--slider-segment),
+    transparent var(--slider-segment) calc(var(--slider-segment) + var(--slider-gap))
+  );
+}
+
+/* The value: the brightest segment, slightly taller. */
+.slider__edge {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: clamp(
+    0px,
+    calc(var(--slider-lit) - var(--slider-segment)),
+    calc(100% - var(--slider-segment))
+  );
+  width: var(--slider-segment);
+  border-radius: 1px;
+  background: var(--text);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--text) 55%, transparent);
+  transition: transform var(--fast) var(--ease);
+}
+
+.slider__bar[data-track] .slider__edge {
+  top: -3px;
+  bottom: -3px;
+  box-shadow:
+    0 0 0 1.5px color-mix(in srgb, var(--surface-popover, #000) 70%, transparent),
+    0 1px 4px rgb(0 0 0 / 40%);
+}
+
+.slider[data-dragging] .slider__edge {
+  transform: scaleY(1.25);
+}
+
+.slider:hover .slider__edge {
+  transform: scaleY(1.12);
+}
+.slider[data-dragging]:hover .slider__edge {
+  transform: scaleY(1.25);
+}
+.slider:hover .slider__lit,
+.slider[data-dragging] .slider__lit {
+  opacity: 1;
+}
+
+/* Snap stops: a dot under the track at each. */
+.slider__tick {
+  position: absolute;
+  bottom: -6px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 35%, transparent);
+}
+
+.slider__ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}

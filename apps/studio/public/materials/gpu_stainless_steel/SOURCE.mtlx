@@ -1,0 +1,278 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+-->
+<materialx version="1.38">
+  <nodegraph name="NG_Stainless_Steel_Brushed">
+    <output name="base_color_output" type="color3" nodename="node_mix_0" />
+    <output name="metalness_output" type="float" nodename="Metalness" />
+    <output name="specular_roughness_output" type="float" nodename="node_clamp_2" />
+    <normal name="onthefly_3" type="vector3">
+      <input name="space" type="string" value="world" />
+    </normal>
+    <output name="coat_normal_output" type="vector3" nodename="onthefly_3" />
+    <output name="normal_output" type="vector3" nodename="node_normalmap" />
+    <tangent name="onthefly_5" type="vector3">
+      <input name="space" type="string" value="world" />
+    </tangent>
+    <output name="tangent_output" type="vector3" nodename="onthefly_5" />
+    <texcoord name="node_texcoord_vector2_6" type="vector2">
+      <input name="index" type="integer" value="0" />
+    </texcoord>
+    <multiply name="node_multiply_7" type="vector2">
+      <input name="in1" type="vector2" nodename="node_texcoord_vector2_6" />
+      <input name="in2" type="float" nodename="Roughness_Base_scale" />
+    </multiply>
+    <image name="node_image_vector4_8" type="vector4" GLSLFX_usage="roughness" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_roughness.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector4" value=" 0.000000, 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <extract name="node_extract_9" type="float">
+      <input name="in" type="vector4" nodename="node_image_vector4_8" />
+      <input name="index" type="integer" value="0" />
+    </extract>
+    <image name="node_image_color3_10" type="color3" GLSLFX_usage="baseColor" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" colorspace="srgb_texture" value="textures/Stainless_Steel_Brushed_baseColor.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <constant name="Metalness" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
+    <image name="node_image_vector3_11" type="vector3" GLSLFX_usage="normal" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_normal.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector3" value=" 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <mix name="node_mix_12" type="float">
+      <input name="fg" type="float" nodename="node_extract_9" />
+      <input name="bg" type="float" nodename="Roughness_Base_Level" />
+      <input name="mix" type="float" nodename="General_Roughness_Base_Amount" />
+    </mix>
+    <mix name="node_mix_13" type="float">
+      <input name="fg" type="float" nodename="node_extract_14" />
+      <input name="bg" type="float" nodename="node_mix_12" />
+      <input name="mix" type="float" nodename="Brushed_amount" />
+    </mix>
+    <mix name="node_mix_15" type="float">
+      <input name="fg" type="float" nodename="node_extract_16" />
+      <input name="bg" type="float" nodename="node_mix_13" />
+      <input name="mix" type="float" nodename="Grunge_amount" />
+    </mix>
+    <max name="node_max_17" type="float">
+      <input name="in1" type="float" nodename="node_mix_12" />
+      <input name="in2" type="float" nodename="node_mix_13" />
+    </max>
+    <image name="node_image_vector4_18" type="vector4" GLSLFX_usage="roughness" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_roughness.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector4" value=" 0.000000, 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <extract name="node_extract_14" type="float">
+      <input name="in" type="vector4" nodename="node_image_vector4_18" />
+      <input name="index" type="integer" value="1" />
+    </extract>
+    <extract name="node_extract_16" type="float">
+      <input name="in" type="vector4" nodename="node_image_vector4_19" />
+      <input name="index" type="integer" value="2" />
+    </extract>
+    <image name="node_image_vector4_19" type="vector4" GLSLFX_usage="roughness" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_roughness.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector4" value=" 0.000000, 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <max name="node_max_20" type="float">
+      <input name="in1" type="float" nodename="node_max_17" />
+      <input name="in2" type="float" nodename="node_mix_15" />
+    </max>
+    <clamp name="node_clamp_2" type="float">
+      <input name="in" type="float" nodename="node_max_21" />
+      <input name="low" type="float" value="0.0" />
+      <input name="high" type="float" value="1.0" />
+    </clamp>
+    <image name="node_image_vector3_22" type="vector3" GLSLFX_usage="bump" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_7" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_bump.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector3" value=" 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <mix name="node_mix_23" type="vector3">
+      <input name="fg" type="vector3" nodename="node_image_vector3_22" />
+      <input name="bg" type="vector3" nodename="node_float3_24" />
+      <input name="mix" type="float" value="0.0" />
+    </mix>
+    <normalize name="node_normalize_25" type="vector3">
+      <input name="in" type="vector3" nodename="node_mix_23" />
+    </normalize>
+    <mix name="node_mix_26" type="vector3">
+      <input name="fg" type="vector3" nodename="node_mix_23" />
+      <input name="bg" type="vector3" nodename="node_image_vector3_11" />
+      <input name="mix" type="float" nodename="node_float_27" />
+    </mix>
+    <constant name="node_float_27" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
+    <normalmap name="node_normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="node_mix_26" />
+    </normalmap>
+    <extract name="node_extract_28" type="float">
+      <input name="in" type="vector4" nodename="node_image_vector4_29" />
+      <input name="index" type="integer" value="3" />
+    </extract>
+    <image name="node_image_vector4_29" type="vector4" GLSLFX_usage="roughness" expose="true">
+      <input name="texcoord" type="vector2" nodename="node_multiply_30" />
+      <input name="file" type="filename" value="textures/Stainless_Steel_Brushed_roughness.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="vector4" value=" 0.000000, 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <mix name="node_mix_31" type="float">
+      <input name="fg" type="float" nodename="node_extract_28" />
+      <input name="bg" type="float" nodename="node_mix_15" />
+      <input name="mix" type="float" nodename="Dirt_amount" />
+    </mix>
+    <max name="node_max_21" type="float">
+      <input name="in1" type="float" nodename="node_max_20" />
+      <input name="in2" type="float" nodename="node_mix_31" />
+    </max>
+    <mix name="node_mix_0" type="color3">
+      <input name="fg" type="color3" nodename="node_image_color3_32" />
+      <input name="bg" type="color3" nodename="node_image_color3_10" />
+      <input name="mix" type="float" nodename="Brushed_amount" />
+    </mix>
+    <image name="node_image_color3_32" type="color3" GLSLFX_usage="diffuse" expose="true">
+      <input name="texcoord" type="vector2"  nodename="node_multiply_7" />
+      <input name="file" type="filename" colorspace="srgb_texture" value="textures/Stainless_Steel_Brushed_diffuse.png" />
+      <input name="layer" type="string" value="" />
+      <input name="default" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <multiply name="node_multiply_30" type="vector2">
+      <input name="in1" type="vector2" nodename="node_texcoord_vector2_6" />
+      <input name="in2" type="float" nodename="Dirt_scale" />
+    </multiply>
+    <constant name="node_float3_24" type="vector3">
+      <input name="value" type="vector3" value=" 0.500000, 0.500000, 1.000000" />
+    </constant>
+    <constant name="Roughness_Base_scale" type="float">
+      <input name="value" type="float" value="10.0" />
+    </constant>
+    <constant name="Roughness_Base_Level" type="float">
+      <input name="value" type="float" value="0.5" />
+    </constant>
+    <constant name="General_Roughness_Base_Amount" type="float">
+      <input name="value" type="float" value="0.5" />
+    </constant>
+    <constant name="Brushed_amount" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
+    <constant name="Grunge_amount" type="float">
+      <input name="value" type="float" value="0.44300001859664917" />
+    </constant>
+    <constant name="Dirt_amount" type="float">
+      <input name="value" type="float" value="0.24800001084804535" />
+    </constant>
+    <constant name="Dirt_scale" type="float">
+      <input name="value" type="float" value="5.0" />
+    </constant>
+  </nodegraph>
+  <standard_surface name="SR_Stainless_Steel_Brushed" type="surfaceshader">
+    <input name="base" type="float" value="0.800000011920929" />
+    <input name="base_color" type="color3" output="base_color_output" nodegraph="NG_Stainless_Steel_Brushed" />
+    <input name="diffuse_roughness" type="float" value="0.0" />
+    <input name="metalness" type="float" output="metalness_output" nodegraph="NG_Stainless_Steel_Brushed" />
+    <input name="specular" type="float" value="1.0" />
+    <input name="specular_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="specular_roughness" type="float" output="specular_roughness_output" nodegraph="NG_Stainless_Steel_Brushed" />
+    <input name="specular_IOR" type="float" value="1.5" />
+    <input name="specular_anisotropy" type="float" value="0.0" />
+    <input name="specular_rotation" type="float" value="0.0" />
+    <input name="transmission" type="float" value="0.0" />
+    <input name="transmission_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="transmission_depth" type="float" value="0.0" />
+    <input name="transmission_scatter" type="color3" value=" 0.000000, 0.000000, 0.000000" />
+    <input name="transmission_scatter_anisotropy" type="float" value="0.0" />
+    <input name="transmission_dispersion" type="float" value="0.0" />
+    <input name="transmission_extra_roughness" type="float" value="0.0" />
+    <input name="subsurface" type="float" value="0.0" />
+    <input name="subsurface_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="subsurface_radius" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="subsurface_scale" type="float" value="1.0" />
+    <input name="subsurface_anisotropy" type="float" value="0.0" />
+    <input name="sheen" type="float" value="0.0" />
+    <input name="sheen_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="sheen_roughness" type="float" value="0.30000001192092896" />
+    <input name="coat" type="float" value="0.0" />
+    <input name="coat_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="coat_roughness" type="float" value="0.10000000149011612" />
+    <input name="coat_anisotropy" type="float" value="0.0" />
+    <input name="coat_rotation" type="float" value="0.0" />
+    <input name="coat_IOR" type="float" value="1.5" />
+    <input name="coat_normal" type="vector3" output="coat_normal_output" nodegraph="NG_Stainless_Steel_Brushed" />
+    <input name="coat_affect_color" type="float" value="0.0" />
+    <input name="coat_affect_roughness" type="float" value="0.0" />
+    <input name="thin_film_thickness" type="float" value="0.0" />
+    <input name="thin_film_IOR" type="float" value="1.5" />
+    <input name="emission" type="float" value="0.0" />
+    <input name="emission_color" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="opacity" type="color3" value=" 1.000000, 1.000000, 1.000000" />
+    <input name="thin_walled" type="boolean" value="false" />
+    <input name="normal" type="vector3" output="normal_output" nodegraph="NG_Stainless_Steel_Brushed" />
+    <input name="tangent" type="vector3" output="tangent_output" nodegraph="NG_Stainless_Steel_Brushed" />
+  </standard_surface>
+  <surfacematerial name="Stainless_Steel_Brushed" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_Stainless_Steel_Brushed" />
+  </surfacematerial>
+</materialx>

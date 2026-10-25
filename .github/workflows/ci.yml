@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    # `main` is the beta line; `dev` holds work in progress and may be red.
+    branches: [main, dev]
+  pull_request:
+
+# Cancel superseded runs on the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The version comes from `packageManager` in package.json; the action fails if
+      # it is also set here.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Structure
+        run: pnpm run check:structure
+
+      - name: Document links
+        run: pnpm run check:links
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+  e2e:
+    name: End to end, ${{ matrix.browser }} ${{ matrix.shard }}/3
+    runs-on: ubuntu-latest
+    # Each browser in three parallel slices. The suite is about 22 CPU minutes,
+    # mostly the geometry kernel; one browser alone takes about 35 minutes on a
+    # two-core runner.
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v5
+
+      # The version comes from `packageManager` in package.json; the action fails if
+      # it is also set here.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Browser versions are pinned by the lockfile.
+      - name: Install browser
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      # WebKit is required (ADR 0005, ADR 0006): it is Safari, the macOS webview
+      # and, via WebKitGTK, the Linux one, and the engine most likely to differ on
+      # OPFS and WebAssembly.
+      - name: End-to-end tests
+        run: pnpm run e2e:webkit --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/3
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 7
+
+  # Stable job name for branch protection, independent of the e2e slicing.
+  e2e-result:
+    name: End to end
+    needs: e2e
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "End-to-end slices: ${{ needs.e2e.result }}"
+          [ "${{ needs.e2e.result }}" = success ]

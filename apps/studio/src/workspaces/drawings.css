@@ -1,0 +1,1004 @@
+/**
+ * Drawings: white paper on a dark desk in the app's glass; the sheet is the only bright thing on
+ * screen.
+ */
+
+.dwg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--canvas-top), var(--canvas-bottom));
+  color: var(--text);
+  font: var(--text-size) / 1.4 var(--font);
+}
+
+.dwg__desk {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  outline: none;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dwg__desk:active {
+  cursor: grabbing;
+}
+
+.dwg__sheet {
+  position: absolute;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+}
+
+.dwg__sheet .drawing-paper {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font);
+}
+
+.dwg__desk[data-dimensioning] .dwg__sheet {
+  cursor: crosshair;
+}
+
+/* shared glass */
+
+/* Material comes from the shared "glass" rule in shell.css; only position
+   and radius are this workspace's own. */
+.dwg-toolbar,
+.dwg-inspector,
+.dwg__error,
+.dwg__hint,
+.dwg__loading,
+.dwg-export__menu {
+  position: absolute;
+  z-index: 5;
+  border-radius: var(--radius-lg);
+}
+
+.dwg button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.dwg button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dwg button:focus-visible,
+.dwg input:focus-visible,
+.dwg select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* tool bar */
+
+.dwg-toolbar {
+  top: 0;
+  left: 50%;
+  max-width: 100%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  padding: 5px;
+  white-space: nowrap;
+}
+
+.dwg-toolbar__group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.dwg-toolbar__group + .dwg-toolbar__group {
+  padding-left: 5px;
+  border-left: 1px solid var(--line);
+}
+
+.dwg-toolbar button {
+  display: inline-flex;
+  height: 30px;
+  min-width: 30px;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  transition: background var(--fast) var(--ease);
+}
+
+.dwg-toolbar button:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.dwg-toolbar button[aria-pressed="true"] {
+  background: var(--surface-control-active);
+}
+
+.dwg-toolbar .dwg-zoom {
+  min-width: 56px;
+  padding: 0 6px;
+  color: var(--text-dim);
+  font: var(--text-size-sm) / 1 var(--font-mono);
+}
+
+.dwg-toolbar .dwg-primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+.dwg-toolbar .dwg-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.dwg-export {
+  position: relative;
+}
+
+.dwg-export__menu {
+  top: calc(100% + 10px);
+  right: -5px;
+  display: grid;
+  width: 240px;
+  padding: 5px;
+}
+
+.dwg-toolbar .dwg-export__menu button {
+  display: grid;
+  height: auto;
+  gap: 1px;
+  justify-items: start;
+  justify-content: stretch;
+  align-content: start;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  white-space: normal;
+}
+
+.dwg-export__menu small {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  font-weight: 400;
+}
+
+/* inspector */
+
+/*
+ * Built like the Items panel: the panel itself does not scroll or clip, so the resize strip can
+ * straddle its edge and the edge highlight can wrap both corners. The overview stays on top and
+ * the groups scroll in their own box below.
+ */
+.dwg-inspector {
+  top: var(--edge);
+  right: var(--edge);
+  bottom: var(--edge);
+  display: flex;
+  width: var(--dwg-inspector, 296px);
+  flex-direction: column;
+  padding: 0;
+  overflow: visible;
+}
+
+.dwg-inspector__scroll {
+  min-height: 0;
+  flex: 1;
+  padding: 0 0 12px;
+  overflow-y: auto;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Scrolled content fades out before it reaches the overview. */
+.dwg-inspector__scroll[data-scrolled] {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 30px);
+}
+
+.dwg-inspector::after {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  width: calc(var(--radius-lg) + 1px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-right: none;
+  border-radius: calc(var(--radius-lg) + 1px) 0 0 calc(var(--radius-lg) + 1px);
+  content: "";
+  pointer-events: none;
+  transition: border-color var(--medium) var(--ease);
+  /* Above the overview, which has its own layer, so the lit edge runs the full height. */
+  z-index: 7;
+}
+
+.dwg-inspector:has(.dwg-inspector__resize:hover)::after,
+.dwg-inspector:has(.dwg-inspector__resize:focus-visible)::after,
+.dwg-inspector:has(.dwg-inspector__resize:active)::after {
+  border-color: var(--accent);
+}
+
+.dwg-group {
+  border-bottom: 1px solid var(--line);
+}
+
+.dwg-group:last-child {
+  border-bottom: none;
+}
+
+.dwg-group > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dwg-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dwg-group > summary::after {
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--text-faint);
+  border-bottom: 1.5px solid var(--text-faint);
+  content: "";
+  transform: rotate(-45deg);
+  transition: transform var(--fast) var(--ease);
+}
+
+.dwg-group[open] > summary::after {
+  transform: rotate(45deg);
+}
+
+.dwg-group__body {
+  display: grid;
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.dwg-field,
+.dwg-text,
+.dwg-select {
+  display: grid;
+  gap: 6px;
+}
+
+.dwg-field > span,
+.dwg-text > span,
+.dwg-select > span,
+.dwg-toggle > span,
+.dwg-num > span,
+.dwg-frame-input span {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.dwg input:not([type="range"], [type="checkbox"]),
+.dwg select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font: var(--text-size) / 1 var(--font);
+}
+
+.dwg input:focus:not([type="range"], [type="checkbox"]),
+.dwg select:focus {
+  border-color: var(--line-strong);
+}
+
+.dwg input:disabled {
+  color: var(--text-faint);
+}
+
+.dwg-segment {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.dwg-segment button,
+.dwg-symbols button {
+  flex: 1;
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  font-weight: 500;
+}
+
+.dwg-segment button[aria-pressed="true"],
+.dwg-symbols button[aria-pressed="true"] {
+  background: var(--surface-control-active);
+  color: var(--text);
+}
+
+.dwg-segment,
+.dwg-symbols {
+  min-width: 0;
+  margin: 0;
+  border: none;
+}
+
+.dwg-symbols {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.dwg-symbols button {
+  display: grid;
+  height: 30px;
+  place-items: center;
+}
+
+.dwg-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* A switch, drawn from the checkbox so it stays a native, labelled control. */
+.dwg-toggle input {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--surface-control);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  appearance: none;
+  cursor: pointer;
+  transition: background var(--fast) var(--ease);
+}
+
+.dwg-toggle input::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  content: "";
+  transition:
+    transform var(--fast) var(--ease),
+    background var(--fast) var(--ease);
+}
+
+.dwg-toggle input:checked {
+  background: var(--accent);
+}
+
+.dwg-toggle input:checked::after {
+  background: var(--text-on-accent);
+  transform: translateX(12px);
+}
+
+.dwg-row2 {
+  display: grid;
+  grid-template-columns: 1fr 88px;
+  gap: 8px;
+}
+
+.dwg-row3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.dwg-num {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+
+.dwg-num small {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  pointer-events: none;
+}
+
+.dwg .dwg-num input {
+  padding-right: 26px;
+  font-family: var(--font-mono);
+  -moz-appearance: textfield;
+}
+
+.dwg-num input::-webkit-inner-spin-button {
+  display: none;
+}
+
+.dwg-count {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dwg-count > span {
+  flex: 1;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.dwg-count button,
+.dwg-frame-input button {
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 7px;
+  background: var(--surface-control);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 500;
+}
+
+.dwg-count button:hover:not(:disabled),
+.dwg-frame-input button:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.dwg-frame-input {
+  display: grid;
+  grid-template-columns: 1fr 64px auto;
+  gap: 6px;
+  align-items: end;
+}
+
+.dwg-frame-input label {
+  display: grid;
+  gap: 4px;
+}
+
+.dwg-frame-input button {
+  height: 30px;
+}
+
+.dwg-frames {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dwg-frames li {
+  display: flex;
+  height: 30px;
+  gap: 8px;
+  align-items: center;
+  padding: 0 4px 0 10px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  font: var(--text-size-sm) / 1 var(--font-mono);
+}
+
+.dwg-frames span {
+  flex: 1;
+}
+
+.dwg-frames button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-faint);
+}
+
+.dwg-frames button:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+/* Keep the complete grab strip inside the scrolling panel and above the
+   overview, so its upper edge remains usable too. */
+.dwg-inspector__resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Across the edge, half on each side of it, as on the Items panel; over the overview as well. */
+  left: -4px;
+  z-index: 8;
+  width: 8px;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: none;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/* status, hints, states */
+
+.dwg__status {
+  position: absolute;
+  bottom: 14px;
+  left: calc(var(--dwg-items, 0px) + 28px);
+  z-index: 4;
+  margin: 0;
+  color: var(--text-faint);
+  font: var(--text-size-sm) / 1 var(--font-mono);
+  pointer-events: none;
+}
+
+.dwg__hint,
+.dwg__loading {
+  bottom: 16px;
+  left: calc(
+    var(--dwg-items, 0px) +
+    (100% - var(--dwg-items, 0px) - var(--dwg-inspector, 296px) - 36px) /
+    2
+  );
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.dwg__loading {
+  top: 64px;
+  bottom: auto;
+  color: var(--text-dim);
+}
+
+.dwg__hint kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font: var(--text-size-badge) / 1 var(--font-mono);
+}
+
+.dwg__empty {
+  position: absolute;
+  top: 78px;
+  left: calc(
+    var(--dwg-items, 0px) +
+    (100% - var(--dwg-items, 0px) - var(--dwg-inspector, 296px) - 36px) /
+    2
+  );
+  z-index: 4;
+  display: grid;
+  gap: 2px;
+  max-width: 360px;
+  /* A line under the toolbar, and not a card over the sheets: it says what to do next and is not
+     the largest thing on the desk. */
+  color: var(--text-dim);
+  font: var(--text-size-sm) / 1.45 var(--font);
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.dwg__empty strong {
+  color: var(--text);
+  font-size: var(--text-size);
+  font-weight: 600;
+}
+
+.dwg__error {
+  bottom: 16px;
+  left: calc(
+    var(--dwg-items, 0px) +
+    (100% - var(--dwg-items, 0px) - var(--dwg-inspector, 296px) - 36px) /
+    2
+  );
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: 520px;
+  padding: 8px 8px 8px 14px;
+  border-color: rgb(224 85 78 / 45%);
+  transform: translateX(-50%);
+}
+
+.dwg__error button {
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 7px;
+  background: var(--surface-control);
+  color: var(--text);
+}
+
+/* The desk's dots (DrawingDeskDots.tsx), painted on a canvas as big as the desk. */
+.dwg-dots {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.dwg-items.items-panel {
+  top: var(--edge);
+  /* As far down as the panel on the other side. The status line stands beside it, not under it. */
+  bottom: var(--edge);
+  left: var(--edge);
+  z-index: 6;
+  width: var(--dwg-items-width);
+}
+.dwg-items__body {
+  overflow: auto;
+  padding: 0 12px 12px;
+}
+/* The heading of the panel is "Items", so what sits under it is smaller than it: section labels the
+   size of the group labels in the Items panel of the other workspaces. */
+.dwg-items .items-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dwg-items .items-panel__head button {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  font-size: 16px;
+  line-height: 1;
+}
+.dwg-items h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px 0 6px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+.dwg-items h3 small,
+.dwg-items h4 {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  font-weight: 500;
+}
+.dwg-items h4 {
+  margin: 14px 0 6px;
+}
+.dwg-items__sheets {
+  display: grid;
+  gap: 3px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.dwg-items__sheets li {
+  display: flex;
+  border-radius: var(--radius-control);
+}
+.dwg-items__sheets li[data-chosen]:not([data-active]) {
+  background: color-mix(in srgb, var(--brand-selected-band) 55%, transparent);
+}
+.dwg-items__chosen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+.dwg-items .dwg-items__chosen button {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  color: var(--fail);
+}
+.dwg-items__sheets li[data-active] {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+.dwg-items button {
+  border: 0;
+  background: none;
+  color: inherit;
+  border-radius: var(--radius-control);
+}
+.dwg-items button:hover {
+  background: var(--control-hover);
+}
+.dwg-items__sheets button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  text-align: left;
+}
+.dwg-items__sheets button:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.dwg-items__sheets span {
+  display: grid;
+}
+/* Deleting is offered where the pointer is, not on every row that is selected. */
+.dwg-items__sheets li > button:last-child {
+  opacity: 0;
+}
+.dwg-items__sheets li:hover > button:last-child,
+.dwg-items__sheets li > button:last-child:focus-visible {
+  opacity: 1;
+}
+.dwg-items__sheets small {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+.dwg-items svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.dwg-items__choice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 4px;
+  border-radius: var(--radius-control);
+}
+.dwg-items__choice:hover {
+  background: var(--control-hover);
+}
+.dwg-items__choice input {
+  accent-color: var(--accent);
+}
+.dwg-items__choice span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dwg-items__empty {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+.dwg-items__batch {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-size-sm);
+}
+.dwg-overview {
+  position: relative;
+  z-index: 5;
+  width: auto;
+  flex: none;
+  /* Over the panel's rim, so its top is level with the toolbar beside it. */
+  margin: -1px -1px 8px;
+  /* No bottom border: across the panel it showed as a shifting grey line. */
+  border: 0;
+  /* Sunken in the dark theme; raised as a card in the light one, where the sunken tone looks like
+     a dull grey slab beside the inspector. */
+  background: var(--surface-sunken);
+  overflow: hidden;
+  /* The panel's own rounding. */
+  border-radius: var(--radius-lg);
+}
+.dwg-overview header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: var(--text-size-sm);
+}
+.dwg-overview button {
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+}
+.dwg-overview button:hover {
+  color: var(--text);
+}
+.dwg-overview svg {
+  display: block;
+  width: 100%;
+  height: 128px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.dwg-overview__window {
+  fill: color-mix(in srgb, var(--select) 10%, transparent);
+  stroke: var(--select);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+@container (max-width: 750px) {
+  .dwg-toolbar__label {
+    display: none;
+  }
+  .dwg-toolbar button {
+    padding: 0 6px;
+  }
+  .dwg-toolbar {
+    gap: 2px;
+  }
+}
+
+.dwg__hint select {
+  height: 30px;
+  max-width: 110px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: inherit;
+}
+.dwg-editable-text {
+  cursor: text;
+}
+.dwg-editable-text:hover {
+  fill: #256cd6;
+}
+.dwg-dimension__grip {
+  cursor: move;
+}
+.dwg-dimension__grip:focus-visible {
+  outline: none;
+}
+.dwg-dimension__grip:hover rect,
+.dwg-dimension__grip:focus-visible rect {
+  fill: rgb(47 123 245 / 10%);
+}
+.dwg-inline-editor {
+  position: fixed;
+  z-index: 50;
+  margin: 0;
+  width: 120px;
+}
+.dwg-inline-editor input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #2f7bf5;
+  border-radius: 6px;
+  background: white;
+  color: #1f2830;
+  font: 500 13px var(--font);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 18%);
+}
+
+.dwg {
+  container-type: inline-size;
+}
+.dwg-toolbar {
+  width: max-content;
+}
+.dwg__sheet[data-active] {
+  outline: 1px solid rgb(47 123 245 / 35%);
+}
+.dwg__sheet:not([data-active]) .drawing-paper {
+  pointer-events: none;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .dwg-overview {
+    background: var(--surface-popover);
+  }
+}
+:root[data-theme="light"] .dwg-overview {
+  background: var(--surface-popover);
+}
+.dwg__sheet-name {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  padding: 2px 0;
+  border: 0;
+  /* A plain caption over the sheet, without a tab (a tab looks like an unfinished button). It is
+     still the control that selects the sheet. */
+  background: none;
+  color: var(--text-dim);
+  font: 500 var(--text-size-sm) / 1.4 var(--font);
+  white-space: nowrap;
+}
+.dwg__sheet-name:hover {
+  color: var(--text);
+}
+.dwg__sheet-name[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.dwg-toolbar__group:last-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.dwg-top-tools {
+  position: absolute;
+  z-index: 5;
+  top: var(--edge);
+  left: calc(var(--dwg-items, 0px) + 120px);
+  right: calc(var(--dwg-inspector, 296px) + var(--edge) * 2);
+  height: 44px;
+  container-type: inline-size;
+  pointer-events: none;
+}
+.dwg-top-tools .dwg-toolbar {
+  pointer-events: auto;
+}
+@container (max-width: 440px) {
+  .dwg-toolbar button[aria-label="Zoom in"],
+  .dwg-toolbar button[aria-label="Zoom out"] {
+    display: none;
+  }
+}
+@container (max-width: 300px) {
+  .dwg-toolbar button[aria-label="Update from model"] {
+    display: none;
+  }
+}
+
+.dwg__inactive-paper {
+  height: 100%;
+}
+.dwg__band {
+  position: absolute;
+  z-index: 3;
+  border: 1px solid var(--select);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--select) 12%, transparent);
+  pointer-events: none;
+}
+/* Sheets chosen together are ringed in the selection colour, as chosen things are everywhere. */
+.dwg__sheet[data-chosen] {
+  outline: 2px solid var(--select);
+  outline-offset: 3px;
+}
+/* Drawing sheets or physics drawings (DrawingKindToggle.tsx), the count beside Physics. */
+.dwg-kind {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.dwg-kind small {
+  min-width: 16px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  color: var(--text-dim);
+  font: 600 var(--text-size-badge) / 1.4 var(--font);
+}
+.dwg .dwg-text textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font: var(--text-size) / 1.45 var(--font);
+  resize: vertical;
+}

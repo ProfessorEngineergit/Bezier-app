@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    // @bezier/sync is TypeScript that runs unbuilt on its server, so its imports name `.ts` files.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "vite.config.ts"]
+}

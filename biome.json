@@ -1,0 +1,189 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/dist-server",
+      "!**/dist-sdk",
+      "!website/assets/film",
+      "!website/pages",
+      "!docs/brand/icons/bezier-icons.css",
+      "!help-out",
+      "!apps/studio/src/help/arrows-generated.ts",
+      "!**/brand/names/*.svg",
+      "!**/brand/names/*.html",
+      "!apps/mcp-server/docs/agent-docs.json",
+      "!**/node_modules",
+      "!third_party",
+      "!Design",
+      "!reference",
+      "!apps/desktop/src-tauri/gen",
+      "!**/claude-design/assets"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "useImportType": "error",
+        "noNonNullAssertion": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/kernel/**", "!packages/kernel/src/worker/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@salusoft89/planegcs": "The solver belongs to @bezier/solver. The kernel must not know it exists.",
+                  "three": "The kernel is headless. Rendering lives in @bezier/renderer.",
+                  "react": "The kernel is headless."
+                }
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "window": "The kernel is headless. Browser APIs belong in src/worker/.",
+                  "document": "The kernel is headless. Browser APIs belong in src/worker/.",
+                  "Worker": "Only src/worker/browser.ts may spawn workers."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/solver/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "occt-wasm": "OCCT belongs to @bezier/kernel. The solver is 2D and must not reach into geometry.",
+                  "three": "The solver is headless.",
+                  "react": "The solver is headless."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/core/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "occt-wasm": "Go through @bezier/kernel. Reaching past it is what makes the kernel impossible to replace.",
+                  "@salusoft89/planegcs": "Go through @bezier/solver.",
+                  "three": "core is headless and must run in plain Node. Rendering lives in @bezier/renderer.",
+                  "react": "core is headless. UI lives in @bezier/ui."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/renderer/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "occt-wasm": "Go through @bezier/kernel.",
+                  "@salusoft89/planegcs": "Go through @bezier/solver.",
+                  "@bezier/ui": "Upward import. The renderer sits below the UI."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "occt-wasm": "Go through @bezier/kernel.",
+                  "@salusoft89/planegcs": "Go through @bezier/solver.",
+                  "@bezier/kernel": "The UI must not hold kernel handles. Take what you need from @bezier/core."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/storage/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "occt-wasm": "Go through @bezier/kernel. Storage never touches geometry.",
+                  "@salusoft89/planegcs": "Go through @bezier/solver.",
+                  "three": "Storage is headless.",
+                  "react": "Storage is headless.",
+                  "@bezier/ui": "Upward import. Storage sits below the UI."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

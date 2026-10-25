@@ -1,0 +1,245 @@
+/* The landing page: hero, numbers, what's new. Uses tokens and the start page's controls. */
+
+.landing {
+  display: grid;
+  gap: 40px;
+  max-width: 1180px;
+  padding-bottom: 56px;
+}
+
+.landing__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.landing__intro {
+  display: grid;
+  gap: 18px;
+  align-content: center;
+}
+
+.landing h1 {
+  margin: 0;
+  color: var(--text);
+  font:
+    700 44px / 1.02 "Archivo Brand",
+    var(--font);
+  font-stretch: 114%;
+  letter-spacing: -0.015em;
+}
+
+.landing__intro p {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: calc(var(--text-size) + 2px);
+  line-height: 1.5;
+}
+
+.landing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.landing .landing__version {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+/* Film placeholder: a drawing of the app until the film is available. */
+.landing__film {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: 16px;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+.landing__film img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.landing__film-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 14px;
+  border: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 28%), transparent 45%);
+  color: #fff;
+  cursor: pointer;
+  transition: background 160ms;
+}
+
+.landing__film-play:hover {
+  background: linear-gradient(to top, rgb(0 0 0 / 42%), rgb(0 0 0 / 8%) 60%);
+}
+
+.landing__film-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  color: #111;
+  transition: scale 160ms var(--ease);
+}
+
+.landing__film-play:hover .landing__film-icon {
+  scale: 1.08;
+}
+
+.landing__film-label {
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 40%);
+  font-size: var(--text-size-sm);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.landing__film-play:focus-visible {
+  outline: 2px solid var(--focus-ring, #fff);
+  outline-offset: -4px;
+}
+
+.landing__numbers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.landing__number {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: var(--library-card-radius, 16px);
+  background: var(--surface-panel);
+}
+
+.landing__number strong {
+  color: var(--text);
+  font:
+    700 30px / 1 "Archivo Brand",
+    var(--font);
+  font-stretch: 112%;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing__number span {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  line-height: 1.35;
+}
+
+.landing__number[data-quiet] strong {
+  color: var(--text-faint);
+}
+
+.landing__news {
+  display: grid;
+  gap: 16px;
+}
+
+.landing__news h2 {
+  margin: 0;
+  color: var(--text);
+  font:
+    700 22px / 1.2 "Archivo Brand",
+    var(--font);
+  font-stretch: 112%;
+}
+
+.landing__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+/* A card: text on the left, picture on the right, like the start page tiles. */
+.landing__card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  min-height: 210px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: var(--library-card-radius, 16px);
+  background: var(--surface-panel);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  transition: background var(--fast) var(--ease);
+}
+
+.landing__card:hover {
+  background: var(--control-hover);
+}
+
+.landing__card-text {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 8px;
+  align-content: start;
+  padding: 16px 16px 16px 18px;
+}
+
+.landing__card-text small {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.landing__card-text strong {
+  font:
+    650 18px / 1.2 "Archivo Brand",
+    var(--font);
+  font-stretch: 108%;
+}
+
+.landing__card-text > span {
+  align-self: end;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+.landing__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+  border-left: 1px solid var(--library-hairline, var(--line));
+}
+
+@media (max-width: 900px) {
+  .landing__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .landing__numbers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Nib stands on the film's lower edge, outside its clip. */
+.landing__stage {
+  position: relative;
+}

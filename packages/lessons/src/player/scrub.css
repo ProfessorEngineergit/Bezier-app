@@ -1,0 +1,120 @@
+/* The scrub bar with chapter segments, and its hover tooltip. */
+
+.lessons-scrub {
+  position: relative;
+  height: 24px;
+  padding: 10px 0;
+  outline-offset: 4px;
+  touch-action: none;
+}
+
+.lessons-scrub__track {
+  position: relative;
+  height: 4px;
+  transition: height var(--fast) var(--ease);
+}
+
+.lessons-scrub:hover .lessons-scrub__track,
+.lessons-scrub[data-scrubbing] .lessons-scrub__track {
+  height: 6px;
+}
+
+.lessons-scrub__segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--text-faint);
+  /* A small gap between chapter segments. */
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.lessons-scrub__fill {
+  display: block;
+  height: 100%;
+  background: var(--text);
+}
+
+.lessons-scrub__dimmed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(-45deg, var(--text-faint) 0 2px, transparent 2px 5px);
+  opacity: 0.6;
+}
+
+.lessons-scrub__mark {
+  position: absolute;
+  top: -14px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--text);
+  color: var(--canvas-bottom);
+  font-size: var(--text-size-badge);
+  font-weight: 700;
+  line-height: 12px;
+  transform: translateX(-50%);
+}
+
+.lessons-scrub__knob {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 1px var(--canvas-bottom);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform var(--fast) var(--ease);
+  pointer-events: none;
+}
+
+.lessons-scrub:hover .lessons-scrub__knob,
+.lessons-scrub:focus-visible .lessons-scrub__knob,
+.lessons-scrub[data-scrubbing] .lessons-scrub__knob {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.lessons-scrub__tip {
+  position: absolute;
+  bottom: calc(100% - 4px);
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--surface-popover);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.lessons-scrub__tip-text {
+  padding: 3px 8px;
+  text-align: center;
+}
+
+/* With a frame above the label; kept within the bar at either end. */
+.lessons-scrub__tip[data-frame] {
+  bottom: calc(100% + 6px);
+  max-width: 176px;
+  animation: lessons-tip-in 140ms var(--ease);
+}
+
+.lessons-scrub__frame {
+  display: block;
+  width: 176px;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-sunken);
+  object-fit: cover;
+}
+
+@keyframes lessons-tip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+}

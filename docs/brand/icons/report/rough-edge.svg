@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Rough edge" viewBox="0 0 24 24" width="24" height="24" fill="none">
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4" result="b"/><feFlood flood-color="#ff9f0a" flood-opacity="0.75"/><feComposite in2="b" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="fill" x1="12" y1="4" x2="12" y2="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffbe4d"/><stop offset="1" stop-color="#e08400"/></linearGradient>
+</defs>
+<g filter="url(#glow)"><path d="M4 8.5 6.4 5.6 8.6 8.6 11 5.4 13.2 8.8 15.6 5.5 17.8 8.7 20 6v11.2A2.8 2.8 0 0 1 17.200 20H6.800A2.800 2.800 0 0 1 4 17.200V8.500Z" fill="url(#fill)" stroke="#ffe0a3" stroke-width="1" stroke-linejoin="round"/></g>
+<path d="M8 14h8" stroke="#fff" stroke-opacity="0.8" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,23 @@
+{
+  "name": "@bezier/bench",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Performance corpus and harness. Turns the budgets in docs/performance.md into numbers.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "bench": "tsx src/run.ts",
+    "large-import": "tsx src/large-import.ts",
+    "parallel": "node src/parallel-instances.mjs"
+  },
+  "dependencies": {
+    "@bezier/core": "workspace:*",
+    "@bezier/kernel": "workspace:*",
+    "@bezier/solver": "workspace:*",
+    "occt-wasm": "^5.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0"
+  }
+}

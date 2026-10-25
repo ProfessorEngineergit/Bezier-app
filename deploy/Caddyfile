@@ -1,0 +1,26 @@
+# HTTPS in front of both servers (deploy/compose.yaml, profile https).
+{$STORE_DOMAIN} {
+	# A lesson may be 256 MB; a little room above that, and nothing bigger.
+	request_body {
+		max_size 270MB
+	}
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy store:8790
+}
+
+{$SYNC_DOMAIN} {
+	# Large projects upload in 4 MB chunks.
+	request_body {
+		max_size 20MB
+	}
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy sync:8787
+}

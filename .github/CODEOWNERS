@@ -1,0 +1,24 @@
+# Who reviews what.
+#
+# Not gatekeeping — routing. It means a pull request reaches someone who has the
+# context to review it properly, instead of sitting unclaimed.
+
+# Everything, until the project has more maintainers.
+*                           @ProfessorEngineergit
+
+# The parametric layer is the product. Changes here need the closest reading.
+/packages/core/             @ProfessorEngineergit
+
+# Two files carry compatibility promises: changing them breaks saved documents.
+/packages/core/src/stable-ref.ts        @ProfessorEngineergit
+/packages/core/src/features/registry.ts @ProfessorEngineergit
+/packages/core/src/journal/             @ProfessorEngineergit
+
+# Architecture decisions are the record of why. They are appended to, not edited.
+/docs/adr/                  @ProfessorEngineergit
+
+# Licensing needs legal review before any of it changes.
+/LICENSE                    @ProfessorEngineergit
+/LICENSING.md               @ProfessorEngineergit
+/TRADEMARKS.md              @ProfessorEngineergit
+/THIRD_PARTY_LICENSES.md    @ProfessorEngineergit

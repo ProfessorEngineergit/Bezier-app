@@ -1,0 +1,15 @@
+[package]
+name = "bezier-sim"
+version = "0.0.0"
+edition = "2021"
+description = "Structural simulation core for Bezier: studies, meshes, solvers, result fields"
+license-file = "../../LICENSE"
+publish = false
+
+# No dependencies, on purpose. The solver core must stay free of licence
+# entanglement (docs/simulation/ARCHITECTURE.md, "Licensing path"), must build
+# offline, and must compile to wasm32 unchanged for the browser build.
+[dependencies]
+
+[profile.test]
+opt-level = 2

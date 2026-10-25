@@ -1,0 +1,52 @@
+{
+  "name": "bezier",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local-first parametric CAD in the browser",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @bezier/studio dev",
+    "build": "pnpm --filter @bezier/studio build",
+    "preview": "pnpm --filter @bezier/studio preview",
+    "typecheck": "pnpm -r --no-bail --filter '!@bezier/desktop' exec tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm run check:structure && pnpm run check:links && pnpm run lint && pnpm run typecheck && pnpm run test",
+    "check:structure": "node --experimental-strip-types scripts/check-structure.ts",
+    "check:links": "node --experimental-strip-types scripts/check-doc-links.ts",
+    "bench": "pnpm --filter @bezier/bench bench",
+    "e2e": "playwright test",
+    "e2e:webkit": "E2E_WEBKIT=1 playwright test",
+    "e2e:ui": "playwright test --ui",
+    "bench:frames": "node scripts/frame-budget.mjs",
+    "release": "node scripts/release.mjs",
+    "sdk:build": "pnpm --filter @bezier/plugin-sdk exec vite build -c vite.config.ts",
+    "mcp": "node apps/mcp-server/server/main.ts",
+    "community:build": "pnpm --filter @bezier/lessons exec vite build -c community/vite.server.config.ts",
+    "community:server": "node dist-server/main.js",
+    "community:cli": "node dist-server/cli.js",
+    "help:pictures": "rm -rf help-out && TOUR=1 SHOTS_DIR=help-out playwright test --project=tour e2e/tour/help --workers=4 && node scripts/capture/optimise.mjs help-out apps/studio/public/help --width 1100 --quality 74 && node scripts/help-arrows.mjs help-out",
+    "invite": "node scripts/invite.mjs"
+  },
+  "devDependencies": {
+    "@bezier/renderer": "workspace:*",
+    "@biomejs/biome": "2.5.7",
+    "@playwright/test": "^1.62.1",
+    "three": "0.185.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.12"
+  },
+  "pnpm": {
+    "overrides": {
+      "dompurify": "^3.4.17"
+    }
+  }
+}

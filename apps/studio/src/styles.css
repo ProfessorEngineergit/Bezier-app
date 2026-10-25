@@ -1,0 +1,1900 @@
+/*
+ * App-specific styles not covered by `@bezier/ui` (which owns layout, rails and title bar): the
+ * drawers, the inspector and notices. All values come from the tokens; no literal colours.
+ */
+
+@import "@bezier/ui/tokens.css";
+@import "@bezier/ui/shell.css";
+@import "./brand-ui.css";
+@import "./inspection.css";
+
+html,
+body {
+  margin: 0;
+  background: var(--canvas-bottom);
+  /* No rubber-band bounce at scroll ends; it feels like a web page, not an app. */
+  overscroll-behavior: none;
+}
+
+/*
+ * A quiet focus ring for buttons, links and selects without their own, instead of the browser's
+ * (orange or blue depending on the webview). `:where` keeps zero specificity, so a control's own
+ * focus style wins. Text fields mark focus on their own box and are not listed (brand-ui.css).
+ */
+:where(button, select, a, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 1.5px solid var(--focus-ring, rgb(255 255 255 / 55%));
+  outline-offset: 2px;
+}
+
+:where(button, select, a, summary, [role="button"], [tabindex]):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*
+ * A focused text field shows only its caret. Several parts of the app (start page, Learn, Drawings,
+ * Inspection) ring `:focus-visible` controls, and a clicked text field always matches, so each
+ * would frame it. `!important` because those sheets load with their parts in no fixed order.
+ * Buttons keep their keyboard ring (above); checkboxes and switches are not fields.
+ */
+:is(
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="button"]),
+  textarea,
+  select,
+  [contenteditable="true"]
+):focus-visible {
+  outline: none !important;
+}
+
+/*
+ * The canvas fills the stage, taken out of the flow. Three.js sizes the drawing buffer, not the
+ * element, so an unstyled canvas grew to 16,777,216px and collapsed the grid column. Absolute
+ * positioning keeps its size from feeding back into the layout.
+ */
+.viewport {
+  position: absolute;
+  top: calc(-1 * var(--bar-height));
+  right: 0;
+  bottom: auto;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: calc(100% + var(--bar-height));
+}
+
+/* drawers */
+
+.drawer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--drawer-width);
+  padding: var(--pad);
+  overflow-y: auto;
+  background: var(--surface-panel);
+  box-shadow: var(--shadow-drawer);
+}
+
+/*
+ * Beside the rail, never over it. Padding alone still covers the rail and swallows the click that
+ * would close the drawer, so the box itself is offset.
+ */
+.drawer--left {
+  left: calc(var(--rail-width) + var(--pad));
+}
+
+.drawer--right {
+  right: calc(var(--utility-size) + var(--pad-lg));
+}
+
+.drawer h2 {
+  margin: 0 0 var(--pad);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.drawer__note {
+  margin: 0 0 var(--pad);
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+/* inspector */
+
+/**
+ * The selection's parameters, in the move gizmo's floating bar (`move-gizmo__toolbar`) at the
+ * bottom of the canvas. Only what a generated panel needs: fields in a row, styled like the
+ * gizmo's own entry.
+ */
+.inspector {
+  z-index: 2;
+  /* Centred with `left: 50%`, which would otherwise cap it at half the window and wrap fields. */
+  width: max-content;
+  max-width: calc(100vw - 2 * (var(--utility-size) + var(--pad-lg)));
+  white-space: normal;
+}
+
+.inspector .property-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.inspector .property-panel__row {
+  gap: 6px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.inspector .property-panel__row label {
+  flex: none;
+}
+
+.inspector .property-panel__row input[type="text"],
+.inspector .property-panel__row select {
+  width: 64px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 9px;
+  background: rgb(127 127 127 / 8%);
+  color: var(--text);
+  font: 500 12px var(--font);
+}
+
+.inspector .property-panel__row select {
+  width: auto;
+}
+
+.inspector .property-panel__unit {
+  width: auto;
+}
+
+/* Notes (a sketch is edited by drawing, an area was picked in the view) and an empty pick list:
+   in a one-line bar they are plain words between the fields. */
+.inspector .property-panel__row--note,
+.inspector .property-panel__row--refs:has(> .property-panel__note) {
+  display: none;
+}
+
+.selection {
+  position: absolute;
+  bottom: var(--floor);
+  left: 50%;
+  z-index: 3;
+  margin: 0;
+  padding: var(--pad-xs) var(--pad);
+  transform: translateX(-50%);
+  border-radius: var(--radius);
+  background: var(--surface-popover);
+  box-shadow: var(--shadow-popover);
+  list-style: none;
+  color: var(--text-dim);
+  font: var(--text-size-sm) / 1.5 var(--font-mono);
+}
+
+.inspector__selection {
+  margin: var(--pad) 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-dim);
+  font: var(--text-size-badge) / 1.5 var(--font-mono);
+  word-break: break-all;
+}
+
+/* feature tree */
+
+.feature-tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-tree button {
+  display: block;
+  width: 100%;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.feature-tree button:hover {
+  background: var(--surface-control);
+}
+
+.feature-tree button[aria-current="true"] {
+  background: var(--accent-quiet);
+}
+
+/* A broken step is shown, never hidden (ADR 0009). */
+.feature-tree button[data-state="failed"],
+.feature-tree button[data-state="dangling"],
+.feature-tree button[data-state="unknown-type"] {
+  color: #ff9a8b;
+}
+
+.feature-tree button[data-state="blocked"],
+.feature-tree button[data-state="suppressed"] {
+  color: var(--text-faint);
+}
+
+.feature-tree__problem {
+  display: block;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+/* property panel */
+
+.property-panel__row {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  margin-bottom: var(--pad-sm);
+  font-size: var(--text-size);
+}
+
+.property-panel__row label {
+  flex: 1;
+  color: var(--text-dim);
+}
+
+.property-panel__row input[type="number"],
+.property-panel__row select {
+  width: 5.5rem;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: inherit;
+  font: inherit;
+}
+
+.property-panel__row input[aria-invalid="true"] {
+  border-color: #ff9a8b;
+}
+
+.property-panel__unit {
+  width: 1.6rem;
+  color: var(--text-faint);
+}
+
+.property-panel__row--refs {
+  display: block;
+}
+
+.property-panel__row--refs ul {
+  margin: var(--pad-xs) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-size-badge);
+}
+
+.property-panel__note {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.workspace--fatal {
+  display: block;
+  padding: var(--pad-lg);
+}
+
+/* orientation cube */
+
+/*
+ * The view cube floats over the canvas, clear of the right rail. Drawn in the DOM for crisp face
+ * labels and synced to the camera by a `matrix3d` written every frame (ViewCube.tsx). Only the cube
+ * takes the pointer; the padding around it lets drags through to the camera.
+ */
+/* Tucked under the bar, inside the utility rail and closer to the corner than the rail's buttons:
+   findable at a glance, out of the model's way. */
+.viewcube {
+  position: absolute;
+  top: calc(var(--bar-height) + var(--pad-sm));
+  right: calc(var(--utility-size) + var(--pad-lg) * 3);
+  z-index: 3;
+  width: var(--cube-size);
+  height: var(--cube-size);
+  pointer-events: none;
+}
+
+.viewcube__stage {
+  width: 100%;
+  height: 100%;
+  perspective: var(--cube-perspective);
+}
+
+.viewcube__cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  /* Written every frame from the camera; this value only shows before the sync loop starts. */
+  transform: translateZ(calc(var(--cube-half) * -1));
+  pointer-events: auto;
+}
+
+/* A slightly smaller solid behind the faces, so nothing shows through the hairline seams where they
+   meet (ViewCube.tsx, CORE). */
+.viewcube__core {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  /* Mid-tone, not the darkest: the core shows as a hairline where bevelled faces meet, and black
+     read as a crack. */
+  background: color-mix(in srgb, var(--cube-light) 34%, var(--cube-dark));
+  pointer-events: none;
+}
+
+.viewcube__face {
+  position: absolute;
+  inset: 0;
+  /* Centred on the cube; size and placement come from the bevelled solid (`view-cube-geometry.ts`),
+     set inline per face. */
+  margin: auto;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  color: #f2f2f4;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 45%);
+  /* Hide the back faces' mirrored text. */
+  backface-visibility: hidden;
+  transition: background var(--fast) var(--ease);
+}
+
+/* Shaded per face by the light it catches, with a faint sheen so it reads as a surface. */
+.viewcube__face,
+.viewcube__zone {
+  background: var(--face-fill, var(--cube-core));
+}
+
+.viewcube__face:hover,
+.viewcube__face:focus-visible {
+  background: var(--cube-hover);
+  border-color: var(--cube-hover);
+  color: #fff;
+}
+
+/* The axes are part of the cube (ViewCube.tsx): arms along three edges and letters past their
+   ends, in the cube's 3D space so the body occludes them. Only the faces take clicks. */
+.viewcube__axis,
+.viewcube__axis-label {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  pointer-events: none;
+}
+
+/*
+ * Centred by its own half size, not `margin: auto`: an arm is wider than the cube, and auto
+ * margins do not centre an element wider than its box (it is laid against the left).
+ */
+.viewcube__axis {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  border-radius: 1px;
+}
+
+.viewcube__axis-label {
+  display: grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  font-size: var(--text-size-badge);
+  font-weight: 700;
+  line-height: 1;
+  /* Over the canvas rather than the cube, so they need their own outline. */
+  text-shadow:
+    0 0 2px rgb(0 0 0 / 70%),
+    0 1px 1px rgb(0 0 0 / 55%);
+}
+
+/*
+ * The two quarter-turn arrows beside the cube. Shown only while the view is squared onto an axis,
+ * where a right angle takes one axis view to the next; otherwise hidden entirely.
+ */
+.viewcube__spin {
+  position: absolute;
+  top: calc(50% - var(--spin-size) / 2);
+  display: grid;
+  place-items: center;
+  width: var(--spin-size);
+  height: var(--spin-size);
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 999px;
+  background: var(--surface-control);
+  color: var(--text);
+  line-height: 1;
+  /* Raised off the canvas so it reads as a control above the scene. */
+  box-shadow: 0 2px 6px rgb(0 0 0 / 45%);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity var(--fast) var(--ease),
+    background var(--fast) var(--ease);
+}
+
+.viewcube--squared .viewcube__spin {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.viewcube__spin--left {
+  left: calc(var(--spin-size) * -1 - 6px);
+}
+
+/* The same drawing, mirrored, so the pair reads as one turn each way. */
+.viewcube__spin--left svg {
+  transform: scaleX(-1);
+}
+
+.viewcube__spin--right {
+  right: calc(var(--spin-size) * -1 - 6px);
+}
+
+.viewcube__spin:hover {
+  background: var(--cube-hover);
+  border-color: var(--cube-hover);
+  color: #fff;
+}
+
+/* items panel */
+
+/*
+ * A floating pane inset from all four edges, showing the canvas around it. The rail beside it and
+ * the bar above are opaque, so the frosted glass never sits over other glass.
+ */
+.items-panel {
+  position: absolute;
+  top: var(--edge);
+  bottom: var(--floor);
+  left: var(--rail-inset);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  /*
+   * Width comes from the inline style (it is user-resizable). `overflow: visible` so the resize
+   * strip on the right edge is not clipped; the list inside scrolls and rounds itself.
+   */
+  overflow: visible;
+  border-radius: var(--radius-panel);
+  /* Slides in from the left. Reduced motion (setting or system) removes it with every other
+     animation, at the end of this file. */
+  animation: items-panel-in 140ms var(--ease);
+}
+
+@keyframes items-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+/* The rail steps aside for the panel's width plus its inset. The panel publishes its current width,
+   since the user can resize it. */
+.stage[data-left-panel] .rail--left {
+  left: calc(var(--rail-inset) + var(--items-width, var(--panel-width)) + var(--pad));
+}
+
+/* A floating bar centres on the remaining canvas, or it would run under the shifted rail. */
+.stage[data-left-panel] .move-gizmo__toolbar {
+  left: calc(50% + (var(--items-width, var(--panel-width)) + var(--pad)) / 2);
+}
+
+.items-panel__head {
+  padding: var(--pad) var(--pad) var(--pad-sm);
+}
+
+.items-panel__head h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* The filter, styled as a raised control. */
+.items-panel__filter-wrap {
+  position: relative;
+  margin: 0 var(--pad) var(--pad-sm);
+}
+
+.items-panel__filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 var(--pad-sm);
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--panel-control);
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+}
+
+.items-panel__filter:hover {
+  background: var(--control-hover);
+}
+
+/*
+ * The "⌄" glyph sits on the baseline and hangs below the button's middle; lifted to the optical
+ * centre, since nothing else in the row has a descender to align with.
+ */
+.items-panel__chevron {
+  display: block;
+  color: var(--text-dim);
+  line-height: 1;
+  transform: translateY(-0.18em);
+}
+
+.items-panel__menu {
+  position: absolute;
+  top: calc(100% + var(--pad-xs));
+  right: 0;
+  left: 0;
+  z-index: 5;
+  padding: var(--pad-xs);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--surface-popover, var(--panel-control));
+  box-shadow: var(--shadow-popover);
+}
+
+.items-panel__menu-item {
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  width: 100%;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+  text-align: left;
+}
+
+.items-panel__menu-item:hover {
+  background: var(--control-hover);
+}
+
+/* A fixed column for the tick, so labels line up whether ticked or not. */
+.items-panel__tick {
+  width: 1em;
+  color: var(--text-dim);
+}
+
+.items-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-bottom-left-radius: var(--radius-panel);
+  border-bottom-right-radius: var(--radius-panel);
+}
+
+/* The empty state is centred in the panel. */
+.items-panel__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad-xs);
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--pad-lg);
+  text-align: center;
+}
+
+.items-panel__emptyTitle {
+  margin: 0;
+  font-size: var(--text-size);
+  font-weight: 600;
+}
+
+.items-panel__emptyNote {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.items-list {
+  margin: 0;
+  padding: var(--pad-xs) var(--pad-sm);
+  list-style: none;
+}
+
+.items-row {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  width: 100%;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: var(--text-size) / 1 var(--font);
+  text-align: left;
+}
+
+.items-row:hover {
+  background: var(--control-hover);
+}
+
+.items-row[aria-current="true"] {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+
+.items-row__icon {
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+}
+
+.items-row[aria-current="true"] .items-row__icon {
+  color: var(--brand-selected-text);
+}
+
+/* A broken step still reads as broken in the item list (ADR 0009). */
+.items-row[data-state="failed"],
+.items-row[data-state="dangling"],
+.items-row[data-state="unknown-type"] {
+  color: #ff9a8b;
+}
+
+/*
+ * The resize strip on the panel's right edge, like the library sidebar's: eight pixels of target
+ * around a one-pixel line.
+ */
+.items-panel__resize {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  z-index: 4;
+  width: 8px;
+  margin: 0;
+  border: none;
+  outline: none;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/*
+ * The resize affordance is the panel's own edge lighting up, along the straight part and around
+ * both corners. Drawn by the panel, not the strip, so it lies exactly on the border: three sides
+ * of a box as wide as the corner radius, so its top and bottom are the two arcs.
+ */
+.items-panel::after {
+  position: absolute;
+  /* On the glass rim, drawn just outside the panel's box. */
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  width: calc(var(--radius-panel) + 1px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-left: none;
+  border-radius: 0 calc(var(--radius-panel) + 1px) calc(var(--radius-panel) + 1px) 0;
+  content: "";
+  pointer-events: none;
+  transition: border-color var(--medium) var(--ease);
+}
+
+.items-panel:has(.items-panel__resize:hover)::after,
+.items-panel:has(.items-panel__resize:focus-visible)::after,
+.items-panel:has(.items-panel__resize:active)::after {
+  border-color: var(--accent);
+}
+
+/*
+ * The rename field occupies exactly the row it replaces, so the list does not jump on double-click.
+ */
+.items-row--input {
+  border: 1px solid var(--select);
+  background: var(--surface-control);
+  font: var(--text-size) / 1 var(--font);
+}
+
+/* Row text: the name above its problem note, if any. */
+.items-row__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.items-row__problem,
+.items-row__note {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  line-height: 1.2;
+}
+
+.items-row[aria-current="true"] .items-row__problem,
+.items-row[aria-current="true"] .items-row__note {
+  color: var(--brand-selected-text);
+}
+
+/* A hint shown in an empty group (Simulation's study). */
+.items-panel__hint {
+  margin: 0;
+  padding: var(--pad-xs) var(--pad-lg) var(--pad-sm);
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+/* The row and its actions. Actions sit beside the row, not inside, so the row's text is exactly
+   the item name. */
+.items-entry {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.items-entry .items-row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A hidden item stays in the list, dimmed. */
+.items-entry[data-hidden] .items-row {
+  opacity: 0.45;
+}
+
+.items-row__actions {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.items-entry:hover .items-row__actions,
+.items-entry:focus-within .items-row__actions,
+.items-entry[data-hidden] .items-row__actions {
+  opacity: 1;
+}
+
+.items-row__actions button {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-dim);
+}
+
+.items-row__actions button:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+/* edge gizmo */
+
+/**
+ * The fillet/chamfer gizmo, pinned to its edge. `left`/`top` are written every frame from the
+ * projected anchor (EdgeGizmo.tsx); the translate offsets the controls up and right so they sit
+ * beside the edge. Only its own controls take pointer events.
+ */
+.edge-gizmo {
+  position: absolute;
+  margin-top: calc(-1 * var(--bar-height));
+  z-index: 4;
+  pointer-events: none;
+}
+
+.edge-gizmo > * {
+  pointer-events: auto;
+}
+
+/* The pills sit beyond the handle, so none of them covers the geometry being changed. `transform`
+   is written every frame from EdgeGizmo.tsx, following the edge's projected outward direction. */
+.edge-gizmo__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+}
+
+.edge-gizmo__kind-wrap {
+  position: relative;
+}
+
+.edge-gizmo__kind {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: 6px;
+  /* The theme's gizmo surface, so the pill matches dark mode. */
+  background: var(--gizmo-surface);
+  color: var(--gizmo-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  box-shadow: none;
+}
+
+.edge-gizmo__chevron {
+  color: var(--gizmo-text-dim);
+}
+
+/* Accent ring from the moment the gizmo opens, showing the field has focus and a number can be
+   typed right away. */
+.edge-gizmo__value {
+  display: flex;
+  gap: 2px;
+  align-items: baseline;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 2px solid var(--select);
+  border-radius: 7px;
+  /* The theme's gizmo surface, so the pill matches dark mode. */
+  background: var(--gizmo-surface);
+  color: var(--gizmo-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  font-variant-numeric: tabular-nums;
+  box-shadow: none;
+}
+
+/* The unit is smaller than the number, so the value carries the weight. */
+.edge-gizmo__unit {
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+}
+
+.edge-gizmo__value--input {
+  width: 4.5rem;
+  font-family: var(--font-mono);
+}
+
+/*
+ * The extrude gizmo, sibling of the edge gizmo: an arrow on the model and a value pill beside it.
+ * Both transforms are written every frame from ExtrudeGizmo.tsx (the anchor follows the face or
+ * profile; the pill stays upright). Only static properties are set here. Without these rules the
+ * gizmo lays out at the document's top-left instead of over the geometry.
+ */
+.extrude-gizmo {
+  position: absolute;
+  margin-top: calc(-1 * var(--bar-height));
+  z-index: 4;
+  pointer-events: none;
+}
+
+.extrude-gizmo > * {
+  pointer-events: auto;
+}
+
+/* While a change builds (model-lock.ts), handles that would start another stop taking the pointer
+   at once, and fade once the change is slow enough to notice. The rail disables its own commands;
+   these are the other entry points. */
+html[data-model-locked] .extrude-gizmo > *,
+html[data-model-locked] .edge-gizmo,
+html[data-model-locked] .move-gizmo {
+  pointer-events: none;
+}
+
+html[data-model-busy] .extrude-gizmo > *,
+html[data-model-busy] .edge-gizmo,
+html[data-model-busy] .move-gizmo {
+  opacity: 0.45;
+}
+
+html[data-model-busy] canvas.viewport {
+  cursor: progress;
+}
+
+.extrude-gizmo__handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--select);
+  cursor: grab;
+}
+
+.extrude-gizmo__handle:active {
+  cursor: grabbing;
+}
+
+.extrude-gizmo__value {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  padding: 0;
+  color: var(--gizmo-text);
+  white-space: nowrap;
+}
+
+/* Accent ring from the moment the gizmo opens, as on the edge gizmo: a number can be typed at
+   once. */
+.extrude-gizmo__distance {
+  display: flex;
+  gap: 2px;
+  align-items: baseline;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 2px solid var(--select);
+  border-radius: 7px;
+  /* The theme's gizmo surface, so the pill matches dark mode. */
+  background: var(--gizmo-surface);
+  color: var(--gizmo-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+.extrude-gizmo__distance input {
+  width: 3rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  appearance: textfield;
+}
+.extrude-gizmo__distance input::-webkit-inner-spin-button,
+.extrude-gizmo__distance input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.extrude-gizmo__options-button {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: 6px;
+  /* The theme's gizmo surface, so the pill matches dark mode. */
+  background: var(--gizmo-surface);
+  color: var(--gizmo-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  cursor: default;
+}
+.extrude-gizmo__options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1;
+  width: 190px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-popover);
+  color: var(--text);
+  box-shadow: var(--shadow-popover);
+  font-size: var(--text-size-sm);
+}
+.extrude-gizmo__options label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.extrude-gizmo__options label + label {
+  margin-top: 10px;
+}
+
+/* The unit is smaller than the number, so the value carries the weight. */
+.extrude-gizmo__distance span {
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+}
+
+.extrude-gizmo__value select {
+  height: 22px;
+  padding: 0 var(--pad-xs);
+  border: none;
+  border-radius: 999px;
+  background: var(--gizmo-surface-raised);
+  color: var(--gizmo-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+}
+
+/* Sketch dimensions are drafting marks, not operation pills: extension lines, inward arrowheads,
+   and a compact value set into the line. */
+.sketch-dimensions {
+  position: absolute;
+  top: calc(-1 * var(--bar-height));
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sketch-dimension-set,
+.sketch-dimension__guide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Uses the theme's text colour, not a fixed light grey, so guides stay legible on the light
+   canvas. */
+.sketch-dimension__guide line {
+  stroke: color-mix(in srgb, var(--text) 62%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sketch-dimension__guide polygon {
+  fill: color-mix(in srgb, var(--text) 62%, transparent);
+}
+
+.sketch-dimension {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  padding: 2px 4px;
+  border: 1.5px solid transparent;
+  border-radius: 2px;
+  background: var(--canvas-bottom);
+  color: var(--text);
+  font: 600 var(--text-size-sm) / 1 var(--font-mono);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.sketch-dimension[data-live],
+.sketch-dimension:focus-within {
+  border-color: var(--select);
+  background: var(--surface-popover);
+}
+
+.sketch-dimension:has(input) {
+  pointer-events: auto;
+}
+
+.sketch-dimension__value {
+  width: 4rem;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  appearance: textfield;
+}
+
+span.sketch-dimension__value {
+  width: auto;
+}
+
+.sketch-dimension__value::-webkit-inner-spin-button,
+.sketch-dimension__value::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.sketch-dimension__unit {
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+}
+
+/* The operation menu, opened from the pill. */
+.edge-gizmo__menu {
+  position: absolute;
+  top: calc(100% + var(--pad-xs));
+  left: 0;
+  z-index: 1;
+  min-width: 148px;
+  padding: var(--pad-xs);
+  border-radius: var(--radius-lg);
+  background: var(--surface-popover);
+  box-shadow: var(--gizmo-edge);
+}
+
+.edge-gizmo__menu-title {
+  padding: var(--pad-xs) var(--pad-sm);
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.edge-gizmo__menu-item {
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  width: 100%;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  font: var(--text-size) / 1.4 var(--font);
+  text-align: left;
+}
+
+.edge-gizmo__menu-item:hover {
+  background: var(--surface-control);
+}
+
+.edge-gizmo__tick {
+  width: 1em;
+  color: var(--text);
+}
+
+/*
+ * The drag handle sits outside the edge and points back at it. The hit area is much larger than
+ * the stroke, since a 24px target is easy to miss. `transform` (position and rotation) is written
+ * every frame from EdgeGizmo.tsx to follow the solid's outward direction; the cursor is `grab`
+ * since the drag is not along a single screen axis.
+ */
+.edge-gizmo__handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--select);
+  cursor: grab;
+}
+
+.edge-gizmo__handle--live {
+  color: var(--select);
+}
+
+/* The inner tip touches the target; the hit area starts outside it so a second click on the model
+   can still select the body. */
+.edge-gizmo__handle svg,
+.extrude-gizmo__handle svg {
+  position: absolute;
+  left: -8px;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* preferences page */
+
+.preferences-page {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: 236px minmax(0, 1fr);
+  color: var(--text);
+  font: var(--text-size) / 1.5 var(--font);
+}
+
+.preferences-page__side {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px var(--pad-lg) 24px var(--library-content-pad, 20px);
+  border-right: 1px solid var(--library-hairline, var(--line));
+}
+
+.preferences-page button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.preferences-page__nav {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 20px;
+  align-items: stretch;
+  padding: 0;
+  background: transparent;
+}
+
+.preferences-page__navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.preferences-page__navGroup > span {
+  padding: 0 10px 5px;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.preferences-page__navItem {
+  height: 34px;
+  padding: 0 var(--pad);
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: default;
+}
+
+.preferences-page__navItem:hover {
+  background: var(--surface-control);
+  color: var(--text);
+}
+
+.preferences-page__navItem[data-active] {
+  background: var(--library-selected, var(--accent-quiet));
+  color: var(--library-selected-text, var(--text));
+  box-shadow: inset 0 0 0 1px var(--library-hairline, var(--line));
+}
+
+.preferences-page__body {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  container: prefs-body / inline-size;
+  padding: 10px var(--library-content-pad, 20px) 48px clamp(24px, 3vw, 44px);
+  scrollbar-gutter: stable;
+}
+
+.prefs-hero {
+  margin: 0 0 30px;
+}
+.prefs-hero span {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+.prefs-hero h1 {
+  margin: 5px 0 0;
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 620;
+  letter-spacing: -0.025em;
+}
+.prefs-empty {
+  margin: 0 10px;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+/*
+ * The page's only heading. No summary sentence below it: settings are scanned for a row, not read.
+ */
+.prefs-title {
+  margin: 0 0 var(--pad-lg);
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+/**
+ * A titled box of rows, the platform's settings pattern: the box edge makes a group scannable.
+ */
+.prefs-group {
+  margin-bottom: var(--pad-lg);
+}
+
+.prefs-group__label {
+  margin: 0 0 var(--pad-sm);
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.prefs-group__box {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--library-pane, var(--surface-sunken));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 2%);
+}
+
+/* Below the box, not inside: a note between rows would read as a row missing its control. */
+.prefs-group__note {
+  margin: var(--pad-sm) 0 0;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+.prefs-row {
+  display: flex;
+  gap: var(--pad);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 7px 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Settings in a narrow window: the section list narrows first, and with little room left a row's
+   label stacks above its control, so labels do not wrap after every word. */
+@container prefs-body (max-width: 420px) {
+  .prefs-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .prefs-row > :last-child {
+    align-self: flex-start;
+  }
+}
+/* The section list beside the projects' sidebar, at this narrow width. */
+@media (max-width: 1000px) {
+  .preferences-page {
+    grid-template-columns: 168px minmax(0, 1fr);
+  }
+  .preferences-page__side {
+    padding-right: 10px;
+    padding-left: 12px;
+  }
+}
+
+/* Settings › Nib: his live head beside the fields that change him. */
+.prefs-nib__look {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  padding-left: 13px;
+}
+
+.prefs-nib__preview {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+  border-radius: 18px;
+  /* The island's dark background, where he appears. */
+  background: rgb(10 10 12);
+}
+
+.prefs-nib__preview > .nib-head {
+  position: absolute;
+  inset: 0;
+}
+
+.prefs-nib__fields .prefs-row:last-child {
+  border-bottom: none;
+}
+
+.prefs-nib__name {
+  width: 160px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--library-hairline-strong, var(--line-strong));
+  border-radius: var(--radius-control);
+  background: var(--library-field, var(--surface-control));
+  color: var(--text);
+  font: inherit;
+}
+
+@media (max-width: 640px) {
+  .prefs-nib__look {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding: 13px 0 0;
+  }
+}
+
+.prefs-select,
+.prefs-button {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--library-hairline-strong, var(--line-strong));
+  border-radius: var(--radius-control);
+  background: var(--library-field, var(--surface-control));
+  color: var(--text);
+  font: inherit;
+}
+.prefs-button:hover {
+  background: var(--library-hover, var(--surface-control-hover));
+}
+/* Destructive buttons turn red only on hover. */
+.prefs-button--danger:hover,
+.prefs-button--danger[data-armed] {
+  border-color: color-mix(in srgb, var(--fail) 55%, transparent);
+  background: color-mix(in srgb, var(--fail) 16%, transparent);
+  color: var(--fail);
+}
+.prefs-confirm {
+  display: flex;
+  gap: 8px;
+}
+/* Contribute: a sentence, four actions, then where each part of the app lives. */
+.prefs-lede {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--text-size-md, 15px);
+  line-height: 1.5;
+}
+.prefs-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-block: 16px 24px;
+}
+.prefs-action {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--library-pane, var(--surface-sunken));
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+.prefs-action span {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+.prefs-action:hover,
+.prefs-place:hover {
+  background: var(--library-hover, var(--surface-control-hover));
+}
+.prefs-place {
+  width: 100%;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.prefs-place code {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+/* Not built yet: shown in place of the control. */
+.prefs-planned {
+  padding: 3px 8px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+.prefs-status-card {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 17px;
+  margin-bottom: 24px;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: 16px;
+  background: var(--library-pane, var(--surface-panel));
+}
+.prefs-status-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  object-fit: contain;
+}
+.prefs-status-card h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.prefs-status-card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.prefs-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 7%);
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+:root[data-density="compact"] {
+  --pad: 7px;
+  --pad-lg: 12px;
+  --rail-item-height: 28px;
+  --rail-pitch: 31px;
+}
+:root[data-interface-scale="small"] {
+  --text-size: 12px;
+  --text-size-sm: 11px;
+  --text-size-badge: 9px;
+}
+:root[data-interface-scale="large"] {
+  --text-size: 15px;
+  --text-size-sm: 14px;
+  --text-size-badge: 12px;
+}
+:root[data-glass="reduced"] {
+  --glass-blur: blur(12px) saturate(120%);
+  --glass-bg: rgb(34 34 36 / 88%);
+}
+:root[data-glass="solid"] {
+  --glass-blur: none;
+  --glass-bg: var(--glass-bg-opaque);
+}
+/* Automatic glass without acceleration (glass-fallback.ts): no blur, the panel colour nearly
+   opaque, so the model shows only faintly behind its text. */
+:root[data-glass="tinted"] {
+  --glass-blur: none;
+  --glass-bg: color-mix(in srgb, var(--glass-bg-opaque) 93%, transparent);
+}
+/* No graphics acceleration (glass-fallback.ts): soft shadows go, hairlines stay. `html`
+   outranks the light theme's values, which sit on `:root:not(...)`. */
+html:root[data-paint="light"] {
+  --shadow-popover: 0 0 0 1px var(--line);
+  --shadow-drawer: none;
+}
+:root[data-contrast="high"] {
+  --text: #fff;
+  --text-dim: #c7c7ca;
+  --text-faint: #99999e;
+  --line: #56565a;
+  --line-strong: #74747a;
+}
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after,
+:root[data-paint="light"]:not([data-motion="full"]) *,
+:root[data-paint="light"]:not([data-motion="full"]) *::before,
+:root[data-paint="light"]:not([data-motion="full"]) *::after {
+  scroll-behavior: auto;
+  animation-duration: 0.001ms;
+  transition-duration: 0.001ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 0.001ms;
+    transition-duration: 0.001ms;
+  }
+}
+
+/* No narrow tabs layout: the section list stays at the side at every width, as elsewhere. */
+
+/* The last row's rule would sit on the box's own border, doubling it. */
+.prefs-row:last-child {
+  border-bottom: none;
+}
+
+.prefs-row__label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  color: var(--text);
+  font-size: var(--text-size-sm);
+}
+
+.prefs-row__note {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+/* Right-aligned, so values line up down the box. */
+.prefs-value {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.prefs-value--ok {
+  color: var(--ok);
+}
+
+/* One cap per key, so a combination reads as keys rather than a string. */
+.prefs-keys {
+  display: flex;
+  gap: 3px;
+}
+
+.prefs-keys kbd {
+  min-width: 20px;
+  padding: 2px 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-control);
+  color: var(--text-dim);
+  font: 600 var(--text-size-badge) / 1.3 var(--font);
+  text-align: center;
+}
+
+/* The platform's switch shape, sized to the row. */
+.prefs-switch {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  flex: none;
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface-control);
+}
+
+.prefs-switch::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  content: "";
+  transition: transform var(--medium) var(--ease);
+}
+
+.prefs-switch:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.prefs-switch:checked::after {
+  background: var(--text-on-accent);
+  transform: translateX(12px);
+}
+
+.prefs-switch:focus-visible {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: 2px;
+}
+
+.prefs-radio-group {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: var(--pad-xs);
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-sunken);
+}
+
+/* Colour swatches: a dot each, ringed when chosen. The dot is the label's own `color`. */
+.prefs-swatches {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.prefs-swatch {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent);
+  cursor: default;
+}
+
+.prefs-swatch input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.prefs-swatch:has(input:checked) {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.prefs-swatch:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.prefs-radio {
+  display: flex;
+  position: relative;
+  height: 28px;
+  align-items: center;
+  padding: 0 var(--pad);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  cursor: default;
+}
+
+.prefs-radio:hover {
+  color: var(--text);
+}
+
+.prefs-radio:has(input:checked) {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.prefs-radio:focus-within {
+  outline: 2px solid var(--brand-focus);
+  outline-offset: 2px;
+}
+
+.prefs-radio input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.prefs-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad-xs);
+  padding: var(--pad-sm);
+  border-bottom: 1px solid var(--line);
+}
+
+.prefs-choices:last-child {
+  border-bottom: none;
+}
+
+.prefs-choice {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: flex-start;
+  padding: var(--pad-sm);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+}
+
+.prefs-choice:hover {
+  background: var(--control-hover);
+}
+
+.prefs-choice input {
+  margin: 1px 0 0;
+  accent-color: var(--accent);
+}
+
+.prefs-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prefs-choice__detail {
+  color: var(--text-faint);
+}
+
+/*
+ * Shown at the click when it lands where an importing model will be (use-import-preview.ts).
+ */
+.import-guard {
+  position: absolute;
+  z-index: 8;
+  max-width: 260px;
+  padding: var(--pad-sm) var(--pad);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.35 var(--font);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px));
+  animation: import-guard-in 160ms var(--ease) both;
+}
+
+@keyframes import-guard-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 6px));
+  }
+}
+
+/* Draggable numbers (scrub.ts): the up-down cursor until edited, and anywhere while dragging. */
+/* One step more specific than the shell's rule giving every text field the text cursor
+   (shell.css), so draggable numbers win. */
+.workspace input[data-scrub]:not([data-editing]):not([type="radio"]):not([type="checkbox"]) {
+  cursor: ns-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html.scrubbing,
+html.scrubbing * {
+  /*
+   * biome-ignore lint/complexity/noImportantStyles: a drag holds the cursor over whatever it
+   * crosses, buttons and fields included
+   */
+  cursor: ns-resize !important;
+  user-select: none;
+}
+
+/* A slider in Settings takes the full width of its group's box. */
+.prefs-slider {
+  padding: 8px 14px 10px;
+}
+
+.gizmo-anchor {
+  position: absolute;
+  z-index: 2;
+  top: -7px;
+  left: -7px;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 75%, white);
+  border-radius: 3px;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+.gizmo-anchor:active {
+  cursor: grabbing;
+}
+
+/* Only the lesson overlay needs the cube above it; tool inspectors keep their own priority. */
+.stage:has(.lessons-follow) .viewcube {
+  z-index: 81;
+}
+
+.stage:has(.lessons-follow[data-overlaps-cube]) .viewcube::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--canvas-bottom) 18%, transparent);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  mask-image: radial-gradient(ellipse, #000 42%, transparent 74%);
+  pointer-events: none;
+}
+
+/* The beta tag in Settings' list sits after the name, slightly apart. */
+.preferences-page__navItem .beta-tag {
+  margin-left: 8px;
+}
+
+/*
+ * No focus ring on a control last reached with the pointer (native-feel.ts); rings are for keyboard
+ * navigation (Tab, arrow keys). Text fields keep theirs, since that is where the caret is. The long
+ * selector outweighs each control's own ring.
+ */
+:root[data-input="pointer"]
+:is(
+  button,
+  a,
+  summary,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [tabindex]
+):focus-visible,
+:root[data-input="pointer"] :is(label, [role="radio"]):has(input:focus-visible) {
+  outline: none;
+}

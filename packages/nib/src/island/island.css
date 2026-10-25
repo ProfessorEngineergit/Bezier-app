@@ -1,0 +1,676 @@
+/*
+ * The Nib island: a dark shape hanging from the top centre of the window, joined to the edge by
+ * two concave shoulders. Hidden at rest; grows into a compact line or opens downward into a card.
+ * Opaque (no glass) so it reads over any model: dark surface (light in the light theme), hairline
+ * edge, soft shadow.
+ */
+
+.nib-island {
+  --island-bg: rgb(10 10 12 / 96%);
+  --island-text: #f2f2f4;
+  --island-dim: rgb(242 242 244 / 62%);
+  --island-line: rgb(255 255 255 / 9%);
+  --island-edge: rgb(255 255 255 / 14%);
+  --island-fill: rgb(255 255 255 / 10%);
+  --island-fill-hover: rgb(255 255 255 / 18%);
+  --island-icon: rgb(255 255 255 / 8%);
+  --island-icon-hover: rgb(255 255 255 / 16%);
+  --island-done: rgb(242 242 244 / 55%);
+  --island-on-primary: #141416;
+  --island-shadow: 0 10px 30px rgb(0 0 0 / 34%), 0 2px 6px rgb(0 0 0 / 22%);
+  --island-shoulder: 12px;
+  --island-radius: 22px;
+  --island-spring: cubic-bezier(0.32, 1.25, 0.5, 1);
+  --island-grow: 520ms;
+  --island-shrink: 320ms;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 200;
+  width: 0;
+  height: 0;
+  font: 400 var(--text-size, 12px) / 1.4 var(--font, sans-serif);
+  color: var(--island-text);
+  /* The title bar around it drags the window; the island does not. */
+  -webkit-app-region: no-drag;
+}
+
+/* Light theme: the island follows the window colours (a dark island looked like a hole). Nib's
+   face keeps its dark visor. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .nib-island {
+    --island-bg: rgb(250 250 251 / 96%);
+    --island-text: #1c1c1e;
+    --island-dim: rgb(28 28 30 / 58%);
+    --island-line: rgb(0 0 0 / 9%);
+    --island-edge: rgb(0 0 0 / 8%);
+    --island-fill: rgb(0 0 0 / 6%);
+    --island-fill-hover: rgb(0 0 0 / 11%);
+    --island-icon: rgb(0 0 0 / 6%);
+    --island-icon-hover: rgb(0 0 0 / 12%);
+    --island-done: rgb(28 28 30 / 45%);
+    --island-on-primary: #fafafb;
+    --island-shadow: 0 10px 30px rgb(0 0 0 / 14%), 0 2px 6px rgb(0 0 0 / 10%);
+  }
+}
+
+:root[data-theme="light"] .nib-island {
+  --island-bg: rgb(250 250 251 / 96%);
+  --island-text: #1c1c1e;
+  --island-dim: rgb(28 28 30 / 58%);
+  --island-line: rgb(0 0 0 / 9%);
+  --island-edge: rgb(0 0 0 / 8%);
+  --island-fill: rgb(0 0 0 / 6%);
+  --island-fill-hover: rgb(0 0 0 / 11%);
+  --island-icon: rgb(0 0 0 / 6%);
+  --island-icon-hover: rgb(0 0 0 / 12%);
+  --island-done: rgb(28 28 30 / 45%);
+  --island-on-primary: #fafafb;
+  --island-shadow: 0 10px 30px rgb(0 0 0 / 14%), 0 2px 6px rgb(0 0 0 / 10%);
+}
+
+.nib-island__shell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  translate: -50% 0;
+  border-radius: 0 0 var(--island-radius) var(--island-radius);
+  background: var(--island-bg);
+  box-shadow:
+    inset 0 -0.5px 0 var(--island-edge),
+    var(--island-shadow);
+  transition:
+    width var(--island-grow) var(--island-spring),
+    height var(--island-grow) var(--island-spring),
+    border-radius var(--island-grow) var(--island-spring),
+    opacity 200ms var(--ease, ease);
+}
+
+/* Shoulders: a quarter circle cut from a square on each side, so the shape curves into the edge. */
+.nib-island__shell::before,
+.nib-island__shell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: var(--island-shoulder);
+  height: var(--island-shoulder);
+  pointer-events: none;
+}
+
+.nib-island__shell::before {
+  right: 100%;
+  background: radial-gradient(
+    circle at 0 100%,
+    transparent calc(var(--island-shoulder) - 0.5px),
+    var(--island-bg) var(--island-shoulder)
+  );
+}
+
+.nib-island__shell::after {
+  left: 100%;
+  background: radial-gradient(
+    circle at 100% 100%,
+    transparent calc(var(--island-shoulder) - 0.5px),
+    var(--island-bg) var(--island-shoulder)
+  );
+}
+
+.nib-island__clip {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+/* Hidden: shrinks into the edge. */
+.nib-island[data-shape="hidden"] .nib-island__shell {
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    width var(--island-shrink) var(--ease, ease),
+    height var(--island-shrink) var(--ease, ease),
+    opacity 160ms var(--ease, ease) 140ms;
+}
+
+.nib-island[data-shape="compact"] .nib-island__shell {
+  --island-radius: 15px;
+  /* Closing is faster than opening. */
+  transition:
+    width var(--island-shrink) var(--ease, ease),
+    height var(--island-shrink) var(--ease, ease),
+    border-radius var(--island-shrink) var(--ease, ease);
+}
+
+/* While a project is opening, the bar is reduced to the way out. */
+:root[data-loading-below-bar] .nib-island[data-shape="compact"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nib-island__body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Laid out at final size, so the shell only reveals it. */
+  width: max-content;
+}
+
+.nib-island[data-shape="card"] .nib-island__body {
+  width: 372px;
+}
+
+/* The compact line: eyes, text, and progress below. */
+.nib-island__line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 16px 0 10px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  animation: nib-island-in 360ms var(--ease, ease) 120ms both;
+}
+
+.nib-island__line:focus-visible {
+  outline: 2px solid var(--focus, #fff);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+
+.nib-island__eyes {
+  position: relative;
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+.nib-island__lineText {
+  max-width: min(420px, 60vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nib-island__progress {
+  position: absolute;
+  /* Under the text, not the face, which it would cut off at the chin. */
+  left: 46px;
+  right: 14px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--island-text);
+  opacity: 0.75;
+  transform-origin: left center;
+  transition: transform 300ms var(--ease, ease);
+}
+
+.nib-island__progress[data-unknown] {
+  animation: nib-island-unknown 1.4s ease-in-out infinite;
+}
+
+@keyframes nib-island-unknown {
+  0% {
+    translate: -70% 0;
+  }
+  100% {
+    translate: 100% 0;
+  }
+}
+
+/* Task progress meter inside the line. */
+.nib-island__meter {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 96px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 2px;
+  /* Same as the title bar's track (shell.css, `.status__track`): faint segments for the whole
+     length. */
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--island-text) 16%, transparent) 0 5px,
+    transparent 5px 7px
+  );
+}
+
+.nib-island__fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--island-text) 0 5px, transparent 5px 7px);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--island-text) 45%, transparent));
+  transition: width 160ms linear;
+}
+
+/* Leading edge: the segment currently being lit. */
+.nib-island__fill:not([data-unknown])::before {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  bottom: -1px;
+  width: 5px;
+  border-radius: 1px;
+  background: var(--island-text);
+  box-shadow: 0 0 6px var(--island-text);
+  content: "";
+  animation: nib-island-edge 0.9s ease-in-out infinite;
+}
+
+.nib-island__fill[data-unknown] {
+  width: 30%;
+  animation: nib-island-unknown 1.4s ease-in-out infinite;
+}
+
+@keyframes nib-island-edge {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Fixed-width digits so the line does not jitter. */
+.nib-island__percent {
+  min-width: 7ch;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nib-island__fill::before,
+  .nib-island__fill[data-unknown] {
+    animation: none;
+  }
+}
+
+/* Strain: a sweat drop at his temple, falling repeatedly. */
+.nib-island__sweat {
+  position: absolute;
+  top: 4px;
+  left: 33px;
+  width: 4px;
+  height: 6px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #8fd0ff;
+  animation: nib-island-sweat 1.8s ease-in infinite;
+}
+
+@keyframes nib-island-sweat {
+  0% {
+    translate: 0 -2px;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    translate: 0 12px;
+    opacity: 1;
+  }
+  100% {
+    translate: 0 14px;
+    opacity: 0;
+  }
+}
+
+/* The card. */
+.nib-island__card {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px 14px 16px;
+  animation: nib-island-in 360ms var(--ease, ease) 160ms both;
+}
+
+@keyframes nib-island-in {
+  from {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.nib-island__top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.nib-island__kicker {
+  flex: 1;
+  color: var(--island-dim);
+  font-size: var(--text-size-sm, 11px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.nib-island__icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--island-icon);
+  color: var(--island-dim);
+  cursor: pointer;
+}
+
+.nib-island__icon:hover {
+  background: var(--island-icon-hover);
+  color: var(--island-text);
+}
+
+.nib-island__icon:focus-visible,
+.nib-island__action:focus-visible {
+  outline: 2px solid var(--focus, #fff);
+  outline-offset: 1px;
+}
+
+/* Lesson steps: one segment each, done ones filled, the current one brighter. */
+.nib-island__steps {
+  display: flex;
+  gap: 4px;
+  margin-top: -4px;
+}
+
+.nib-island__steps > span {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--island-line);
+}
+
+.nib-island__steps > span[data-state="done"] {
+  background: var(--island-done);
+}
+
+.nib-island__steps > span[data-state="now"] {
+  background: var(--island-text);
+}
+
+.nib-island__main {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.nib-island__head {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.nib-island__head > .nib-head,
+.nib-island__head > .nib-face,
+.nib-island__eyes > .nib-head,
+.nib-island__eyes > .nib-face {
+  position: absolute;
+  inset: 0;
+}
+
+/* Once the live head renders, the flat face is hidden. */
+.nib-island__head[data-head="live"] > .nib-face,
+.nib-island__eyes[data-head="live"] > .nib-face {
+  opacity: 0;
+}
+
+.nib-island__words {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.nib-island__words strong {
+  font-weight: 600;
+}
+
+.nib-island__words small {
+  color: var(--island-dim);
+  font-size: var(--text-size-sm, 11px);
+  overflow-wrap: anywhere;
+}
+
+.nib-island__rows {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nib-island__rows li {
+  display: grid;
+  gap: 3px;
+}
+
+.nib-island__rowDetail {
+  color: var(--island-dim);
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+}
+
+.nib-island__bar {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--island-line);
+}
+
+.nib-island__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--island-text);
+  transform-origin: left center;
+}
+
+.nib-island__bar[data-unknown] > span {
+  animation: nib-island-unknown 1.4s ease-in-out infinite;
+}
+
+.nib-island__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.nib-island__action {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 14px;
+  background: var(--island-fill);
+  color: var(--island-text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nib-island__action:hover {
+  background: var(--island-fill-hover);
+}
+
+.nib-island__action[data-primary] {
+  background: var(--island-text);
+  color: var(--island-on-primary);
+  font-weight: 600;
+}
+
+.nib-island__action[data-primary]:hover {
+  background: var(--island-text);
+  opacity: 0.9;
+}
+
+/* The flat face, shown until (or instead of) the live head. */
+.nib-face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: scale 140ms var(--ease);
+}
+
+.nib-island__line:active .nib-face {
+  scale: 0.92;
+}
+
+.nib-face__visor,
+.nib-face__lid {
+  fill: #0d0d0f;
+}
+
+.nib-face__ring {
+  fill: none;
+  stroke: #cfd4db;
+  stroke-width: 1.15;
+}
+
+.nib-face__brow,
+.nib-face__cheek {
+  fill: none;
+  stroke: #f4f4f6;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+
+.nib-face__cheek {
+  stroke-width: 1.2;
+  opacity: 0.85;
+}
+
+.nib-face__eye,
+.nib-face__lens,
+.nib-face__lid,
+.nib-face__brow,
+.nib-face__cheeks {
+  transform-box: view-box;
+  transition: transform 260ms cubic-bezier(0.3, 1.2, 0.5, 1);
+}
+
+/* Blinks are quick; lids open slightly slower than they close. */
+.nib-face__lid {
+  transition-duration: 90ms;
+}
+
+.nib-island[data-mood="sleepy"] .nib-face__lid {
+  transition-duration: 420ms;
+}
+
+/* Reduced motion: shapes change instantly and nothing animates. `!important` so it overrides every
+   rule above. */
+.nib-island[data-still] *,
+.nib-island[data-still] *::before,
+.nib-island[data-still] *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: reduced motion has to win over every transition */
+  transition-duration: 0ms !important;
+  /* biome-ignore lint/complexity/noImportantStyles: and over every animation */
+  animation: none !important;
+}
+
+/* Idle Nib (NibSummon.tsx): a hover strip under the top edge and the tab that comes out of it. */
+.nib-summon {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 200;
+  width: 180px;
+  height: 10px;
+  transform: translateX(-50%);
+  -webkit-app-region: no-drag;
+}
+.nib-summon[data-out] {
+  height: 92px;
+}
+.nib-summon__tab {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  width: 88px;
+  height: 84px;
+  padding: 0;
+  overflow: hidden;
+  place-items: end center;
+  border: 0;
+  border-radius: 0 0 26px 26px;
+  background: var(--island-bg, rgb(10 10 12 / 96%));
+  box-shadow: var(--island-shadow);
+  cursor: pointer;
+  opacity: 0;
+  transform: translate(-50%, -100%);
+  transition:
+    transform 320ms var(--island-spring, ease),
+    opacity 180ms ease;
+}
+.nib-summon[data-out] .nib-summon__tab {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.nib-summon__tab:focus-visible {
+  outline: 2px solid var(--focus, #4c8dff);
+  outline-offset: 2px;
+}
+/* Head, neck and shoulders rising from the tab's lower edge. */
+.nib-summon__bust {
+  position: relative;
+  display: block;
+  width: 80px;
+  height: 80px;
+}
+.nib-summon__bust > .nib-head,
+.nib-summon__bust > .nib-face {
+  position: absolute;
+  inset: 0;
+}
+.nib-summon__bust[data-head="live"] > .nib-face {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nib-summon__tab {
+    transition: opacity 120ms ease;
+  }
+}
+
+/* First meeting (first-meeting.ts): the window waits behind a veil until he is answered. */
+.nib-meeting {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgb(0 0 0 / 28%);
+  animation: nib-meeting-in 320ms ease both;
+}
+@keyframes nib-meeting-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nib-meeting {
+    animation: none;
+  }
+}
+
+/* A blocking question: Nib and the veil go above everything, including the project loading screen
+   and app dialogs, and the veil blocks all clicks behind it. */
+.nib-meeting--ask {
+  z-index: 1001;
+}
+
+.nib-island[data-kind="question"] {
+  z-index: 1002;
+}

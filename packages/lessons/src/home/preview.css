@@ -1,0 +1,55 @@
+/* Hover preview on lesson cards (useHoverPreview.tsx). */
+
+.lessons-preview__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+}
+
+.lessons-preview__video[data-ready] {
+  opacity: 1;
+}
+
+.lessons-preview__track {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgb(255 255 255 / 28%);
+  pointer-events: none;
+}
+
+.lessons-preview__fill {
+  display: block;
+  height: 100%;
+  background: #fff;
+}
+
+.lessons-preview__chapter {
+  position: absolute;
+  bottom: 10px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  overflow: hidden;
+  padding: 2px 9px;
+  border-radius: 999px;
+  box-shadow: none;
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: lessons-preview-in 160ms var(--ease);
+}
+
+@keyframes lessons-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

@@ -1,0 +1,108 @@
+/*
+ * Community styles, using only design-system/tokens.css and the start page's
+ * brand layer. Rendered inside `.library`, which sets --accent to the brand's
+ * silver/graphite.
+ */
+
+.cl-page *,
+.cl-dialog * {
+  box-sizing: border-box;
+}
+
+/* ---- controls -------------------------------------------------------- */
+
+.cl-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--library-small-control);
+  height: var(--library-small-control);
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-dim);
+}
+
+.cl-icon-button:hover,
+.cl-icon-button[aria-expanded="true"] {
+  background: var(--surface-control-glass);
+  color: var(--text);
+}
+
+.cl-text-button {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+}
+
+.cl-text-button:hover {
+  color: var(--text);
+  background: var(--surface-control-glass);
+}
+
+.cl-input {
+  width: 100%;
+  height: var(--library-row-height);
+  padding: 0 var(--pad);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-control-glass);
+  color: var(--text);
+  font: inherit;
+}
+
+.cl-input[type="file"] {
+  padding: var(--pad-xs) var(--pad-sm);
+  height: auto;
+}
+
+.cl-input[aria-invalid="true"] {
+  border-color: var(--fail);
+}
+
+.cl-label {
+  display: block;
+  margin: var(--pad) 0 var(--pad-sm);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.cl-note,
+.cl-quiet {
+  margin: var(--pad-sm) 0;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.cl-quiet {
+  color: var(--text-faint);
+}
+
+.cl-field-error {
+  margin: var(--pad-sm) 0 0;
+  color: var(--fail);
+}
+
+.cl-field-ok {
+  margin: var(--pad-sm) 0 0;
+  color: var(--ok);
+}
+
+/* ---- toolbar ------------------------------------------------------------ */
+
+.cl-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cl-toolbar__source {
+  width: auto;
+  max-width: 220px;
+}

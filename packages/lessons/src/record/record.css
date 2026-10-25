@@ -1,0 +1,92 @@
+/* The recording bar and its starting state, over the editor's title bar. */
+
+.lessons-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  font-size: var(--text-size);
+  pointer-events: none;
+}
+
+.lessons-overlay > * {
+  pointer-events: auto;
+}
+
+.lessons-overlay .lessons-notice {
+  top: calc(var(--bar-height) + 8px);
+  font-size: var(--text-size-sm);
+}
+
+.lessons-recording,
+.lessons-starting {
+  position: absolute;
+  top: calc(var(--bar-height) + 8px);
+  left: 50%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 40px;
+  padding: 0 8px 0 14px;
+  border-radius: 20px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.lessons-starting {
+  padding: 0 14px;
+  color: var(--text-dim);
+}
+
+.lessons-recording .lessons-button--small {
+  --lessons-control: 28px;
+  font-size: var(--text-size-sm);
+}
+
+.lessons-recording__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fail);
+  animation: lessons-recording-pulse 1.2s var(--ease) infinite alternate;
+}
+
+.lessons-recording[data-paused] .lessons-recording__dot {
+  background: var(--text-faint);
+  animation: none;
+}
+
+@keyframes lessons-recording-pulse {
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessons-recording__dot {
+    animation: none;
+  }
+}
+
+.lessons-recording__time {
+  min-width: 3.5ch;
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+.lessons-recording__count {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--surface-control);
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+  line-height: 18px;
+  text-align: center;
+}
+
+.lessons-recording__error {
+  max-width: 28ch;
+  color: var(--fail);
+  font-size: var(--text-size-sm);
+  white-space: normal;
+}

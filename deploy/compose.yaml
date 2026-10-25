@@ -1,0 +1,80 @@
+# Bezier's servers on one machine: the community store (lessons, plugins, wiki articles and the
+# leaderboard behind one address) and the sync server (projects shared live, end to end encrypted).
+#
+#   cp deploy/.env.example deploy/.env           # then fill it in
+#   pnpm community:build                          # bundles the store into dist-server/
+#   docker compose -f deploy/compose.yaml up -d                     # behind a proxy you run
+#   docker compose -f deploy/compose.yaml --profile https up -d     # or with Caddy and certificates
+#
+# Without the `https` profile the two listen on this machine's ports 8790 (store) and 8787 (sync),
+# for the reverse proxy or tunnel you already have; point STORE_DOMAIN and SYNC_DOMAIN at them
+# there. The app talks to a server only over HTTPS, except on the same machine.
+services:
+  store:
+    build:
+      context: ../dist-server
+      dockerfile: ../packages/lessons/community/deploy/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      LESSONS_ORIGINS: ${STORE_ORIGINS}
+      PLUGINS_ORIGINS: ${STORE_ORIGINS}
+      DOCS_ORIGINS: ${STORE_ORIGINS}
+      # The proxy in front sets X-Forwarded-For; the rate limits need the real address.
+      LESSONS_TRUST_PROXY: "1"
+      PLUGINS_TRUST_PROXY: "1"
+      DOCS_TRUST_PROXY: "1"
+    volumes:
+      - ${BEZIER_DATA_DIR:-./data}/store:/data
+    ports:
+      - "${STORE_PORT:-8790}:8790"
+
+  sync:
+    build:
+      context: ../apps/sync-server
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      BEZIER_SYNC_REPLICAS: /replica
+      BEZIER_SYNC_TRUST_PROXY: "1"
+    volumes:
+      - ${BEZIER_DATA_DIR:-./data}/sync:/data
+      - ${BEZIER_REPLICA_DIR:-./replica}:/replica
+    ports:
+      - "${SYNC_PORT:-8787}:8787"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8787/v1/health"]
+      interval: 1m
+
+  # HTTPS for both, with certificates from Let's Encrypt. Only with --profile https.
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    environment:
+      STORE_DOMAIN: ${STORE_DOMAIN}
+      SYNC_DOMAIN: ${SYNC_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+
+  # Nightly: every copy of every sync object checked and repaired from a good one.
+  scrub:
+    build:
+      context: ../apps/sync-server
+      dockerfile: deploy/Dockerfile
+    profiles: ["maintenance"]
+    env_file: .env
+    environment:
+      BEZIER_SYNC_REPLICAS: /replica
+    volumes:
+      - ${BEZIER_DATA_DIR:-./data}/sync:/data
+      - ${BEZIER_REPLICA_DIR:-./replica}:/replica
+    command: ["node", "server/main.ts", "scrub"]
+
+volumes:
+  caddy-data:

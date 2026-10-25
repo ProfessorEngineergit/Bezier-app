@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Bezier — local-first parametric CAD</title>
+    <!--
+      The loading screen, painted before any script runs. Pure CSS on purpose:
+      the desktop build's content security policy refuses inline scripts, and
+      the fade-in delay has to work before the bundle has even arrived. What
+      shows and hides it afterwards is src/boot-loader.ts.
+    -->
+    <style>
+      @font-face {
+        font-family: "Archivo Brand";
+        src: url("/fonts/archivo-variable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        font-display: swap;
+      }
+
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 22px;
+        background: #121214;
+        opacity: 0;
+        animation: boot-in 260ms ease-out 400ms forwards;
+        /* A loading screen is not text to select or drag: a click-drag across
+           it highlighted the wordmark. */
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: default;
+      }
+
+      /*
+       * The start page's outline, for the moment before the application exists.
+       * The window used to open on a flat grey and jump to the start page; this
+       * is the sidebar and the bar it arrives with, in the same places, so the
+       * page fills in rather than replaces what was there. The colours and
+       * sizes repeat `library.css` and `tokens.css` by hand, because this is on
+       * screen before either has loaded. The sidebar is drawn at its default
+       * width: the width someone has dragged it to is not known until a script
+       * has run.
+       */
+      #frame {
+        --frame-sheet: #121214;
+        --frame-pane: rgb(255 255 255 / 3.5%);
+        --frame-line: rgb(255 255 255 / 8%);
+        --frame-bone: rgb(255 255 255 / 5%);
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: grid;
+        grid-template-columns: 232px minmax(0, 1fr);
+        background: var(--frame-sheet);
+      }
+
+      #frame[hidden] {
+        display: none;
+      }
+
+      .frame__side {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        padding: 56px 10px 10px;
+        border-right: 1px solid var(--frame-line);
+        background: var(--frame-pane);
+      }
+
+      .frame__side i {
+        display: block;
+        width: 58%;
+        height: 12px;
+        margin: 5px 8px;
+        border-radius: 4px;
+        background: var(--frame-bone);
+      }
+
+      .frame__side i:first-child {
+        width: auto;
+        height: 30px;
+        margin: 0 0 8px;
+        border: 1px solid var(--frame-line);
+        border-radius: 8px;
+        background: none;
+      }
+
+      @media (prefers-color-scheme: light) {
+        #frame {
+          --frame-sheet: #f4f4f6;
+          --frame-pane: rgb(255 255 255 / 50%);
+          --frame-line: rgb(0 0 0 / 8%);
+          --frame-bone: rgb(0 0 0 / 5%);
+        }
+      }
+
+      /* The first start: the film sits in the page's own area over the outline, with no ground of
+         its own to cover it. */
+      #boot[data-cold] {
+        left: 232px;
+        background: none;
+      }
+
+      #boot[hidden] {
+        display: none;
+      }
+
+      /* Opening a project leaves the title bar above it, so Home stays in
+         reach while a large model loads (boot-loader.ts, use-dashboard.ts). */
+      #boot[data-below-bar] {
+        top: var(--bar-height, 52px);
+      }
+
+      /* A load that is already known to be long, and shown the moment the editor appears: it covers
+         at once and not after the fade-in's delay, which left the empty editor on screen for
+         that long first (use-dashboard.ts). Before the leaving rule, which has to win. */
+      #boot[data-now] {
+        opacity: 1;
+        animation: none;
+      }
+
+      #boot[data-state="leaving"] {
+        pointer-events: none;
+        animation: boot-out 180ms ease-in forwards;
+      }
+
+      .boot__stage {
+        width: 224px;
+        height: 224px;
+        overflow: hidden;
+        border-radius: 22px;
+        background: #1c1c1e;
+        box-shadow:
+          0 0 0 1px rgb(255 255 255 / 9%),
+          0 24px 60px rgb(0 0 0 / 55%);
+      }
+
+      .boot__film {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .boot__mark {
+        margin: 0;
+        color: rgb(255 255 255 / 52%);
+        font: 600 13px / 1 "Archivo Brand", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-stretch: 125%;
+        letter-spacing: 0.04em;
+      }
+
+      @keyframes boot-in {
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes boot-out {
+        to {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="frame" aria-hidden="true">
+      <div class="frame__side"><i></i><i></i><i></i></div>
+    </div>
+    <div id="boot" role="status" aria-label="Bezier is loading" data-cold>
+      <div class="boot__stage">
+        <video
+          class="boot__film"
+          aria-hidden="true"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="auto"
+          poster="/boot/astra-poster.jpg"
+          width="480"
+          height="480"
+        >
+          <source src="/boot/astra.webm" type='video/webm; codecs="vp9"' />
+          <source src="/boot/astra.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <p class="boot__mark">Bezier</p>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

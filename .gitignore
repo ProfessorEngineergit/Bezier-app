@@ -1,0 +1,83 @@
+# What stays out of the repository, and why. Grouped by reason, so a new entry
+# has an obvious place and nobody has to guess whether something is meant to be
+# tracked.
+
+# ---- dependencies --------------------------------------------------------------
+node_modules/
+.pnpm-store/
+
+# ---- build output --------------------------------------------------------------
+dist/
+# The geometry kernel is built elsewhere (better-occt) and kept here as built (scripts/vendor-occt.sh).
+!vendor/occt-wasm/dist/
+build/
+# website/build/ is the website's build script, source and not output; the rule above would drop it
+# (it did, and the site could not be built from the repository).
+!/website/build/
+*.tsbuildinfo
+
+# The path is src-tauri/target, not target — an earlier rule missed the nesting
+# and 7,858 build artefacts were versioned before anyone noticed, which made every
+# diff unreadable and the history 1.75 GB.
+apps/desktop/src-tauri/target/
+# Native simulation crates build here too.
+crates/*/target/
+# Installers made by `pnpm release`.
+/release/
+*.dmg
+*.app/
+
+# WebAssembly built from third_party/, never committed. The vendored ones are
+# the exception: they ship as separate files (LGPL relinking, ADR 0003).
+*.wasm
+!vendor/occt-wasm/dist/occt-wasm.wasm
+!packages/*/vendor/**/*.wasm
+third_party/**/build/
+
+# Tauri regenerates its schemas on every build and writes numbered copies
+# ("desktop-schema 2.json") when the file is open elsewhere. Only the plain
+# names are the real ones.
+apps/desktop/src-tauri/gen/schemas/* [0-9].json
+
+# ---- tests and tooling output --------------------------------------------------
+coverage/
+.vitest/
+test-results/
+playwright-report/
+blob-report/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ---- secrets and local configuration -------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.p12
+*.key
+# Signing material for the Mac app, whoever holds it.
+*.provisionprofile
+.claude/settings.local.json
+
+# ---- editors and operating systems ---------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+dist-server/
+dist-sdk/
+help-out/
+
+# The public release as handed out (scripts/release-folder.sh), and Linux builds made in a container.
+/release-ready/
+/release-builds/
+
+# Bezier servers on one machine (deploy/): what each machine fills in, and its data.
+/deploy/.env
+/deploy/data/
+/deploy/replica/
+website/dist/

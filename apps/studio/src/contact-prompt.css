@@ -1,0 +1,53 @@
+/* The prompt after a part meets another (ContactPrompt.tsx). Placed beside the part in the gizmos'
+   canvas frame; when the part is off screen it sits above the bottom of the canvas, with
+   notices. */
+
+.contact-prompt {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  padding: var(--pad-sm) var(--pad-sm) var(--pad-sm) var(--pad-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.3 var(--font);
+  transform: translateX(-50%);
+}
+
+.contact-prompt p {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.contact-prompt__actions {
+  display: flex;
+  gap: var(--pad-xs);
+}
+
+.contact-prompt__actions button {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--control-hover);
+  color: var(--text);
+  font: inherit;
+}
+
+.contact-prompt__actions button:hover {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+
+.contact-prompt[data-placed] {
+  bottom: auto;
+  margin-top: calc(-1 * var(--bar-height));
+  transform: none;
+}

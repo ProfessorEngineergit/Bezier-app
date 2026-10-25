@@ -1,0 +1,29 @@
+# Bezier itself, the browser version, on Apache (IONOS web space): app.bezier-cad.xyz.
+# Copied into the app's build by .github/workflows/website.yml.
+
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# The geometry kernel and the solver are WebAssembly, fetched at run time (ADR 0003). Served
+# with the right type the browser compiles them while they download.
+AddType application/wasm .wasm
+AddType font/woff2 .woff2
+AddType image/webp .webp
+
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+  # Plugins run in sandboxed frames written in place (srcdoc); a frame that navigates must load
+  # nothing, which is what frame-src 'none' does (packages/lessons/community/plugins/README.md).
+  Header always set Content-Security-Policy "frame-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+  # Built files carry a hash in their name and never change; index.html must always be fresh.
+  <FilesMatch "\.(js|css|wasm|woff2|webp|png|jpg|hdr|ktx2|glb)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

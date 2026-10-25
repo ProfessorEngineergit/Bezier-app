@@ -1,0 +1,5 @@
+# tauri-driver, built once on top of the Linux build image (scripts/linux-build), with what the
+# Ubuntu checks need around it: a virtual screen and WebKitGTK's WebDriver.
+FROM bezier-linux-build:latest
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb webkit2gtk-driver dbus-x11 mesa-utils && rm -rf /var/lib/apt/lists/*
+RUN cargo install tauri-driver --locked

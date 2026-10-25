@@ -1,0 +1,30 @@
+/* Reordering and rolling back the history. */
+.items-entry[data-paused] .items-row {
+  opacity: 0.45;
+}
+
+.items-entry[data-drop="above"] {
+  box-shadow: 0 -2px 0 var(--select);
+}
+
+.items-entry[data-drop="below"] {
+  box-shadow: 0 2px 0 var(--select);
+}
+
+.history-marker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pad-sm);
+  margin: var(--pad-xs) 0;
+  padding: var(--pad-xs) var(--pad-sm);
+  border-top: 2px solid var(--select);
+  color: var(--text-muted, var(--text));
+  font-size: 11px;
+}
+
+.history-marker button {
+  color: var(--select);
+  font: inherit;
+  font-weight: 600;
+}

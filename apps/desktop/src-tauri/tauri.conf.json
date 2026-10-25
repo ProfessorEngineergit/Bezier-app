@@ -1,0 +1,124 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Bezier",
+  "version": "0.1.0",
+  "identifier": "app.bezier.studio",
+  "build": {
+    "frontendDist": "../../studio/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "pnpm --filter @bezier/studio dev",
+    "beforeBuildCommand": "pnpm --filter @bezier/studio build"
+  },
+  "app": {
+    "windows": [
+      {
+        "create": false,
+        "label": "main",
+        "title": "Bezier",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": false,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "trafficLightPosition": {
+          "x": 19,
+          "y": 20
+        }
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: http://127.0.0.1:*; connect-src 'self' ipc: http://ipc.localhost https: http://localhost:* http://127.0.0.1:*"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.icns", "icons/icon.ico"],
+    "category": "GraphicsAndDesign",
+    "shortDescription": "Easy-to-use parametric CAD",
+    "longDescription": "Easy-to-use parametric CAD. Runs entirely on your machine; your projects never leave it.",
+    "macOS": {
+      "minimumSystemVersion": "13.0",
+      "dmg": {
+        "background": "dmg/background.png",
+        "windowSize": {
+          "width": 660,
+          "height": 420
+        },
+        "appPosition": {
+          "x": 134,
+          "y": 124
+        },
+        "applicationFolderPosition": {
+          "x": 526,
+          "y": 124
+        }
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "gstreamer1.0-plugins-good",
+          "gstreamer1.0-libav"
+        ]
+      },
+      "rpm": {
+        "depends": ["webkit2gtk4.1", "gtk3", "gstreamer1-plugins-base", "gstreamer1-plugins-good"],
+        "compression": {
+          "type": "gzip",
+          "level": 6
+        }
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "headerImage": "installer/header.bmp",
+        "sidebarImage": "installer/sidebar.bmp"
+      },
+      "wix": {
+        "bannerPath": "installer/wix-banner.bmp",
+        "dialogImagePath": "installer/wix-dialog.bmp"
+      }
+    },
+    "fileAssociations": [
+      {
+        "ext": ["step", "stp"],
+        "name": "STEP model",
+        "description": "STEP 3D model",
+        "mimeType": "model/step",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["iges", "igs"],
+        "name": "IGES model",
+        "description": "IGES 3D model",
+        "mimeType": "model/iges",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["stl"],
+        "name": "STL mesh",
+        "description": "STL triangle mesh",
+        "mimeType": "model/stl",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["bezier"],
+        "name": "Bezier project",
+        "description": "Bezier project",
+        "mimeType": "application/x-bezier",
+        "role": "Editor"
+      }
+    ]
+  }
+}

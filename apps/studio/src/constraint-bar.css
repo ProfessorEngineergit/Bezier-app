@@ -1,0 +1,172 @@
+/* The constraint row (ConstraintBar.tsx) and constraint marks (SketchConstraintMarks.tsx). Pinned
+   where the contact prompt sits; the two never appear together. */
+
+.constraint-bar {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  gap: var(--pad-xs);
+  padding: var(--pad-xs);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--surface-popover, var(--panel-control));
+  box-shadow: var(--shadow-popover);
+  transform: translateX(-50%);
+}
+
+.constraint-bar button {
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+  white-space: nowrap;
+}
+
+.constraint-bar button:hover {
+  background: var(--control-hover);
+}
+
+.constraint-bar__mark {
+  width: 1em;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.constraint-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.constraint-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 4px;
+  border: 1px solid var(--glass-border);
+  border-radius: 9px;
+  background: var(--surface-popover, var(--panel-control));
+  color: var(--text-dim);
+  font: 600 11px / 1 var(--font);
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.constraint-mark:hover {
+  border-color: #ff9a8b;
+  color: #ff9a8b;
+}
+
+/* A constraint the last refused change conflicted with. */
+.constraint-mark[data-state="conflict"] {
+  border-color: var(--fail);
+  background: color-mix(in srgb, var(--fail) 18%, var(--surface-popover, var(--panel-control)));
+  color: var(--fail);
+}
+
+/* A constraint that duplicates others: harmless, but removable. */
+.constraint-mark[data-state="redundant"] {
+  border-style: dashed;
+  border-color: #d39a1c;
+  color: #d39a1c;
+}
+
+/* The active selection filter (Tab cycles it; click to reset to Anything). */
+.selection-filter {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  z-index: 6;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--surface-popover, var(--panel-control));
+  color: var(--text-dim);
+  font: var(--text-size-sm) / 1 var(--font);
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+/* The Shift-drag selection rectangle (Viewport.tsx). Solid for window selection (wholly inside);
+   dashed for crossing selection (touching). */
+.viewport-marquee {
+  position: fixed;
+  z-index: 5;
+  display: none;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  pointer-events: none;
+}
+
+.viewport-marquee[data-mode="crossing"] {
+  border-style: dashed;
+}
+
+/* An angle mark shows its value and can be edited (SketchConstraintMarks.tsx). */
+.constraint-mark--angle {
+  display: flex;
+  gap: 2px;
+  padding: 0 2px 0 6px;
+}
+
+.constraint-mark--angle button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.constraint-mark--angle input {
+  width: 4em;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+}
+
+.constraint-mark__remove:hover {
+  color: #ff9a8b;
+}
+
+/* Fillet or chamfer the corner of the two selected lines (ConstraintBar.tsx). */
+.constraint-bar__corner {
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  padding-left: var(--pad-xs);
+  border-left: 1px solid var(--glass-border);
+}
+
+.constraint-bar__corner input {
+  width: 3.5em;
+  padding: 2px var(--pad-xs);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--panel-control);
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+}
+
+/* What a drawn point would snap to, beside the pointer. */
+.sketch-snap {
+  position: fixed;
+  z-index: 5;
+  padding: 1px 6px;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-size: 11px;
+  pointer-events: none;
+}

@@ -1,0 +1,145 @@
+/* The control row under the scrub bar (scrub.css), the Open model button and the chapters. */
+
+.lessons-controls {
+  display: grid;
+  gap: 4px;
+}
+
+.lessons-controls__row {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.lessons-controls__time {
+  margin: 0 8px;
+  font-size: var(--lessons-text-sm);
+  white-space: nowrap;
+}
+
+.lessons-controls__spacer {
+  flex: 1;
+}
+
+.lessons-controls__rate {
+  min-width: 44px;
+  padding: 0 6px;
+  font-size: var(--lessons-text-sm);
+  font-weight: 600;
+}
+
+.lessons-controls[data-compact] .lessons-button {
+  --lessons-control: 28px;
+}
+
+/* chapters */
+
+.lessons-chapters {
+  min-width: 0;
+}
+
+.lessons-chapters__list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lessons-chapter {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  border-radius: var(--radius-control);
+}
+
+.lessons-chapter__seek {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  transition: background var(--fast) var(--ease);
+}
+
+.lessons-chapter__seek:hover {
+  background: var(--control-hover);
+}
+
+.lessons-chapter[aria-current="step"] .lessons-chapter__seek {
+  background: var(--lessons-selected);
+  color: var(--lessons-selected-text);
+}
+
+.lessons-chapter__index {
+  color: var(--text-faint);
+  font-size: var(--lessons-text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.lessons-chapter[aria-current="step"] .lessons-chapter__index {
+  color: inherit;
+}
+
+.lessons-chapter__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessons-chapter__time {
+  color: var(--text-faint);
+  font-size: var(--lessons-text-sm);
+}
+
+.lessons-chapter[aria-current="step"] .lessons-chapter__time {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.lessons-chapter__open {
+  width: 28px;
+  padding: 0;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.lessons-chapter:hover .lessons-chapter__open,
+.lessons-chapter:focus-within .lessons-chapter__open,
+.lessons-chapter[aria-current="step"] .lessons-chapter__open {
+  opacity: 1;
+}
+
+.lessons-shortcuts {
+  margin-top: 20px;
+}
+
+.lessons-shortcuts__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lessons-shortcuts__list li {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: var(--text-size-sm);
+}
+
+.lessons-shortcuts .lessons-kbd {
+  height: 22px;
+  min-width: 22px;
+  padding: 0 6px;
+  font-size: var(--text-size-sm);
+  box-shadow: none;
+}

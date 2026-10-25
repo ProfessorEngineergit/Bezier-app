@@ -1,0 +1,68 @@
+<!-- {"title":"Developers","path":"/developers/","tab":"developers","description":"Build on Bezier: plugins in plain JavaScript with live reload, MCP for assistants and computer use, your own server, and the source on GitHub."} -->
+<section class="section section--center hero">
+  <p class="eyebrow">Developers</p>
+  <h1 class="headline">Build on Bezier.</h1>
+  <p class="lede">Plugins in plain JavaScript that run in a real sandbox. An MCP server that makes assistants good at CAD. Servers you run yourself. And the whole source.</p>
+</section>
+
+<section class="section" aria-label="What you can build">
+  <div class="cards">
+    <a class="card" href="/developers/plugins/">{{icon:plugin:36}}<h3>Plugins</h3><p>Commands, panels, importers, exporters and generators. Permissions the person grants, enforced by the browser, not promised in a manifest.</p></a>
+    <a class="card" href="/developers/plugins/api/">{{icon:sdk:36}}<h3>The SDK</h3><p>Typed API, a scaffold with three templates, live reload in the editor, and the store’s own review on your machine.</p></a>
+    <a class="card" href="/developers/mcp/">{{icon:mcp:36}}<h3>MCP</h3><p>Docs written for agents, a map of every control, the model as data, pictures from any view, settings and performance.</p></a>
+    <a class="card" href="/developers/mcp/server/">{{icon:server:36}}<h3>Your own server</h3><p>The same MCP over HTTPS on a machine of yours. Sync, community lessons and plugin stores run the same way.</p></a>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="quick">
+  <div class="feature feature--code">
+    <div class="feature__words">
+      <h2 class="title" id="quick">{{icon:plugin}}A plugin in five minutes</h2>
+      <p>Make it, run it in the editor, change it and watch it change. No restart, no install, nothing to package until you publish.</p>
+      <p><a class="button" href="/developers/plugins/">Read the guide</a></p>
+    </div>
+    <pre class="code"><code>npx bezier-plugin new you.first-plugin
+cd you.first-plugin
+npx bezier-plugin dev
+
+# Bezier: Settings → Community → Writing a plugin → Load
+
+await bezier.commands.add('Count the steps', async () =&gt; {
+  const model = await bezier.model.read();
+  await bezier.notify(`${model.steps.length} steps`);
+});</code></pre>
+  </div>
+  <div class="feature feature--code">
+    <div class="feature__words">
+      <h2 class="title">{{icon:mcp}}Assistants that can see</h2>
+      <p>Other CAD servers give an assistant one tool, “run this script”: fast, blind and a security hole. Bezier’s MCP gives an assistant that works on screen what it lacks: how the app works, where every control is, and the model to check each step against.</p>
+      <p><a class="button" href="/developers/mcp/">Read about MCP</a></p>
+    </div>
+    <pre class="code"><code>claude mcp add bezier -- node apps/mcp-server/server/main.ts
+
+docs_search      "fillet an edge"
+ui_map           every control, by name, with its rectangle
+project_read     each step and whether it built
+viewport_screenshot  { "view": "iso" }
+settings_write   { "detail": "light" }
+performance_read frame rate, where edits spend time</code></pre>
+  </div>
+</section>
+
+<section class="section section--center" aria-labelledby="why">
+  <h2 class="headline" id="why">Made for the problems developers name.</h2>
+  <div class="cards">
+    <div class="card"><h3>Enforced, not promised</h3><p>A plugin runs in a frame with no origin and one script, admitted by its hash. A call it was not granted is refused.</p></div>
+    <div class="card"><h3>No restart loop</h3><p>Save and the plugin runs again in the open editor, beside your model.</p></div>
+    <div class="card"><h3>Stable references</h3><p>Faces and edges keep their names through a rebuild, so a plugin can find the same face tomorrow.</p></div>
+    <div class="card"><h3>An API that only grows</h3><p>Version 1 gains calls and loses none. A change gets a new name and a year of overlap. Nothing stays “preview”.</p></div>
+    <div class="card"><h3>No quotas</h3><p>Plugins and MCP run on the person’s computer. Nothing is metered.</p></div>
+    <div class="card"><h3>Review you can run</h3><p><code>bezier-plugin check</code> is the store’s own review, before you upload.</p></div>
+  </div>
+</section>
+
+<section class="section section--center" aria-labelledby="source">
+  <h2 class="headline" id="source">The whole source.</h2>
+  <p class="lede">TypeScript and Rust, the tests, the benchmarks and every design decision with its reasons. Contributions go to the beta repository first.</p>
+  <div class="hero__actions"><a class="button button--large" href="https://github.com/ProfessorEngineergit/bezier">Bezier on GitHub</a></div>
+</section>

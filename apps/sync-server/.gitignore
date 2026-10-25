@@ -1,0 +1,4 @@
+# Server data from running it by hand in this folder, and browser-test output.
+/data/
+/playwright-report/
+/test-results/

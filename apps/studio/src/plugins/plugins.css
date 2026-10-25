@@ -1,0 +1,165 @@
+/*
+ * Plugin UI in the editor: the rail button and menu, plugin panels, and the file read/save prompt.
+ * Tokens only; the menu glass comes from the shared rule in @bezier/ui's shell.css.
+ */
+
+/* Right side, above the display rail: the same band, one slot high. */
+.plugin-rail {
+  position: fixed;
+  right: 8px;
+  bottom: 158px;
+  z-index: 6;
+}
+
+.plugin-rail__button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-band, 14px);
+  background: var(--surface-panel);
+  color: var(--text);
+  transition: background var(--fast) var(--ease);
+}
+
+.plugin-rail__button:hover,
+.plugin-rail__button[aria-expanded="true"] {
+  background: var(--control-hover);
+}
+
+/* Two classes, because `.menu` sets its own position. */
+.plugin-rail .plugin-rail__menu {
+  position: absolute;
+  right: 48px;
+  bottom: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.plugin-rail__name {
+  margin: 0;
+  padding: var(--pad-sm) var(--pad) 2px;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+/* Panels stack at the right, clear of the view cube above and the rails below. */
+.plugin-panels {
+  position: fixed;
+  top: 190px;
+  right: 56px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad-sm);
+  width: 300px;
+  pointer-events: none;
+}
+
+.plugin-panel {
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bg);
+  box-shadow: var(--shadow-popover);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  pointer-events: auto;
+}
+
+.plugin-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-sm) var(--pad-sm) var(--pad-sm) var(--pad);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+
+.plugin-panel__close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.plugin-panel__close:hover {
+  background: var(--control-hover);
+}
+
+.plugin-panel > iframe {
+  display: block;
+  width: 100%;
+  height: 260px;
+  border: none;
+  /* The frame draws its own background from the theme passed to it. */
+  background: transparent;
+}
+
+/* A plugin's prompt, drawn by the editor and never by the plugin. */
+.plugin-ask {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 9;
+  width: min(420px, calc(100vw - 32px));
+  padding: var(--pad-lg);
+  transform: translateX(-50%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bg);
+  box-shadow: var(--shadow-popover);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.plugin-ask__who {
+  margin: 0 0 2px;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.plugin-ask__what {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.plugin-ask__actions {
+  display: flex;
+  gap: var(--pad-sm);
+  justify-content: flex-end;
+  margin-top: var(--pad-lg);
+}
+
+.plugin-ask__actions button {
+  height: 28px;
+  padding: 0 var(--pad-lg);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+}
+
+.plugin-ask__actions button:hover {
+  background: var(--control-hover);
+}
+
+/* The decisive action carries the accent. */
+.plugin-ask__actions .plugin-ask__go {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.plugin-ask__actions .plugin-ask__go:hover {
+  background: var(--accent-hover);
+}

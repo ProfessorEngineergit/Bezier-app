@@ -1,0 +1,45 @@
+name: Bug report
+description: Something behaves incorrectly
+labels: [bug]
+body:
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options:
+        - The macOS app
+        - The Windows app
+        - The Linux app
+        - In a browser
+    validations:
+      required: true
+
+  - type: input
+    id: system
+    attributes:
+      label: System, and browser if it was one
+      placeholder: macOS 15, Windows 11, Ubuntu 24.04, Firefox 140
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If it needs a model, export it as STEP and attach it (zipped if needed).
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: data
+    attributes:
+      label: Was work lost?
+      options:
+        - label: A project was lost, would not open, or came back different

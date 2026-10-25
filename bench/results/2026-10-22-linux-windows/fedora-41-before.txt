@@ -1,0 +1,17 @@
+OpenGL renderer string: llvmpipe (LLVM 19.1.7, 256 bits)
+gstreamer vp9: yes
+gstreamer h264: no
+film element: "4951 ms"
+film: {"seen":"2026-10-22T17:46:58.519Z","gone":true}
+film decoders: {"mp4":"","webm":"probably"}
+start page: "8 ms"
+machine: {"glass":"full","webgl2":true,"ua":" AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15","paint":"full","webgpu":false,"dpr":1,"cores":8,"softwarePaintHint":false}
+editor: "279 ms"
+view cube: "dom"
+nib: {"shape":"card","kind":"speech","kicker":null}
+tool click to third frame, ms: {"Sketch":203,"Items":69,"Quick settings":85,"Transform":64,"Tools":74}
+box: "120133 ms"
+frames a second at rest: 54.6
+total: "163 s"
+SUMMARY {"film element":"4951 ms","film":{"seen":"2026-10-22T17:46:58.519Z","gone":true},"film decoders":{"mp4":"","webm":"probably"},"start page":"8 ms","machine":{"glass":"full","webgl2":true,"ua":" AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15","paint":"full","webgpu":false,"dpr":1,"cores":8,"softwarePaintHint":false},"editor":"279 ms","view cube":"dom","nib":{"shape":"card","kind":"speech","kicker":null},"tool click to third frame, ms":{"Sketch":203,"Items":69,"Quick settings":85,"Transform":64,"Tools":74},"box":"120133 ms","frames a second at rest":54.6,"total":"163 s"}
+EXIT 0

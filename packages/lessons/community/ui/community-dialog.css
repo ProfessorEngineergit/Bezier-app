@@ -1,0 +1,167 @@
+/* Community dialogs (servers, sharing). Tokens only. */
+
+/* ---- dialogs ------------------------------------------------------------- */
+
+.cl-dialog {
+  width: min(var(--dialog-width), calc(100vw - 2 * var(--pad-lg)));
+  max-height: calc(100vh - 2 * var(--pad-lg));
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bg-opaque);
+  color: var(--text);
+  box-shadow: var(--shadow-popover);
+  font-family: var(--font);
+  font-size: var(--text-size);
+}
+
+.cl-dialog[data-wide] {
+  width: min(920px, calc(100vw - 48px));
+  max-width: none;
+}
+
+.cl-dialog::backdrop {
+  background: var(--modal-scrim);
+}
+
+.cl-dialog__body {
+  padding: var(--pad-lg);
+}
+
+.cl-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pad-sm);
+}
+
+.cl-dialog__title {
+  margin: 0;
+  font-size: var(--dialog-heading-size);
+  font-weight: 600;
+}
+
+.cl-form__actions {
+  display: flex;
+  gap: var(--pad);
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: var(--pad-lg);
+}
+
+.cl-sources,
+.cl-uploads ul {
+  margin: var(--pad) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cl-source,
+.cl-upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-sm);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-sm) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cl-source__text {
+  display: grid;
+  min-width: 0;
+}
+
+.cl-source__url,
+.cl-upload__note {
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cl-upload__note {
+  flex-basis: 100%;
+  white-space: normal;
+}
+
+.cl-source__name,
+.cl-upload__title {
+  font-weight: 600;
+}
+
+.cl-switch {
+  display: flex;
+  gap: var(--pad);
+  align-items: center;
+  min-width: 0;
+}
+
+.cl-switch input {
+  position: absolute;
+  opacity: 0;
+}
+
+.cl-switch__track {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--surface-control-active);
+  transition: background var(--fast) var(--ease);
+}
+
+.cl-switch__track::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--text-on-accent);
+  content: "";
+  transition: transform var(--fast) var(--ease);
+}
+
+.cl-switch input:checked + .cl-switch__track {
+  background: var(--accent);
+}
+
+.cl-switch input:checked + .cl-switch__track::after {
+  transform: translateX(12px);
+}
+
+.cl-switch input:focus-visible + .cl-switch__track {
+  outline: 2px solid var(--brand-focus, var(--text));
+  outline-offset: 2px;
+}
+
+.cl-status {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.cl-status--approved {
+  color: var(--ok);
+}
+
+.cl-status--rejected,
+.cl-status--removed {
+  color: var(--fail);
+}
+
+.cl-uploads .cl-popover__title {
+  margin: var(--pad-lg) 0 0;
+}
+
+/* Last in the cascade with doubled specificity, so it overrides every transition above. */
+@media (prefers-reduced-motion: reduce) {
+  .cl-page.cl-page *,
+  .cl-page.cl-page *::after,
+  .cl-dialog.cl-dialog *,
+  .cl-dialog.cl-dialog *::after {
+    transition: none;
+  }
+}

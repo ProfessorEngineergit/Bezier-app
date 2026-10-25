@@ -1,0 +1,20 @@
+OpenGL renderer string: llvmpipe (LLVM 19.1.7, 256 bits)
+gstreamer vp9dec: yes
+gstreamer opusdec: yes
+gstreamer matroskademux: yes
+gstreamer avdec_h264: no
+gstreamer openh264dec: no
+film element: "5180 ms"
+film, a second at a time: [{"error":null,"t":0.2,"src":"http","d":84.2,"ready":4},{"error":null,"t":1.2,"src":"http","d":84.2,"ready":4},{"error":null,"t":2.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":3.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":4.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":5.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":6.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":7.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":8.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":9.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":10.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":11.4,"src":"http","d":84.2,"ready":4}]
+film plays: true
+film decoders: {"mp4":"","webm":"probably"}
+start page: "8 ms"
+machine: {"glass":"solid","webgl2":true,"ua":" AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15","paint":"light","webgpu":false,"dpr":1,"cores":8,"softwarePaintHint":true}
+editor: "337 ms"
+view cube: "canvas"
+nib: {"shape":"card","kind":"speech","kicker":"Lesson · 6 steps · about 2 min"}
+tool click to third frame, ms: {"Sketch":152,"Items":77,"Quick settings":82,"Transform":76,"Tools":74}
+box: "756 ms"
+frames a second at rest: 53.2
+total: "50 s"
+SUMMARY {"film element":"5180 ms","film, a second at a time":[{"error":null,"t":0.2,"src":"http","d":84.2,"ready":4},{"error":null,"t":1.2,"src":"http","d":84.2,"ready":4},{"error":null,"t":2.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":3.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":4.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":5.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":6.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":7.3,"src":"http","d":84.2,"ready":4},{"error":null,"t":8.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":9.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":10.4,"src":"http","d":84.2,"ready":4},{"error":null,"t":11.4,"src":"http","d":84.2,"ready":4}],"film plays":true,"film decoders":{"mp4":"","webm":"probably"},"start page":"8 ms","machine":{"glass":"solid","webgl2":true,"ua":" AppleWebKit/605.1.15 (KHTML, like Gecko) Version/60.5 Safari/605.1.15","paint":"light","webgpu":false,"dpr":1,"cores":8,"softwarePaintHint":true},"editor":"337 ms","view cube":"canvas","nib":{"shape":"card","kind":"speech","kicker":"Lesson · 6 steps · about 2 min"},"tool click to third frame, ms":{"Sketch":152,"Items":77,"Quick settings":82,"Transform":76,"Tools":74},"box":"756 ms","frames a second at rest":53.2,"total":"50 s"}

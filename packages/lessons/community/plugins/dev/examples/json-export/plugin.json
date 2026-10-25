@@ -1,0 +1,10 @@
+{
+  "format": "bezier-plugin",
+  "version": 1,
+  "id": "bezier.json-export",
+  "name": "Export as JSON",
+  "description": "Saves the open model as a readable JSON file. You confirm every file before it is saved.",
+  "pluginVersion": "1.2.0",
+  "api": 1,
+  "permissions": ["project:read", "files:export", "ui:command"]
+}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200" role="img" aria-label="levelup diamond">
+  <defs>
+    <radialGradient id="b-levelup-diamond" cx="34%" cy="28%" r="80%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#e9ecf2"/><stop offset="1" stop-color="#b9a06a"/>
+    </radialGradient>
+    <linearGradient id="r-levelup-diamond" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#b9a06a"/><stop offset="1" stop-color="#e9ecf2"/>
+    </linearGradient>
+    <linearGradient id="s-levelup-diamond" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="c-levelup-diamond"><rect x="8" y="8" width="84" height="84" rx="22"/></clipPath>
+  </defs>
+  <g transform="translate(0 2)" opacity=".35" fill="#000"><rect x="8" y="8" width="84" height="84" rx="22"/></g>
+  <g fill="url(#r-levelup-diamond)"><rect x="8" y="8" width="84" height="84" rx="22"/></g>
+  <g transform="translate(50 50) scale(.86) translate(-50 -50)" fill="url(#b-levelup-diamond)"><rect x="8" y="8" width="84" height="84" rx="22"/></g>
+  <g clip-path="url(#c-levelup-diamond)"><ellipse cx="40" cy="22" rx="52" ry="26" fill="url(#s-levelup-diamond)"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5">
+    <g transform="translate(0 .9)" stroke="#ffffff" opacity=".7"><path d="M36 64h8v-8h8v-8h8v-8h8"/></g>
+    <g stroke="#d4a33a"><path d="M36 64h8v-8h8v-8h8v-8h8"/></g>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+date: 2026-10-02
+commit: 3c769f1
+machine: Apple M1 Max, 10 cores, 64 GB RAM
+os: macOS 27.0
+node: v25.2.1
+playwright: Version 1.62.1
+build: production (pnpm build), served with vite preview on localhost:4173
+conditions: run by hand on a working laptop with other applications open; power and background load were not controlled. Read as orders of magnitude (medians of 3 to 5 runs), not as a lab result.

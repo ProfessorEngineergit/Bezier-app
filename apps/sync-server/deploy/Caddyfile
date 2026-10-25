@@ -1,0 +1,13 @@
+# HTTPS in front of the sync server, with a certificate from Let's Encrypt.
+{$BEZIER_DOMAIN} {
+	# Large projects upload in 4 MB chunks; this leaves room and stops anything bigger.
+	request_body {
+		max_size 20MB
+	}
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy sync:8787
+}

@@ -1,0 +1,242 @@
+/* A reference image's handles over the canvas, and its panel. Neutral at rest, with selection
+   blue only on the outline. */
+
+/*
+ * Above the canvas, below everything else: the image outline is part of the drawing, like a
+ * sketch line, so panels, rails and the cube draw over it.
+ */
+.image-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.image-editor__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.image-editor__outline {
+  fill: none;
+  stroke: var(--select);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.image-editor__whole {
+  fill: none;
+  stroke: var(--select);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.image-editor__stem {
+  stroke: var(--select);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.image-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 1.5px solid var(--gizmo-arrow-outline);
+  background: var(--gizmo-label-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.image-handle--corner {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+}
+
+.image-handle--edge {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.image-handle--turn {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.image-handle--move {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background:
+    var(--gizmo-label-surface)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2359616b' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><path d='M8 2.5v11M2.5 8h11M8 2.5 6.4 4.1M8 2.5l1.6 1.6M8 13.5l-1.6-1.6M8 13.5l1.6-1.6M2.5 8l1.6-1.6M2.5 8l1.6 1.6M13.5 8l-1.6-1.6M13.5 8l-1.6 1.6'/></svg>")
+    center / 16px no-repeat;
+}
+
+.image-editor[data-dragging] .image-handle--move {
+  cursor: grabbing;
+}
+
+.image-handle:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--select));
+  outline-offset: 2px;
+}
+
+.image-panel {
+  display: grid;
+  gap: var(--pad-sm);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.3 var(--font);
+}
+
+.image-panel__action {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-control);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--fast) var(--ease);
+}
+
+.image-panel__action:hover:not(:disabled) {
+  background: var(--surface-control-hover);
+}
+
+.image-panel__action:disabled {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.image-panel__caption,
+.image-panel__hint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.image-panel__caption {
+  margin-bottom: calc(var(--pad-xs) * -1);
+}
+
+.image-panel__mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius);
+  background: var(--surface-control);
+}
+
+.image-panel__choice {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 4px 0;
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.image-panel__choice input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.image-panel__choice:has(input:checked) {
+  background: var(--surface-control-active);
+  color: var(--text);
+}
+
+.image-panel__choice:has(input:focus-visible) {
+  outline: 1.5px solid var(--focus-ring, var(--select));
+}
+
+.image-panel__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pad-xs) var(--pad-sm);
+}
+
+.image-field {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.image-field__label {
+  color: var(--text-dim);
+}
+
+.image-field__box {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-control);
+}
+
+.image-field__box:focus-within {
+  border-color: var(--line-strong);
+  outline: 1.5px solid var(--focus-ring, rgb(255 255 255 / 55%));
+}
+
+.image-field__input {
+  min-width: 0;
+  flex: 1;
+  padding: 4px 6px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.image-field__unit {
+  padding-right: 6px;
+  color: var(--text-faint);
+}
+
+.image-panel__keep {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-xs);
+  color: var(--text-dim);
+}
+
+.image-panel__plane {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--pad-sm);
+}
+
+.image-panel__select {
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-control);
+  color: var(--text);
+  font: inherit;
+}
+
+.image-panel__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pad-sm);
+}

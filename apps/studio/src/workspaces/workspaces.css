@@ -1,0 +1,22 @@
+/**
+ * The frame shared by the lazily loaded workspaces: what shows while one is
+ * still loading, and how a visited one hides without losing its state.
+ */
+
+.mode-workspace {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(to bottom, var(--canvas-top), var(--canvas-bottom));
+  color: var(--text-dim);
+  font: var(--text-size) / 1.4 var(--font);
+}
+
+.mode-empty {
+  margin: 0;
+}
+
+.mode-hidden {
+  display: none;
+}

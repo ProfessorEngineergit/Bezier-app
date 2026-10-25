@@ -1,0 +1,34 @@
+/* The cube's bevels (ViewCube.tsx): twelve edge strips and eight corner triangles. Each is a click
+   target: an edge gives a 45° view, a corner a view from between three sides. Shaded like the
+   sides (styles.css). */
+
+.viewcube__zone {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  backface-visibility: hidden;
+  transition: background var(--fast) var(--ease);
+}
+
+/* The same cube on a canvas, without graphics acceleration (view-cube-canvas.ts). Larger than the
+   cube by the room its corners and arms need; the pointer passes through to the model except over
+   a face (ViewCube.tsx). */
+.viewcube__canvas {
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: calc(var(--cube-size) + 60px);
+  height: calc(var(--cube-size) + 60px);
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.viewcube__zone:hover,
+.viewcube__zone:focus-visible {
+  background: var(--cube-hover);
+  outline: none;
+}

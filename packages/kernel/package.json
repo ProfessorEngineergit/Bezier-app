@@ -1,0 +1,21 @@
+{
+  "name": "@bezier/kernel",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Thin, typed wrapper around the OCCT WebAssembly geometry kernel",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./occt": "./src/occt-kernel.ts"
+  },
+  "dependencies": {
+    "comlink": "^4.4.2",
+    "occt-wasm": "link:../../vendor/occt-wasm"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

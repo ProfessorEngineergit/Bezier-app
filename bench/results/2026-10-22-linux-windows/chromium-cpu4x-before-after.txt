@@ -1,0 +1,10 @@
+== dist-before gpu=0
+RESULT {"machine":{"paint":null,"glass":"solid","cube":"dom"},"restFps":60.1,"tools":{"Sketch":113,"Items":69,"Quick settings":61,"Transform":50,"Tools":59},"turningFps":47.3}
+== dist-before gpu=1
+RESULT {"machine":{"paint":null,"glass":"solid","cube":"dom"},"restFps":60.1,"tools":{"Sketch":114,"Items":78,"Quick settings":63,"Transform":55,"Tools":54},"turningFps":42.6}
+== dist-now gpu=0
+RESULT {"machine":{"paint":"light","glass":"solid","cube":"canvas"},"restFps":60.1,"tools":{"Sketch":128,"Items":82,"Quick settings":66,"Transform":60,"Tools":58},"turningFps":56.2}
+== dist-now gpu=1
+RESULT {"machine":{"paint":"light","glass":"solid","cube":"canvas"},"restFps":60.3,"tools":{"Sketch":119,"Items":76,"Quick settings":60,"Transform":57,"Tools":73},"turningFps":56.9}
+
+[exited with code 0]

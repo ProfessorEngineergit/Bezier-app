@@ -1,0 +1,21 @@
+{
+  "name": "@bezier/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bezier's MCP server: its docs, the live state of a Bezier window, settings and performance, for assistants",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "bezier-mcp": "./server/main.ts"
+  },
+  "scripts": {
+    "start": "node server/main.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
+-->
+<materialx version="1.38">
+  <nodegraph name="NG_Rubber">
+    <texcoord name="Texcoord" type="vector2">
+      <input name="index" type="integer" value="0" />
+    </texcoord>
+    <constant name="UVScale" type="vector2">
+      <input name="value" type="vector2" value="1, 1" />
+    </constant>
+    <multiply name="Multiply" type="vector2">
+      <input name="in1" type="vector2" nodename="Texcoord" />
+      <input name="in2" type="vector2" nodename="UVScale" />
+    </multiply>
+    <image name="Image" type="vector3">
+      <input name="default" type="vector3" value="0, 0, 0" />
+      <input name="texcoord" type="vector2" nodename="Multiply" />
+      <input name="file" type="filename" value="textures/RubberNoise_Normal.png" />
+      <input name="layer" type="string" value="" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="linear" />
+      <input name="framerange" type="string" value="" />
+      <input name="frameoffset" type="integer" value="0" />
+      <input name="frameendaction" type="string" value="constant" />
+    </image>
+    <normalmap name="Normalmap" type="vector3">
+      <input name="in" type="vector3" nodename="Image" />
+      <input name="scale" type="float" value="1" />
+      <input name="space" type="string" value="tangent" />
+    </normalmap>
+    <output name="out_Normalmap" type="vector3" nodename="Normalmap" />
+  </nodegraph>
+  <standard_surface name="SR_Rubber" type="surfaceshader">
+    <input name="base" type="float" value="1" />
+    <input name="base_color" type="color3" value="0.0079833, 0.0079833, 0.0079833" />
+    <input name="diffuse_roughness" type="float" value="0.7" />
+    <input name="metalness" type="float" value="0" />
+    <input name="specular" type="float" value="0.2" />
+    <input name="specular_color" type="color3" value="1, 1, 1" />
+    <input name="specular_roughness" type="float" value="0.5" />
+    <input name="specular_IOR" type="float" value="1.45" />
+    <input name="specular_anisotropy" type="float" value="0" />
+    <input name="specular_rotation" type="float" value="0" />
+    <input name="opacity" type="color3" value="1, 1, 1" />
+    <input name="thin_walled" type="boolean" value="false" />
+    <input name="normal" type="vector3" nodegraph="NG_Rubber" output="out_Normalmap" />
+  </standard_surface>
+  <surfacematerial name="Rubber" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_Rubber" />
+  </surfacematerial>
+</materialx>

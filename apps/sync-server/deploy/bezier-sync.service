@@ -1,0 +1,30 @@
+# For a Proxmox LXC container (or any systemd machine) without Docker.
+#   cp -r sync /opt/bezier-sync
+#   useradd --system --home /var/lib/bezier-sync bezier-sync
+#   cp deploy/bezier-sync.{service,timer} deploy/bezier-sync-scrub.service /etc/systemd/system/
+#   systemctl enable --now bezier-sync bezier-sync.timer
+[Unit]
+Description=Bezier sync server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=bezier-sync
+WorkingDirectory=/opt/bezier-sync
+StateDirectory=bezier-sync
+Environment=BEZIER_SYNC_DATA=/var/lib/bezier-sync
+# Environment=BEZIER_SYNC_REPLICAS=/mnt/nas/bezier-sync
+EnvironmentFile=-/etc/bezier-sync.env
+ExecStart=/usr/bin/node server/main.ts serve
+Restart=on-failure
+
+# The process needs its data directory and the network, nothing else.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/bezier-sync
+# ReadWritePaths=/mnt/nas/bezier-sync
+
+[Install]
+WantedBy=multi-user.target

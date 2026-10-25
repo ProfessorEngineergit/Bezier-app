@@ -1,0 +1,169 @@
+name: Release build
+
+# Builds the desktop app on macOS, Windows and Linux runners (Tauri only builds
+# for the host platform). Started manually (`pnpm release --all` or the Actions
+# tab). Installers are kept as artifacts and published only with `publish`:
+#
+#   beta    in the beta repository (bezier), as a pre-release v1.3.0-beta.1
+#   stable  in the main repository (bezier-app), as the release v1.3.0
+#
+# The website (website.yml) offers the newest of each.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to build, like 0.2.0, or 0.3.0-beta.1 for a beta
+        required: true
+      channel:
+        description: stable, or alpha for a build that opens the alpha line
+        required: false
+        default: stable
+      commit:
+        description: The commit this must build; the run stops when the branch has moved on
+        required: false
+        default: ''
+      publish:
+        description: Publish the build as a GitHub release
+        type: choice
+        options: ['no', 'beta', 'stable']
+        default: 'no'
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS (Intel and Apple silicon)
+            os: macos-14
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - name: Windows
+            os: windows-latest
+            rust-targets: ''
+          - name: Linux
+            os: ubuntu-22.04
+            rust-targets: ''
+    steps:
+      - uses: actions/checkout@v5
+
+      # Fail if the branch head differs from the commit `pnpm release --all` requested.
+      - name: The commit asked for
+        if: inputs.commit != ''
+        shell: bash
+        run: |
+          if [ "$(git rev-parse HEAD)" != "${{ inputs.commit }}" ]; then
+            echo "::error::Asked to build ${{ inputs.commit }}, the branch is at $(git rev-parse HEAD)."
+            exit 1
+          fi
+
+      # The version comes from `packageManager` in package.json; the action fails if
+      # it is also set here.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
+
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf rpm \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-libav
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Checks run on every push in CI; this workflow only builds.
+      - name: Build
+        run: node scripts/release.mjs --skip-checks --version ${{ inputs.version }}
+        env:
+          VITE_CHANNEL: ${{ inputs.channel == 'alpha' && 'alpha' || '' }}
+          # Signing and notarisation, used only when these secrets are set.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Where the files come from
+        shell: bash
+        run: |
+          printf 'commit %s\nref %s\nchannel %s\nrun %s/%s/actions/runs/%s\nrunner %s\n' \
+            "$(git rev-parse HEAD)" "${{ github.ref }}" "${{ inputs.channel }}" \
+            "${{ github.server_url }}" "${{ github.repository }}" "${{ github.run_id }}" "${{ runner.os }}" \
+            > "release/${{ inputs.version }}/BUILD-INFO.txt"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bezier-${{ inputs.version }}-${{ runner.os }}
+          path: release/${{ inputs.version }}/
+          if-no-files-found: error
+
+  publish:
+    name: Publish ${{ inputs.publish }} ${{ inputs.version }}
+    needs: build
+    if: inputs.publish != 'no'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Betas publish only to the beta repository, stable releases only to the main one.
+      - name: The right repository for the channel
+        run: |
+          case "${{ inputs.publish }}/${{ github.repository }}/${{ inputs.version }}" in
+            beta/ProfessorEngineergit/bezier/*-beta.*) ;;
+            stable/ProfessorEngineergit/bezier-app/*) [[ "${{ inputs.version }}" != *-* ]] ;;
+            *) echo "A ${{ inputs.publish }} release of ${{ inputs.version }} does not belong in ${{ github.repository }}."; exit 1 ;;
+          esac
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: built
+
+      # Each runner wrote its own SHA256SUMS.txt and BUILD-INFO.txt; rename them per OS.
+      - name: Gather the files
+        run: |
+          mkdir release
+          for dir in built/*/; do
+            os="${dir%/}"; os="${os##*-}"
+            for file in "$dir"*; do
+              name="$(basename "$file")"
+              case "$name" in
+                SHA256SUMS.txt) cp "$file" "release/SHA256SUMS-$os.txt" ;;
+                BUILD-INFO.txt) cp "$file" "release/BUILD-INFO-$os.txt" ;;
+                *) cp "$file" release/ ;;
+              esac
+            done
+          done
+          ls -l release
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ inputs.version }}" release/* \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "Bezier ${{ inputs.version }}" \
+            --generate-notes \
+            ${{ inputs.publish == 'beta' && '--prerelease' || '--latest' }}
+
+      # Notify the website (in the main repository) of the new beta. Without the token
+      # it picks the beta up on its next scheduled run.
+      - name: Tell the website
+        if: inputs.publish == 'beta'
+        env:
+          GH_TOKEN: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "No WEBSITE_DISPATCH_TOKEN; the website picks the beta up on its next run."; exit 0; fi
+          gh api repos/ProfessorEngineergit/bezier-app/dispatches -f event_type=beta-released

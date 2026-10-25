@@ -1,0 +1,549 @@
+/**
+ * Branded handle type — prevents passing raw numbers as shape IDs.
+ * Obtain handles from kernel methods; release via {@link OcctKernel.release}.
+ */
+declare const ShapeHandleBrand: unique symbol;
+export type ShapeHandle = number & {
+    readonly [ShapeHandleBrand]: never;
+};
+/** Triangle mesh data produced by BRepMesh tessellation. */
+export interface Mesh {
+    /** XYZ interleaved vertex positions. Length = vertexCount * 3. */
+    positions: Float32Array;
+    /** XYZ interleaved vertex normals. Length = vertexCount * 3. */
+    normals: Float32Array;
+    /** Triangle indices into the positions/normals arrays. */
+    indices: Uint32Array;
+    /** Number of vertices (positions.length / 3). */
+    vertexCount: number;
+    /** Number of triangles (indices.length / 3). */
+    triangleCount: number;
+    /** Per-face triangle groups: [triStart, triCount, faceHash] triples. Present when using meshShape(). */
+    faceGroups?: Int32Array | undefined;
+    /** Number of face groups. Present when using meshShape(). */
+    faceCount?: number | undefined;
+}
+/** Axis-aligned bounding box (AABB). */
+export interface BoundingBox {
+    xmin: number;
+    ymin: number;
+    zmin: number;
+    xmax: number;
+    ymax: number;
+    zmax: number;
+}
+/** Options for `OcctKernel.getBoundingBox`. */
+export interface BoundingBoxOptions {
+    /**
+     * `true` (the default) finds each surface's exact extrema, so the box is
+     * the same whether or not the shape has been tessellated. `false` returns
+     * a loose box from analytic extents and BSpline control hulls plus the
+     * shape tolerance; it always contains the precise box and skips the
+     * extremum search that makes unmeshed BSpline geometry slow.
+     */
+    precise?: boolean | undefined;
+    /**
+     * Bound the existing triangulation instead of the surfaces when the shape
+     * has one. Faster, but only as tight as that mesh. Default: `false`.
+     */
+    useTriangulation?: boolean | undefined;
+}
+/** 3D point or direction vector. */
+export interface Vec3 {
+    x: number;
+    y: number;
+    z: number;
+}
+/** Options controlling BRepMesh tessellation quality. */
+export interface TessellateOptions {
+    /** Maximum chord deviation from the true surface. Default: 0.1 */
+    linearDeflection?: number | undefined;
+    /** Maximum angular deviation in radians. Default: 0.5 */
+    angularDeflection?: number | undefined;
+    /**
+     * Interpret `linearDeflection` relative to each edge's length
+     * (scale-independent meshing) instead of as an absolute distance.
+     */
+    relative?: boolean | undefined;
+}
+/**
+ * Where `wireframe` takes each edge's polyline from.
+ *
+ * - `"curve"` samples the edge's analytic curve at the requested chord
+ *   deflection, independent of any mesh.
+ * - `"triangulation"` reads the polygon BRepMesh stored on the edge when the
+ *   shape was last meshed (`meshShape`, `tessellate`, `meshBatch`), so every
+ *   point is a vertex of the adjacent face's mesh and the overlay never floats
+ *   off a coarse surface. Edges without a stored polygon fall back to curve
+ *   sampling, mirroring OCCT's own shaded-view wireframe.
+ */
+export type WireframeSource = "curve" | "triangulation";
+/** Options controlling `wireframe` edge sampling. */
+export interface WireframeOptions {
+    /** Maximum chord deviation for curve-sampled edges. Default: 0.1 */
+    deflection?: number | undefined;
+    /** Polyline source. Default: `"curve"` */
+    source?: WireframeSource | undefined;
+}
+/** Options for WASM module initialization. */
+export interface InitOptions {
+    /**
+     * Location of the WASM binary. Accepts:
+     * - A string URL or filesystem path
+     * - A `URL` object
+     * - An `ArrayBuffer` or `Uint8Array` containing the WASM binary
+     *
+     * When omitted, the WASM file is auto-located next to the JS module
+     * using `import.meta.url`.
+     */
+    wasm?: string | URL | ArrayBuffer | Uint8Array | undefined;
+    /** @deprecated Use `wasm` instead. Browser URL to the .wasm file. */
+    wasmUrl?: string | undefined;
+    /** @deprecated Use `wasm` instead. Node.js filesystem path to the .wasm file. */
+    wasmPath?: string | undefined;
+}
+/** RGB color triple, each channel in the range 0..1. */
+export type Color3 = [number, number, number];
+/**
+ * Branded label ID for type safety within an XCAF document.
+ * Obtained from {@link XCAFDocument} methods; not interchangeable across documents.
+ */
+declare const LabelTagBrand: unique symbol;
+export type LabelTag = number & {
+    readonly [LabelTagBrand]: never;
+};
+/** Translation + rotation for positioning an assembly component. */
+export interface Location {
+    /** Translation along X. */
+    tx?: number | undefined;
+    /** Translation along Y. */
+    ty?: number | undefined;
+    /** Translation along Z. */
+    tz?: number | undefined;
+    /** Rotation around X in radians. */
+    rx?: number | undefined;
+    /** Rotation around Y in radians. */
+    ry?: number | undefined;
+    /** Rotation around Z in radians. */
+    rz?: number | undefined;
+}
+/** Name and color to put on an XCAF label. */
+export interface LabelOptions {
+    /** Display name for the label. */
+    name?: string | undefined;
+    /** RGB color to assign to the shape label. */
+    color?: Color3 | undefined;
+}
+/** Options for adding a root shape to an XCAF document. */
+export interface AddShapeOptions extends LabelOptions {
+    /**
+     * Add a compound as an assembly of components rather than as one part.
+     * See `XCAFDocument.addShape`.
+     */
+    assembly?: boolean | undefined;
+}
+/** Options for adding a child component to an assembly label. */
+export interface AddChildOptions extends LabelOptions {
+    /** Placement transform relative to the parent. */
+    location?: Location | undefined;
+}
+/** Metadata for a label in an XCAF document. */
+export interface LabelInfo {
+    /** Numeric label ID within the document. */
+    labelId: number;
+    /** Display name (empty string if unset). */
+    name: string;
+    /** Whether a color has been explicitly set on this label. */
+    hasColor: boolean;
+    /** RGB color (meaningful only when hasColor is true). */
+    color: Color3;
+    /** True if this label is an assembly (has child components). */
+    isAssembly: boolean;
+    /**
+     * True if this label is a component: a placed reference to a part or
+     * sub-assembly. Resolve it with `XCAFDocument.getReferredLabel` to reach
+     * that label's name, sub-shapes and children.
+     */
+    isComponent: boolean;
+    /** Associated shape handle, or null if the label has no shape. */
+    shapeHandle: ShapeHandle | null;
+}
+/** Options for glTF export via XCAF. */
+export interface GLTFExportOptions {
+    /** Maximum chord deviation for mesh generation. */
+    linearDeflection?: number | undefined;
+    /** Maximum angular deviation in radians for mesh generation. */
+    angularDeflection?: number | undefined;
+}
+/**
+ * TopAbs_ShapeEnum values returned by getShapeType, in TopAbs ordinal order
+ * (queryBatch indexes this array by the raw enum value). Single source of truth
+ * for both the {@link ShapeType} union and runtime validation.
+ */
+export declare const SHAPE_TYPES: readonly ["compound", "compsolid", "solid", "shell", "face", "wire", "edge", "vertex", "shape"];
+/** TopAbs_ShapeEnum value returned by getShapeType. */
+export type ShapeType = (typeof SHAPE_TYPES)[number];
+/** TopAbs_Orientation values returned by shapeOrientation. */
+export declare const SHAPE_ORIENTATIONS: readonly ["forward", "reversed", "internal", "external"];
+/** TopAbs_Orientation value returned by shapeOrientation. */
+export type ShapeOrientation = (typeof SHAPE_ORIENTATIONS)[number];
+/** BRepClass_FaceClassifier results for a UV point relative to a face boundary. */
+export declare const POINT_CLASSIFICATIONS: readonly ["in", "on", "out"];
+/** BRepClass_FaceClassifier result for a UV point relative to a face boundary. */
+export type PointClassification = (typeof POINT_CLASSIFICATIONS)[number];
+/** Which extreme of a shape's bounding box to align to a target coordinate. */
+export type AlignAnchor = "min" | "center" | "max";
+/** Geom_Surface subclass identifier returned by surfaceType. */
+export type SurfaceKind = "plane" | "cylinder" | "cone" | "sphere" | "torus" | "bspline" | "bezier" | "offset" | "revolution" | "extrusion" | (string & {});
+/** Geom_Curve subclass identifier returned by curveType. */
+export type CurveKind = "line" | "circle" | "ellipse" | "hyperbola" | "parabola" | "bspline" | "bezier" | "offset" | (string & {});
+/** Transition mode for sweep operations (BRepBuilderAPI_MakeSweep). */
+export declare enum TransitionMode {
+    /** Transform the profile along the spine (default). */
+    Transformed = 0,
+    /** Apply right-corner transitions at spine vertices. */
+    RightCorner = 1,
+    /** Apply round-corner transitions at spine vertices. */
+    RoundCorner = 2
+}
+/** Profile-orientation mode for {@link OcctKernel.sweepOriented}. */
+export declare enum SweepMode {
+    /** Minimal-torsion parallel transport — profile does not rotate (corrected Frenet). */
+    Fixed = 0,
+    /** Profile follows the spine's principal normal (Frenet trihedron). */
+    Frenet = 1,
+    /** Profile keeps a caller-supplied up/binormal direction constant. */
+    FixedUp = 2,
+    /** Orientation driven by an auxiliary guide spine (requires `auxSpine`). */
+    Auxiliary = 3
+}
+/** How the swept section relates to the guide spine (BRepFill_TypeOfContact). */
+export declare enum SweepContact {
+    /** The guide only orients the section; it does not touch the result. */
+    None = 0,
+    /** The section is widened to stay in contact with the guide; section width stays constant. */
+    Contact = 1,
+    /** The guide becomes a boundary of the swept surface; section width varies. */
+    ContactOnBorder = 2
+}
+/**
+ * Approximation tolerances for the pipe-shell sweeps. All are absolute, not
+ * relative to model size, so scaling the model by 10 and tightening the
+ * tolerance by 10 are the same operation.
+ */
+export interface SweepToleranceOptions {
+    /**
+     * 3D approximation tolerance. OCCT's default is an absolute `1e-4`, which
+     * binds in both directions.
+     *
+     * Models much larger than unit scale should raise it in proportion,
+     * otherwise the surface approximation runs out of spans and the sweep
+     * degrades or fails outright. Near unit scale that same default is the
+     * accuracy floor, and lowering it is how you buy digits. On a 4x4 square
+     * swept 20 along a guide encoding a 90 degree twist, whose exact volume is
+     * 320, the relative error is 1.3e-5 at the default, 3.3e-9 at `1e-6` and
+     * 6.2e-13 at `1e-9`, for roughly 2x and 4x the build time.
+     *
+     * The gain is monotonic by decade but not step to step, so measure on the
+     * geometry you actually build rather than assuming tighter is better.
+     */
+    tol3d?: number;
+    /** Boundary tolerance. OCCT's default is an absolute `1e-4`. */
+    boundTol?: number;
+    /** Angular tolerance in radians. OCCT's default is `1e-2`. */
+    tolAngular?: number;
+}
+/**
+ * Controls for {@link OcctKernel.sweepAdvanced} — the union of the orientation
+ * controls of {@link OcctKernel.sweepOriented}, the corner transitions of
+ * {@link OcctKernel.sweepPipeShell}, and the profile placement that neither
+ * one exposes.
+ */
+export interface SweepAdvancedOptions extends SweepToleranceOptions {
+    /** Profile-orientation mode. Defaults to {@link SweepMode.Fixed}. */
+    mode?: SweepMode;
+    /** Constant binormal for {@link SweepMode.FixedUp}. Defaults to +Z. */
+    up?: Vec3;
+    /** Guide wire. Required for {@link SweepMode.Auxiliary}, ignored otherwise. */
+    auxSpine?: ShapeHandle;
+    /**
+     * {@link SweepMode.Auxiliary} only. Match spine and guide by curvilinear
+     * abscissa rather than by parameter. Defaults to `false`. See
+     * {@link SweepOrientedOptions.curvilinearEquivalence} for what the two
+     * settings actually construct.
+     */
+    curvilinearEquivalence?: boolean;
+    /**
+     * {@link SweepMode.Auxiliary} only. How the section tracks the *guide
+     * wire*. Defaults to {@link SweepContact.None}.
+     *
+     * Unrelated to {@link SweepAdvancedOptions.withContact}, which governs how
+     * the profile sits on the *spine*.
+     */
+    guideContact?: SweepContact;
+    /** Corner transition at spine vertices. Defaults to {@link TransitionMode.Transformed}. */
+    transitionMode?: TransitionMode;
+    /**
+     * Translate the profile so it touches the spine before sweeping
+     * (`BRepOffsetAPI_MakePipeShell::Add`'s `WithContact`). Defaults to
+     * `false`, which sweeps the profile where the caller placed it.
+     */
+    withContact?: boolean;
+    /**
+     * Rotate the profile to stay orthogonal to the spine tangent (`Add`'s
+     * `WithCorrection`). Defaults to `false`. A no-op on a straight spine.
+     */
+    withCorrection?: boolean;
+}
+/** Homothetic scaling law applied along the spine by {@link OcctKernel.sweepFull}. */
+export declare enum SweepLaw {
+    /** No scaling; the section keeps its authored size. */
+    None = 0,
+    /** Linear interpolation from 1 to `endFactor` (OCCT `Law_Linear`). */
+    Linear = 1,
+    /** S-curve with zero end derivatives, 1 to `endFactor` (OCCT `Law_S`). */
+    SCurve = 2
+}
+/**
+ * Controls for {@link OcctKernel.sweepFull}: everything
+ * {@link SweepAdvancedOptions} carries, plus the four `MakePipeShell` knobs
+ * that entry point cannot reach.
+ */
+export interface SweepFullOptions extends SweepAdvancedOptions {
+    /**
+     * Surface the sweep follows, as a shape containing the spine
+     * (`MakePipeShell::SetMode(SpineSupport)`). Replaces {@link
+     * SweepAdvancedOptions.mode} when supplied, and raises if the shape is not
+     * a valid support for the spine.
+     */
+    support?: ShapeHandle;
+    /** Maximum degree of the approximating surfaces. OCCT default when omitted. */
+    maxDegree?: number;
+    /** Maximum number of spans. OCCT default when omitted. */
+    maxSegments?: number;
+    /** Scaling law along the spine. Defaults to {@link SweepLaw.None}. */
+    law?: SweepLaw;
+    /**
+     * Parametric length the law spans — the spine length, matching OCCT's
+     * `Law_Linear::Set(0, 1, length, endFactor)`. Required with a law.
+     */
+    lawLength?: number;
+    /** Section scale at the end of the law. 1 leaves the section unscaled. */
+    lawEndFactor?: number;
+}
+/**
+ * Extra controls for {@link OcctKernel.sweepOriented}. The guide-wire fields
+ * apply to {@link SweepMode.Auxiliary} only; the tolerances apply to every mode.
+ */
+export interface SweepOrientedOptions extends SweepToleranceOptions {
+    /**
+     * {@link SweepMode.Auxiliary} only. Match spine and guide by curvilinear
+     * abscissa rather than by parameter. Defaults to `false`.
+     *
+     * The two settings are different constructions, not two qualities of the
+     * same one. `false` orients each section by the plane through the spine
+     * point and the guide (`GeomFill_GuideTrihedronPlan`); `true` matches
+     * spine and guide by curvilinear abscissa and reparametrizes the spine
+     * (`GeomFill_GuideTrihedronAC` over `BRepFill_ACRLaw`), which forces every
+     * side surface to be approximated as a B-spline even when the exact
+     * answer is planar.
+     *
+     * `false` is exact wherever the guide spans the spine, and it raises
+     * rather than guessing when a section plane misses the guide. `true`
+     * always produces something, but that something can be far off — a guide
+     * covering only the middle of the spine yields a solid ~46% under true
+     * volume instead of an error.
+     */
+    curvilinearEquivalence?: boolean;
+    /** {@link SweepMode.Auxiliary} only. Defaults to {@link SweepContact.None}. */
+    contact?: SweepContact;
+}
+/** Join type for offset/fillet operations (BRepOffsetAPI_MakeOffset). */
+export declare enum JoinType {
+    /** Arc interpolation at joints (default). */
+    Arc = 0,
+    /** Tangent extension at joints. */
+    Tangent = 1,
+    /** Intersection extension at joints. */
+    Intersection = 2
+}
+/** Boolean operation code for booleanPipeline. */
+export declare enum BooleanOp {
+    /** Union: combine volumes. */
+    Fuse = 0,
+    /** Subtraction: remove tool from base. */
+    Cut = 1,
+    /** Intersection: keep only overlapping volume. */
+    Common = 2
+}
+/** UV parameter bounds of a face surface. */
+export interface UVBounds {
+    uMin: number;
+    uMax: number;
+    vMin: number;
+    vMax: number;
+}
+/** Principal curvatures at a UV point on a face surface. */
+export interface CurvatureData {
+    /** Minimum principal curvature. */
+    min: number;
+    /** Maximum principal curvature. */
+    max: number;
+    /** Gaussian curvature (min * max). */
+    gaussian: number;
+    /** Mean curvature ((min + max) / 2). */
+    mean: number;
+}
+/** Polyline edge data from wireframe tessellation. */
+export interface EdgeData {
+    /** XYZ interleaved edge sample points. Length = pointCount. */
+    points: Float32Array;
+    /** Per-edge groups: [pointStart, pointCount, edgeHash] triples. */
+    edgeGroups: Int32Array;
+    /** Total number of floats in points (= number of XYZ coords). */
+    pointCount: number;
+    /** Number of distinct edges. */
+    edgeCount: number;
+}
+/**
+ * Shape history data from an operation that tracks face evolution.
+ * Maps input face hashes to their modified/generated/deleted status.
+ */
+export interface EvolutionData {
+    /** Result shape handle. */
+    result: ShapeHandle;
+    /** Face hashes from the input that were modified in the result. */
+    modified: number[];
+    /** New face hashes generated by the operation. */
+    generated: number[];
+    /** Face hashes from the input that no longer exist in the result. */
+    deleted: number[];
+}
+/** HLR (hidden line removal) projection result, split by visibility and edge category. */
+export interface ProjectionData {
+    /** Visible silhouette/outline edges. */
+    visibleOutline: ShapeHandle;
+    /** Visible smooth (tangent-continuous) edges. */
+    visibleSmooth: ShapeHandle;
+    /** Visible sharp (G1-discontinuous) edges. */
+    visibleSharp: ShapeHandle;
+    /** Hidden silhouette/outline edges. */
+    hiddenOutline: ShapeHandle;
+    /** Hidden smooth edges. */
+    hiddenSmooth: ShapeHandle;
+    /** Hidden sharp edges. */
+    hiddenSharp: ShapeHandle;
+}
+/** NURBS/BSpline curve data extracted from an edge via Geom_BSplineCurve. */
+export interface NurbsCurveData {
+    /** Polynomial degree of the BSpline. */
+    degree: number;
+    /** True if the curve uses rational weights. */
+    rational: boolean;
+    /** True if the curve is periodic. */
+    periodic: boolean;
+    /** Knot values. */
+    knots: number[];
+    /** Knot multiplicities (same length as knots). */
+    multiplicities: number[];
+    /** Flat [x,y,z, x,y,z, ...] control point coordinates. */
+    poles: number[];
+    /** Control point weights (same count as poles/3). */
+    weights: number[];
+}
+/** Result from queryBatch: aggregated shape properties. */
+export interface ShapeQueryResult {
+    bbox: BoundingBox;
+    volume: number;
+    area: number;
+    centerOfMass: Vec3;
+    shapeType: ShapeType;
+    isValid: boolean;
+}
+/** Concatenated mesh data for multiple shapes, produced by meshBatch. */
+export interface MeshBatchData {
+    /** Interleaved XYZ positions for all shapes. */
+    positions: Float32Array;
+    /** Interleaved XYZ normals for all shapes. */
+    normals: Float32Array;
+    /** Triangle indices for all shapes. */
+    indices: Uint32Array;
+    /** Per-shape offsets: [posStart, posCount, idxStart, idxCount] quads. */
+    shapeOffsets: Int32Array;
+    /** Number of shapes in the batch. */
+    shapeCount: number;
+    /** Total vertex count across all shapes. */
+    vertexCount: number;
+    /** Total triangle count across all shapes. */
+    triangleCount: number;
+}
+/**
+ * Structured error codes for programmatic error handling.
+ * Use `switch (error.code)` instead of parsing error message strings.
+ */
+export declare enum OcctErrorCode {
+    /** Shape construction failed (Build()/IsDone() returned false). */
+    ConstructionFailed = "CONSTRUCTION_FAILED",
+    /** Boolean operation failed (fuse/cut/common/intersect/section). */
+    BooleanFailed = "BOOLEAN_FAILED",
+    /** Referenced shape ID does not exist in the arena. */
+    InvalidShapeId = "INVALID_SHAPE_ID",
+    /** Referenced XCAF label ID does not exist. */
+    InvalidLabelId = "INVALID_LABEL_ID",
+    /** Tessellation or meshing operation failed. */
+    TessellationFailed = "TESSELLATION_FAILED",
+    /** STEP/STL/BREP import or export failed. */
+    ImportExportFailed = "IMPORT_EXPORT_FAILED",
+    /** Shape healing or repair operation failed. */
+    HealingFailed = "HEALING_FAILED",
+    /** Operation attempted on a closed XCAF document. */
+    DocumentClosed = "DOCUMENT_CLOSED",
+    /** OCCT kernel raised an internal error (Standard_Failure). */
+    KernelError = "KERNEL_ERROR",
+    /** Error does not match any known pattern. */
+    Unknown = "UNKNOWN"
+}
+/**
+ * Typed error thrown when an OCCT operation fails.
+ * The `operation` field identifies which kernel method raised the error.
+ * The `code` field enables programmatic error handling via `switch`.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   kernel.fuse(a, b);
+ * } catch (e) {
+ *   if (e instanceof OcctError) {
+ *     switch (e.code) {
+ *       case OcctErrorCode.BooleanFailed:
+ *         // retry with simpler geometry
+ *         break;
+ *       case OcctErrorCode.InvalidShapeId:
+ *         // shape was already released
+ *         break;
+ *     }
+ *   }
+ * }
+ * ```
+ */
+export declare class OcctError extends Error {
+    /** Name of the kernel method that failed. */
+    readonly operation: string;
+    /** Structured error code for programmatic handling. */
+    readonly code: OcctErrorCode;
+    constructor(operation: string, message: string, code?: OcctErrorCode);
+}
+type ExceptionDecoder = (e: unknown) => [type: string, message: string] | null | undefined;
+/**
+ * Register a module-backed decoder used to recover C++ `what()` strings from
+ * thrown `WebAssembly.Exception` objects. Returns a function that unregisters
+ * it, which the kernel calls on disposal so the module isn't retained.
+ */
+export declare function addExceptionDecoder(decoder: ExceptionDecoder): () => void;
+/**
+ * Run `fn`, re-throwing any failure as an {@link OcctError} tagged with the
+ * given operation name. Shared by the kernel and the XCAF document so error
+ * classification stays in one place.
+ */
+export declare function wrap<T>(operation: string, fn: () => T): T;
+export {};

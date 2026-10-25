@@ -1,0 +1,139 @@
+# How Crosscheck checks a pull request to Bezier: the Linux desktop app, in a
+# disposable VM, on several classes of hardware. What it is and why:
+# docs/contributing/ci.md. The tool: https://github.com/ProfessorEngineergit/Crosscheck
+#
+# Crosscheck always reads this file from the PR's BASE commit, so a pull request
+# cannot loosen its own checks; a change here takes effect after it is merged.
+#
+# STATUS: first version. Written from Crosscheck 0.1.0's documentation and source
+# and validated against its parser; whether the build and launch commands work in
+# a real VM is what the first run is for.
+
+version: 1
+channel: latest
+
+project:
+  profile: tauri
+  # `--no-bundle`: the binary only. Installers (deb, rpm, AppImage) need more
+  # packages and extra downloads, and nothing here tests them.
+  # `--ci`: no prompts. corepack: the pnpm version comes from package.json.
+  build: >-
+    corepack enable &&
+    pnpm install --frozen-lockfile &&
+    pnpm --filter @bezier/desktop exec tauri build --ci --no-bundle
+  launch:
+    # No web view workaround: the app draws without one on a Linux display with no
+    # GPU (measured in a virtual display, docs/contributing/ci.md). The first run in a real VM
+    # confirms it.
+    linux: apps/desktop/src-tauri/target/release/bezier-desktop
+  window_title: "^Bezier"
+
+platforms:
+  linux: { required: true }
+  # windows: { required: false }   # Crosscheck has no Windows image yet (its roadmap, item 1).
+
+matrix:
+  default: [mainstream]                              # every push to a pull request
+  label_run: [office, mainstream]                    # label crosscheck:run, or a maintainer request
+  label_matrix: [potato, office, mainstream, highend, insane]
+
+trust:
+  smoke:
+    bot: manual                                      # dependency bots never start a VM by themselves
+
+egress:
+  # The `tauri` profile allows the Rust registries only (crates.io), but the
+  # build installs the frontend first, with pnpm, from the npm registry; and
+  # corepack fetches pnpm itself from there. Without this line the build is
+  # cut off at `pnpm install`. Nothing else is needed: no installers are built.
+  allow:
+    - registry.npmjs.org
+
+# Every step is scripted, from the keyboard, and judged only by whether the
+# picture changed. No model is involved, so a run costs no API credits, and no
+# click coordinates are involved, so it means the same on a 1366 x 768 screen
+# and a 4K one. The keys are the app's own (Ctrl on Linux): Ctrl+K focuses the
+# search, Ctrl+1 .. Ctrl+7 are the named views. Every key press is also a
+# measurement: the host times how long the picture takes to answer it.
+#
+# The natural-language steps that need a model ("open the Display panel and check
+# nothing is cut off") come back as a second phase, once this one runs.
+smoke:
+  max_steps: 60
+  max_minutes: 10
+  steps:
+    - do: "Let the window appear and the geometry engine start."
+      expect: "The Bezier start page is on screen."
+      required: true
+
+    - do: "Focus the search and type a settings search."
+      actions:
+        - { action: key, keys: "ctrl+k" }
+        - { action: type, text: "settings: view" }
+      expect: "The page turns into Settings."
+      expect_change: true
+      settle_s: 1.5
+      required: true
+
+    - do: "Clear the search again."
+      actions:
+        - { action: key, keys: "ctrl+a" }
+        - { action: key, keys: "backspace" }
+      expect: "The projects are back."
+      expect_change: true
+      settle_s: 1.5
+      required: true
+
+    # Tab from the search to the New Project button is seven presses (counted
+    # with Playwright against the start page: search, All Projects, Learn, New
+    # folder, Settings, the sidebar's edge, the Bezier crumb, then New Project).
+    - do: "Tab to New Project and press Enter. The editor and its 3D view start."
+      actions:
+        - { action: key, keys: "tab", repeat: 7 }
+        - { action: key, keys: "return" }
+      expect: "An empty 3D workspace with a grid opens."
+      expect_change: true
+      settle_s: 8
+      required: true
+
+    - do: "Look from the top."
+      actions: [{ action: key, keys: "ctrl+4" }]
+      expect: "The grid is seen from above."
+      expect_change: true
+      required: true
+    - do: "Look from the front."
+      actions: [{ action: key, keys: "ctrl+2" }]
+      expect: "The grid is seen edge-on."
+      expect_change: true
+      required: true
+    - do: "Look from the right."
+      actions: [{ action: key, keys: "ctrl+6" }]
+      expect: "The view turns."
+      expect_change: true
+      required: false
+    - do: "Look from the left."
+      actions: [{ action: key, keys: "ctrl+7" }]
+      expect: "The view turns."
+      expect_change: true
+      required: false
+    - do: "Look from below."
+      actions: [{ action: key, keys: "ctrl+5" }]
+      expect: "The view turns."
+      expect_change: true
+      required: false
+    - do: "Back to the default three-quarter view."
+      actions: [{ action: key, keys: "ctrl+1" }]
+      expect: "The view turns back."
+      expect_change: true
+      required: false
+
+    - do: "Go Home."
+      actions: [{ action: key, keys: "ctrl+h" }]
+      expect: "The start page is shown again."
+      expect_change: true
+      required: false
+
+# No budgets yet. What a run reports is what was measured; the numbers it
+# produces are what the budgets will be set from (docs/contributing/ci.md).
+performance:
+  budgets: {}

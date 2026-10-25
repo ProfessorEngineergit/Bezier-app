@@ -1,0 +1,233 @@
+/*
+ * The edit view fills one screen: stage top left, a scrolling side column, and
+ * the timeline fixed along the bottom.
+ */
+
+.lessons-edit {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  box-sizing: border-box;
+  max-width: calc(var(--library-content-max, 1120px) + 2 * var(--library-content-pad, 24px));
+  /* The window height minus the start page's bar and padding, so the timeline stays on screen. */
+  height: calc(100vh - var(--library-bar-height, 52px) - 26px);
+  margin-bottom: -32px;
+  padding: 6px var(--library-content-pad, 24px) 10px;
+}
+
+.lessons-edit__head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 0 -10px;
+}
+
+.lessons-edit__history {
+  display: flex;
+  gap: 2px;
+}
+
+.lessons-edit__saved {
+  font-size: var(--lessons-text-sm);
+}
+
+.lessons-edit__saved[data-state="failed"] {
+  color: var(--fail);
+}
+
+.lessons-edit__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.lessons-edit__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: 20px;
+  min-height: 0;
+}
+
+/* The stage takes the remaining space, keeping its aspect ratio. */
+.lessons-edit__stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+.lessons-edit__stage .lessons-stage {
+  width: min(100cqw, 160cqh);
+}
+
+/* the timeline panel, under the picture */
+
+.lessons-edit__timeline {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px 12px;
+  border-radius: var(--radius-panel);
+  background: var(--surface-panel);
+}
+
+.lessons-edit__transport {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 36px;
+  /* Room for the timeline's zoom buttons at this row's right end. */
+  padding-right: 100px;
+}
+
+.lessons-edit__current {
+  margin-left: 8px;
+  overflow: hidden;
+  font-size: var(--lessons-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessons-edit__side {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  /* Padding so the first and last cards can clear the edge fade. */
+  margin-top: -12px;
+  padding: 12px 4px 32px 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* Fade content out at the top and bottom edges. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+}
+
+.lessons-edit__section {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  border-radius: var(--radius-panel);
+  background: var(--surface-panel);
+}
+
+.lessons-edit__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lessons-edit__title {
+  font-size: var(--lessons-text-lg);
+  font-weight: 600;
+}
+
+/* chapters */
+
+.lessons-edit__chapters {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lessons-edit__chapter {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.lessons-edit__chapter .lessons-input {
+  min-height: 32px;
+  padding: 4px 8px;
+}
+
+.lessons-edit__chapter[aria-current="step"] .lessons-input {
+  border-color: var(--line-strong);
+}
+
+.lessons-edit__chapter-time {
+  min-width: 52px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--lessons-text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.lessons-edit__chapter-time:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+/* trim */
+
+.lessons-edit__trim {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.lessons-edit__key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--surface-control);
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+}
+
+.lessons-edit__hint {
+  flex-basis: 100%;
+  font-size: var(--lessons-text-sm);
+  line-height: 1.5;
+}
+
+.lessons-edit__range {
+  margin: -6px 0 0;
+  font-size: var(--lessons-text-sm);
+}
+
+/* Narrow windows: the page scrolls and the column moves below the stage. */
+@media (max-width: 900px) {
+  .lessons-edit {
+    height: auto;
+    min-height: 100vh;
+    padding: 16px 16px 40px;
+  }
+
+  .lessons-edit__body {
+    grid-template-columns: 1fr;
+  }
+
+  .lessons-edit__stage {
+    container-type: normal;
+  }
+
+  .lessons-edit__stage .lessons-stage {
+    width: 100%;
+  }
+
+  .lessons-edit__side {
+    overflow: visible;
+  }
+}

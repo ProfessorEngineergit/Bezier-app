@@ -1,0 +1,5 @@
+<!doctype html><meta charset=utf-8>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'">
+<title>spike</title><p id=out>waiting</p>
+<iframe id=f title="A sandboxed frame with one inline script" sandbox="allow-scripts" srcdoc="<script>parent.postMessage('ran','*')</script>"></iframe>
+<script src="csp-spike.js"></script>

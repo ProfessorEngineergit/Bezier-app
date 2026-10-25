@@ -1,0 +1,35 @@
+/*
+ * A project being deleted: its card lifts slightly, then sinks, greying and softening. The others
+ * slide into the gap (`use-flip.ts`). Nothing red; the toast confirms the deletion.
+ */
+.tile[data-leaving] {
+  pointer-events: none;
+  animation: tile-leave 340ms cubic-bezier(0.4, 0, 0.7, 0.2) both;
+}
+@keyframes tile-leave {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+  28% {
+    opacity: 1;
+    filter: none;
+    transform: translateY(-6px) scale(1.025);
+  }
+  100% {
+    opacity: 0;
+    filter: grayscale(1) blur(5px);
+    transform: translateY(18px) scale(0.86);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile[data-leaving] {
+    animation: none;
+    opacity: 0;
+  }
+}
+[data-motion="reduced"] .tile[data-leaving] {
+  animation: none;
+  opacity: 0;
+}

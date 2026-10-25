@@ -1,0 +1,314 @@
+/*
+ * The follow panel, a picture-in-picture over the editor. `usePip.ts` places it
+ * with a transform from the overlay's top left and sizes it with `--pip-width`.
+ */
+
+.lessons-follow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  padding: 0;
+  border-radius: var(--radius-panel);
+  font-size: var(--text-size);
+  will-change: transform;
+  transition:
+    scale 220ms var(--ease),
+    border-color var(--fast) var(--ease);
+}
+
+/* After release: spring the last few pixels onto the snap position. */
+.lessons-follow[data-settling] {
+  transition:
+    scale 220ms var(--ease),
+    transform 460ms cubic-bezier(0.22, 1.45, 0.4, 1);
+}
+
+/* While dragged: slightly raised, with no transform transition. */
+.lessons-follow[data-carrying] {
+  scale: 1.02;
+  border-color: var(--line-strong);
+  transition: scale 220ms var(--ease);
+  user-select: none;
+}
+
+/* Snapped to an edge or the centre line. */
+.lessons-follow[data-carrying][data-stuck] {
+  border-color: var(--text-dim);
+}
+
+.lessons-follow[data-collapsed] {
+  gap: 4px;
+}
+
+.lessons-follow__head {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 2px 0 4px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.lessons-follow[data-carrying] .lessons-follow__head {
+  cursor: grabbing;
+}
+
+.lessons-follow__grip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-faint);
+  cursor: inherit;
+}
+
+.lessons-follow__grip:hover,
+.lessons-follow__grip:focus-visible {
+  color: var(--text);
+}
+
+.lessons-follow__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.lessons-follow__title {
+  overflow: hidden;
+  font-size: var(--text-size);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* tiles: the recording and the author camera */
+
+.lessons-follow__tiles {
+  display: grid;
+  gap: 6px;
+  animation: lessons-tiles-small 420ms var(--ease);
+}
+
+.lessons-follow[data-size="large"] .lessons-follow__tiles {
+  animation-name: lessons-tiles-large;
+}
+
+/* The same animation under two names, so it restarts when the size changes. */
+@keyframes lessons-tiles-small {
+  from {
+    opacity: 0.4;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes lessons-tiles-large {
+  from {
+    opacity: 0.4;
+    transform: scale(0.985);
+  }
+}
+
+/* Large: the author camera is a full-height column beside the recording. */
+.lessons-follow[data-size="large"] .lessons-follow__tiles[data-speaker] {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 23%);
+}
+
+.lessons-follow__tile {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.lessons-follow__tile .lessons-speaker {
+  height: 100%;
+}
+
+/* Swapped: the author camera is large and the recording is the small tile. */
+.lessons-follow[data-size="large"] .lessons-follow__tiles[data-focus="speaker"] {
+  grid-template-columns: minmax(120px, 23%) minmax(0, 1fr);
+  align-items: start;
+  animation-name: lessons-tiles-swapped;
+}
+
+.lessons-follow__tiles[data-focus="speaker"] .lessons-follow__tile[data-role="speaker"] {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.lessons-follow__tiles[data-focus="speaker"] .lessons-follow__tile[data-role="video"] {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.lessons-follow__tiles[data-focus="speaker"] .lessons-speaker {
+  aspect-ratio: 16 / 10;
+}
+
+@keyframes lessons-tiles-swapped {
+  from {
+    opacity: 0.4;
+    transform: scale(0.985);
+  }
+}
+
+/* The smaller tile is a button that swaps the tiles; its veil shows on hover. */
+.lessons-follow__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 0%);
+  cursor: pointer;
+  transition: background var(--medium) var(--ease);
+}
+
+.lessons-follow__veil:hover,
+.lessons-follow__veil:focus-visible {
+  background: rgb(0 0 0 / 34%);
+}
+
+.lessons-follow__swap {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: rgb(16 16 18 / 42%);
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 180ms var(--ease),
+    transform 280ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.lessons-follow__veil:hover .lessons-follow__swap,
+.lessons-follow__veil:focus-visible .lessons-follow__swap {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.lessons-follow .lessons-stage {
+  border-radius: 12px;
+}
+
+.lessons-speaker {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: linear-gradient(to bottom, var(--canvas-top), var(--canvas-bottom));
+}
+
+/* Small: the author camera is a wide strip under the recording. */
+.lessons-follow[data-size="small"] .lessons-speaker {
+  aspect-ratio: 21 / 6;
+}
+
+.lessons-speaker video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lessons-follow .lessons-scrub {
+  height: 20px;
+  padding: 8px 0;
+}
+
+.lessons-follow .lessons-controls__time {
+  font-size: var(--text-size-sm);
+}
+
+.lessons-follow__folded {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 4px 2px;
+}
+
+.lessons-follow__step {
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessons-follow__toggle {
+  padding: 0 6px 4px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.lessons-follow__body {
+  display: grid;
+  gap: 8px;
+}
+.lessons-follow__body[hidden] {
+  display: none;
+}
+.lessons-follow__resize {
+  position: absolute;
+  z-index: 6;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  touch-action: none;
+}
+.lessons-follow__resize[data-corner^="top"] {
+  top: -3px;
+}
+.lessons-follow__resize[data-corner^="bottom"] {
+  bottom: -3px;
+}
+.lessons-follow__resize[data-corner$="left"] {
+  left: -3px;
+}
+.lessons-follow__resize[data-corner$="right"] {
+  right: -3px;
+}
+.lessons-follow__resize[data-corner="top-left"],
+.lessons-follow__resize[data-corner="bottom-right"] {
+  cursor: nwse-resize;
+}
+.lessons-follow__resize[data-corner="top-right"],
+.lessons-follow__resize[data-corner="bottom-left"] {
+  cursor: nesw-resize;
+}
+
+/* Laid out at the panel's width: the picture fills the space while the header and transport keep
+   their size (usePip.ts). */
+.lessons-follow__content {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 8px;
+}
+.lessons-follow[data-collapsed] .lessons-follow__content {
+  gap: 4px;
+}
+.lessons-follow .lessons-controls__row {
+  min-width: 0;
+}
+.lessons-follow .lessons-controls__time {
+  white-space: nowrap;
+}

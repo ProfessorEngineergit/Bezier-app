@@ -1,0 +1,16 @@
+{
+  "name": "@bezier/plugin-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Make Bezier plugins: the types of the bezier object, and bezier-plugin to scaffold, run with reload, check and pack",
+  "license": "MIT",
+  "type": "module",
+  "types": "./bezier.d.ts",
+  "bin": {
+    "bezier-plugin": "../../dist-sdk/bezier-plugin.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "vite": "8.2.4"
+  }
+}

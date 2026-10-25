@@ -1,0 +1,196 @@
+/* The player: the stage, its controls and the chapters beside it. */
+
+.lessons-player {
+  position: relative;
+  max-width: calc(var(--library-content-max, 1120px) + 2 * var(--library-content-pad, 24px));
+  min-height: calc(100vh - var(--library-bar-height, 52px) - 26px);
+  padding: 20px var(--library-content-pad, 24px) 48px;
+}
+
+.lessons-player__head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 12px -10px;
+}
+
+.lessons-player__back {
+  padding-left: 6px;
+}
+
+.lessons-player__actions {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
+
+.lessons-player__title {
+  margin: 4px 0 4px;
+}
+
+.lessons-player__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  align-items: center;
+  margin: 0 0 16px;
+  font-size: var(--lessons-text-sm);
+}
+
+.lessons-player__done {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: 4px;
+  color: var(--ok);
+}
+
+.lessons-player__done svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lessons-player__description {
+  max-width: 64ch;
+  margin: -8px 0 16px;
+  color: var(--text-dim);
+}
+
+.lessons-player__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.lessons-player__main {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* stage and floating controls */
+
+.lessons-player__stage {
+  position: relative;
+}
+
+.lessons-player__stage:fullscreen {
+  display: grid;
+  background: var(--canvas-bottom);
+}
+
+.lessons-player__stage:fullscreen .lessons-stage {
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+
+/* Glass controls over the picture; they fade while playing when idle. */
+.lessons-player__bar {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  padding: 2px 8px 6px;
+  border-radius: var(--radius-lg);
+  transition:
+    opacity var(--medium) var(--ease),
+    transform var(--medium) var(--ease);
+}
+
+.lessons-player__chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  max-width: calc(100% - 24px);
+  padding: 5px 12px 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  font-size: var(--lessons-text-sm);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    opacity var(--medium) var(--ease),
+    transform var(--medium) var(--ease);
+}
+
+.lessons-player__chip .lessons-label {
+  color: var(--text-dim);
+}
+
+.lessons-player__stage[data-idle] .lessons-player__bar {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.lessons-player__stage[data-idle] .lessons-player__chip {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.lessons-player__stage[data-idle] {
+  cursor: none;
+}
+
+@media (max-width: 900px) {
+  .lessons-player {
+    padding: 16px 16px 40px;
+  }
+
+  .lessons-player__body {
+    grid-template-columns: 1fr;
+  }
+
+  .lessons-player__head {
+    flex-wrap: wrap;
+  }
+}
+
+/* No shadow over the picture; the hairline and blur are enough. */
+.lessons-player__chip.lessons-glass,
+.lessons-player__bar.lessons-glass {
+  box-shadow: none;
+}
+
+/* A hovered chapter shows its first frame beside the list. */
+.lessons-chapter {
+  position: relative;
+}
+
+.lessons-chapter__frame {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  z-index: 5;
+  width: 176px;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  object-fit: cover;
+  opacity: 0;
+  transform: translate(6px, -50%);
+  transition:
+    opacity 160ms var(--ease),
+    transform 220ms var(--ease);
+  pointer-events: none;
+}
+
+.lessons-chapter:hover .lessons-chapter__frame {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+@media (max-width: 900px) {
+  .lessons-chapter__frame {
+    display: none;
+  }
+}

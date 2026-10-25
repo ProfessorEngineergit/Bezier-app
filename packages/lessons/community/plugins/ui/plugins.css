@@ -1,0 +1,117 @@
+/* Plugin styles not covered by Community's. Tokens only. */
+
+.pl-tabs {
+  display: flex;
+  gap: var(--pad-xs);
+  margin-bottom: var(--pad-lg);
+}
+
+.pl-tab {
+  height: var(--library-row-height);
+  padding: 0 var(--pad);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  font-weight: 600;
+}
+
+.pl-tab[aria-selected="true"] {
+  background: var(--brand-selected-band, var(--surface-control-active));
+  color: var(--brand-selected-text, var(--text));
+}
+
+.pl-check {
+  /* The brand's monochrome accent, not the system blue. */
+  accent-color: var(--accent);
+  display: inline-flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  color: var(--text-dim);
+}
+
+.pl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-xs);
+  margin: var(--pad) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pl-chip {
+  padding: 2px var(--pad-sm);
+  border-radius: 999px;
+  background: var(--surface-control-glass);
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+}
+
+/* High-risk permissions (the user's work or the network). */
+.pl-chip--high {
+  color: var(--fail);
+}
+
+.pl-installed {
+  display: inline-flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.pl-consent__lead {
+  margin: var(--pad) 0 var(--pad-xs);
+  font-weight: 600;
+}
+
+.pl-permissions {
+  margin: 0 0 var(--pad);
+  padding-left: var(--pad-lg);
+  line-height: 1.6;
+}
+
+.pl-permission--high {
+  color: var(--fail);
+}
+
+.pl-warning {
+  margin: var(--pad) 0;
+  padding: var(--pad-sm) var(--pad);
+  border: 1px solid var(--fail);
+  border-radius: var(--radius-control);
+  color: var(--fail);
+  line-height: 1.45;
+}
+
+.pl-installed-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pl-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.pl-row .cl-source__url {
+  white-space: normal;
+}
+
+.pl-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-sm);
+  align-items: center;
+}
+
+.cl-status--revoked {
+  color: var(--fail);
+}

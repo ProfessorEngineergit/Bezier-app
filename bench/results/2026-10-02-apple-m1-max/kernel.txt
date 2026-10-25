@@ -1,0 +1,59 @@
+
+> bezier@0.0.0 bench <repo>
+> pnpm --filter @bezier/bench bench
+
+
+> @bezier/bench@0.0.0 bench <repo>/bench
+> tsx src/run.ts
+
+
+Bezier benchmarks
+
+kernel cold load: 78 ms  (budget 3000 ms)
+
+measurement                          p50       p95       p99       max   runs
+-----------------------------------------------------------------------------
+rebuild · simple (2 features)       2.02      2.30      2.30      2.30     10
+rebuild · small (8 features)        15.8      22.3      22.3      22.3     10
+rebuild · medium (22 features)      64.9      67.3      67.3      67.3     10
+rebuild · large (42 features)      183.8     185.6     185.6     185.6     10
+
+all figures in milliseconds
+
+scaling — cost per feature as history grows
+
+ features   total p50   per feature
+------------------------------------
+        4         4.4          1.10
+       12        23.8          1.98
+       22        61.5          2.80
+       42       181.1          4.31
+       82       617.1          7.53
+incremental rebuild — editing one feature of a warm history
+
+  history   cold p50   edit last   edit first   speedup
+--------------------------------------------------------
+       10       60.9        10.8         60.4      5.6x
+       20      179.9        18.3        180.1      9.9x
+       40      616.5        35.0        617.6     17.6x
+
+all figures in milliseconds
+
+
+breakdown — a single medium rebuild
+
+measurement                        p50       p95       p99       max   runs
+---------------------------------------------------------------------------
+  tessellate                      0.98      1.31      1.31      1.31     20
+  extract edges                   0.05      0.18      0.18      0.18     20
+  describe faces                  0.11      0.13      0.13      0.13     20
+
+all figures in milliseconds
+
+budgets (docs/performance.md)
+
+  within kernel cold load: 78 ms against a 3000 ms budget
+  within rebuild · medium (22 features): p99 67.3 ms against a 100 ms budget
+
+All measured budgets met.
+

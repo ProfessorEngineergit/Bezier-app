@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    A large model opens in minutes, often with the window behind another. Without this macOS puts an
+    app that is not in front to sleep (App Nap) and the opening slows to a crawl or stops until the
+    window is looked at again.
+  -->
+  <key>NSAppSleepDisabled</key>
+  <true/>
+  <!--
+    Without these two keys macOS never asks: the webview's getUserMedia fails
+    at once and the camera stays off, with nothing on screen saying why. They
+    are what Lessons' recording asks the system for (packages/lessons,
+    record/recorder.ts) — the author's own camera picture and voice, kept in
+    the lesson on this machine and nowhere else.
+  -->
+  <key>NSCameraUsageDescription</key>
+  <string>Bezier shows your camera in the corner of a lesson you record. It is kept in the lesson on this Mac.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Bezier records your voice with a lesson you make. It is kept in the lesson on this Mac.</string>
+</dict>
+</plist>

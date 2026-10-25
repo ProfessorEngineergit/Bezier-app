@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 82" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <title>Learn window</title>
+  <rect x="3" y="3" width="94" height="76" rx="10" fill="#171719" fill-opacity=".38" stroke-opacity=".68"/>
+  <g opacity=".68">
+    <path d="M13 13h3m6 0h30M79 11l5 5m0-5l-5 5"/>
+    <rect x="11" y="22" width="78" height="31" rx="5"/>
+    <path d="m46 31 10 6-10 6z"/>
+    <rect x="11" y="58" width="29" height="12" rx="3"/>
+    <path d="M47 61h40M47 67h27"/>
+  </g>
+</svg>

@@ -1,0 +1,1743 @@
+@import "./performance-graph.css";
+/*
+ * The shell: title bar, rails, canvas. All values come from `tokens.css`; no literal colours or
+ * sizes here.
+ */
+
+/* Controls with their own stylesheet, kept next to their component. */
+@import "./slider.css";
+
+/*
+ * Pinned to the viewport, not just sized to it: `height: 100vh` in normal flow still sits below the
+ * body's default 8px margin, which offset the title bar.
+ */
+.workspace {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: var(--bar-height) 1fr;
+  overflow: hidden;
+  background: var(--canvas-bottom);
+  color: var(--text);
+  font: var(--text-size) / 1.4 var(--font);
+}
+
+/*
+ * Disable web-page defaults a webview brings (text selection, text caret, hand cursor, image drag,
+ * tap highlight, overscroll bounce). Re-enabled only where text is typed.
+ */
+.workspace,
+.workspace * {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Text inputs get the caret and selection back. Radios, checkboxes and sliders keep the default
+   cursor. */
+.workspace input:not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+.workspace textarea,
+.workspace [contenteditable="true"] {
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* glass: the one floating-panel material */
+
+/*
+ * The shared glass material for all popovers, menus, dialogs and docked panels. Radius is not part
+ * of it; each surface keeps its own `border-radius`.
+ *
+ * The resting rail icon band is not glass. A `backdrop-filter` composites against the nearest
+ * filtered ancestor, so glass popovers nested inside a glass band would blur the band's tint and
+ * look transparent. The band stays opaque (see `.rail__icons`); only what floats free of it (flyout
+ * bands, label pills, popovers, panels) is glass.
+ */
+.rail__flyout .rail__icons,
+.rail__label,
+.popover,
+.dropzone__label,
+.menu,
+.items-panel,
+.inspection-panel,
+.dwg-toolbar,
+.dwg-inspector,
+.dwg-overview,
+.dwg__error,
+.dwg__hint,
+.dwg__loading,
+.dwg-export__menu,
+.sim-bar,
+.sim-hint,
+.sim-inspector,
+.viz__actions,
+.viz-inspector,
+.viz__error,
+.library .confirm-dialog,
+.library .library-dialog {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .rail__flyout .rail__icons,
+  .rail__label,
+  .popover,
+  .dropzone__label,
+  .menu,
+  .items-panel,
+  .inspection-panel,
+  .dwg-toolbar,
+  .dwg-inspector,
+  .dwg-overview,
+  .dwg__error,
+  .dwg__hint,
+  .dwg__loading,
+  .dwg-export__menu,
+  .sim-bar,
+  .sim-hint,
+  .sim-inspector,
+  .viz__actions,
+  .viz-inspector,
+  .viz__error,
+  .library .confirm-dialog,
+  .library .library-dialog {
+    background: var(--glass-bg-opaque);
+  }
+}
+
+/* title bar */
+
+.titlebar {
+  position: relative;
+  z-index: 9;
+  isolation: isolate;
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  padding: 0 var(--pad-sm);
+  background: transparent;
+  -webkit-app-region: drag;
+}
+
+.titlebar::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .titlebar::before {
+    background: var(--glass-bg-opaque);
+  }
+}
+
+/* The Mac app overlays the window buttons on this corner (tauri.conf.json: titleBarStyle
+   "Overlay"); the start page leaves the same room in library.css. A stylesheet rule because an
+   injected <style> is blocked by the release build's CSP. */
+:root[data-shell="desktop"][data-platform="mac"]:not([data-fullscreen]) .titlebar {
+  padding-left: 92px;
+}
+
+/* Controls stay clickable inside a bar that is otherwise a drag handle. */
+.titlebar button,
+.titlebar a {
+  -webkit-app-region: no-drag;
+}
+
+.titlebar__badge {
+  display: inline-flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font: 600 var(--text-size-badge) / 1 var(--font);
+  cursor: default;
+}
+
+/* Small square bar controls (home, project settings), sized to the bar so they stay centred. */
+.titlebar__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control-glass);
+  color: var(--text-dim);
+  transition:
+    background var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+.titlebar__icon:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+.titlebar__icon:active {
+  background: var(--control-press);
+}
+
+.titlebar__icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The project name: plain title at rest, becomes an input when clicked (see TitleBar.tsx). */
+.titlebar__name {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-dim);
+  font: inherit;
+  text-align: left;
+  max-width: 22rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    background var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+.titlebar__name:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+.titlebar__name:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Editing: same box as at rest, slightly lit, so the text does not move. The width follows the
+   text: the hidden copy in `::after` and the input share one grid cell (TitleBar.tsx). */
+.titlebar__nameField {
+  -webkit-app-region: no-drag;
+  display: inline-grid;
+  min-width: 3ch;
+  max-width: 22rem;
+  border-radius: var(--radius-control);
+  background: var(--control-hover);
+  box-shadow: inset 0 0 0 1px var(--glass-border);
+}
+
+.titlebar__nameField::after,
+.titlebar__nameInput {
+  grid-area: 1 / 1;
+  padding: var(--pad-xs) var(--pad-sm);
+  font: inherit;
+}
+
+.titlebar__nameField::after {
+  overflow: hidden;
+  content: attr(data-value);
+  visibility: hidden;
+  white-space: pre;
+}
+
+.titlebar__nameInput {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+}
+
+.titlebar__spacer {
+  flex: 1;
+}
+
+/* Export at the right end of the bar. */
+.titlebar__export {
+  -webkit-app-region: no-drag;
+  display: inline-flex;
+  gap: var(--pad-xs);
+  align-items: center;
+  padding: var(--pad-xs) var(--pad-sm) var(--pad-xs) var(--pad-xs);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  transition: background var(--fast) var(--ease);
+}
+
+.titlebar__export:hover {
+  background: var(--control-hover);
+}
+
+.titlebar__export:active {
+  background: var(--control-press);
+}
+
+.titlebar__export:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Remaining bar space between the name and the right-hand controls. */
+.titlebar__free {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+
+/* the stage */
+
+.stage {
+  position: relative;
+  min-height: 0;
+  /* Subtle two-stop vertical gradient, lighter at the top, matched to the reference. */
+  background: linear-gradient(to bottom, var(--canvas-top), var(--canvas-bottom));
+}
+
+/* rails */
+
+/* Own layer above the view cube, so the rail and its popovers are not drawn under it. */
+.rail {
+  position: absolute;
+  z-index: 4;
+  top: var(--edge);
+  bottom: var(--floor);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad);
+  /* The rail floats over the canvas and must not block camera drags; its controls opt back in. */
+  pointer-events: none;
+}
+
+.rail--left {
+  left: var(--rail-inset);
+  align-items: flex-start;
+}
+
+/* `--side-panel` is the width of a workspace's own right panel (Visualize, Drawings); the rail
+   sits beside it, never under it. */
+.rail--right {
+  right: calc(var(--rail-inset) + var(--side-panel, 0px));
+  align-items: flex-end;
+}
+
+/*
+ * Three vertical anchors: workspace switcher under the title bar, command groups centred,
+ * inspection tools at the bottom (matching the reference).
+ */
+.rail__zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad);
+}
+
+.rail--left .rail__zone {
+  align-items: flex-start;
+}
+
+.rail--right .rail__zone {
+  align-items: flex-end;
+}
+
+.rail__zone--centre {
+  /*
+   * Auto margins centre the zone when there is room and collapse to pack it from the top when there
+   * is not, so a long palette never overlaps the switcher above. No overflow here: a scroll
+   * container clips both axes and would hide every flyout.
+   */
+  margin-block: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* The pinned zones keep their natural height; the middle takes the rest. */
+.rail__zone--top,
+.rail__zone--bottom {
+  flex: none;
+}
+
+/*
+ * Without a centre zone (right rail) the bottom zone takes the slack, so it still sits at the
+ * bottom. Only in that case: an extra auto margin would un-centre the left rail's command band.
+ */
+.rail:not(:has(.rail__zone--centre)) .rail__zone--bottom {
+  margin-top: auto;
+}
+
+/* A group has two columns: the banded icon stack and the labels. The band wraps the icons only. */
+.rail__group {
+  display: flex;
+  gap: var(--rail-pill-gap);
+  align-items: flex-start;
+  /* The group box is as wide as its labels, which are mostly hidden; it must not catch clicks
+     meant for what is underneath. The icon band re-enables pointer events, so hover still works. */
+  pointer-events: none;
+}
+
+.rail__group > .rail__icons {
+  pointer-events: auto;
+}
+
+.rail--right .rail__group {
+  flex-direction: row-reverse;
+}
+
+/*
+ * Bottom groups end at the bottom: when the labels are taller than the icons (quick settings: a
+ * 40 px icon beside a 46 px label) the band would otherwise end 6 px above neighbouring panels.
+ */
+.rail__zone--bottom .rail__group {
+  align-items: flex-end;
+}
+
+/*
+ * The band behind a group of icons: 36 px wide (including 2 px padding each side), 26 px buttons
+ * on a 28 px row pitch. Painted by `::before` rather than the band itself: flyouts and popovers are
+ * DOM children of the band, and a `backdrop-filter` on an ancestor would become their backdrop
+ * root. `.rail__slot` is positioned and later, so it paints above.
+ */
+.rail__icons {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rail-gap);
+  width: var(--rail-column);
+  padding: var(--rail-band-pad);
+  /* Keeps the band's size; the visible border is drawn on the glass layer. */
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+}
+
+/* The hairline is drawn on the blurred layer so canvas grid lines behind it do not break it up. */
+.rail__icons::before {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--glass-border);
+  border-radius: inherit;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  content: "";
+  pointer-events: none;
+}
+
+/*
+ * A group that still needs something (Simulation: no support or load yet): a dot and rim in the
+ * selection colour, removed once satisfied.
+ */
+.rail__group[data-needed] > .rail__icons::before {
+  border-color: color-mix(in srgb, var(--select) 70%, transparent);
+}
+
+.rail__needed {
+  position: absolute;
+  z-index: 1;
+  top: -4px;
+  right: -4px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--canvas-top, #1d1d1f);
+  border-radius: 50%;
+  background: var(--select);
+  pointer-events: auto;
+}
+
+/* A flyout's band floats free and is glass itself (see the glass rule). */
+.rail__flyout .rail__icons::before {
+  content: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .rail__icons::before {
+    background: var(--glass-bg-opaque);
+  }
+}
+
+/* The right-rail icon column is larger than the left-rail band. */
+.rail--right .rail__icons {
+  width: var(--utility-column);
+  border-radius: var(--radius-lg);
+}
+
+/* Matches the icon stack row for row, so each label is level with its button. */
+.rail__labels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rail-gap);
+  padding: var(--rail-band-pad) 0;
+  /* Labels never take the pointer: at opacity 0 they would still catch clicks meant for panels
+     next to the rail. */
+  pointer-events: none;
+}
+
+/* Pills are sized to their own text; equal-width pills would read as a menu. */
+.rail--left .rail__labels {
+  align-items: flex-start;
+}
+
+.rail--right .rail__labels {
+  align-items: flex-end;
+}
+
+/*
+ * Labels fade in only while the pointer is on the group. They take no pointer events, so hidden
+ * labels cost no space or clicks. Uses opacity, while flyout suppression below uses `visibility`,
+ * so the two rules stay independent.
+ */
+.rail__group > .rail__labels {
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+
+/*
+ * `:focus-visible`, not `:focus-within`: a mouse click leaves the button focused, which would keep
+ * the labels shown until the next click elsewhere.
+ */
+.rail__group:hover > .rail__labels,
+.rail__group:has(.rail__icon:focus-visible) > .rail__labels {
+  opacity: 1;
+}
+
+/* A group that still needs something keeps its labels visible until satisfied. */
+.rail__group[data-needed] > .rail__labels {
+  opacity: 1;
+}
+
+/*
+ * Rail buttons are a plain fill: no border, bevel or inner light, matching the reference. Only
+ * `background` transitions.
+ */
+.rail__icon {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 100%;
+  height: var(--rail-item-height);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  cursor: default;
+  transition: background var(--fast) var(--ease);
+}
+
+/*
+ * Hover and pressed fills. A button whose panel or tool is open is not filled; the open panel shows
+ * that. `aria-current` stays on the button for assistive technology.
+ */
+.rail__icon:hover:not(:disabled),
+.rail__icon[data-chosen]:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.rail__icon:active:not(:disabled) {
+  background: var(--control-press);
+}
+
+/*
+ * Corner mark for buttons with variants: a gradient triangle, so it needs no element and is not a
+ * separate click target.
+ */
+.rail__icon[data-opens-palette]::after {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(315deg, currentColor 50%, transparent 50%);
+  content: "";
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.rail__icon[data-opens-palette][aria-current="true"]::after {
+  opacity: 0.85;
+}
+
+/* Right-rail icons are taller and more rounded than left-rail icons. */
+.rail--right .rail__icons .rail__icon {
+  /* Square: as tall as the band is wide, minus padding and border. */
+  height: calc(var(--utility-column) - 2 * var(--rail-band-pad) - 2px);
+  border-radius: var(--radius-control);
+}
+
+/*
+ * The label column must repeat that height: both columns share one `gap`, so a shorter label row
+ * accumulates drift with each row.
+ */
+.rail--right .rail__labels .rail__label,
+.rail--right .rail__labelGap {
+  height: var(--utility-height);
+}
+
+.rail__icon:disabled {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.rail__icon:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The variants corner mark is not drawn yet; it returns once tool variants exist. */
+
+/* Labels are separate pills beside the icons, so hiding them does not move the icons. Material
+   comes from the shared glass rule. */
+.rail__label {
+  /* The glass rule adds a 1px border; without border-box the pill grows 2px and drifts from its
+     row. */
+  box-sizing: border-box;
+  display: flex;
+  width: fit-content;
+  gap: var(--pad-sm);
+  align-items: center;
+  height: var(--rail-item-height);
+  padding: 0 var(--pad-sm);
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rail__label[data-disabled] {
+  color: var(--text-faint);
+}
+
+.rail__labelText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rail__labelName {
+  font-weight: 500;
+  font-size: var(--text-size-rail);
+  line-height: 1.15;
+}
+
+/* A pill with a value line stays 23 px tall like a single-line pill, keeping the 26 px grid. */
+.rail__label[data-two-line] .rail__labelName {
+  line-height: 1.05;
+}
+
+.rail__detail {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: var(--text-size-rail-detail);
+  line-height: 1.05;
+}
+
+.rail__labelGap {
+  display: block;
+  height: var(--rail-item-height);
+}
+
+.rail__caps {
+  display: flex;
+  gap: 2px;
+}
+
+.rail__caps kbd {
+  display: grid;
+  place-items: center;
+  min-width: 13px;
+  height: 13px;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 9%);
+  color: var(--text-dim);
+  font: 500 var(--text-size-badge) / 1 var(--font);
+}
+
+/* A flyout: a second icon column beside the rail, top-aligned with its slot by nesting. */
+.rail__flyout {
+  position: absolute;
+  top: calc(var(--rail-band-pad) * -1);
+  display: flex;
+  gap: var(--rail-pill-gap);
+  align-items: flex-start;
+  z-index: 10;
+}
+
+/* One column width right of the parent band, overlapping it by 2 px (one band-pad each). The pitch
+   token (item-height + gap) equals the column width in this design. */
+.rail__flyout--left {
+  left: calc(var(--rail-column) - var(--rail-band-pad));
+}
+
+.rail__flyout--right {
+  right: calc(var(--rail-column) - var(--rail-band-pad));
+  flex-direction: row-reverse;
+}
+
+/* An open flyout occupies the parent's label column, so hide those labels. */
+.rail__group:has(.rail__flyout) > .rail__labels {
+  visibility: hidden;
+}
+
+/*
+ * Raise the band holding an open popover above the label column. Band and label pills each have a
+ * `backdrop-filter`, making them stacking contexts, so the popover's own `z-index` only counts
+ * inside the band.
+ */
+.rail__group:has(.rail__popoverAnchor) > .rail__icons {
+  position: relative;
+  z-index: 1;
+}
+
+/* accessibility */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* popovers */
+
+/* Each icon has its own slot, the positioning context a panel hangs from. */
+.rail__slot {
+  position: relative;
+}
+
+/*
+ * Above the notification panel: a popover opening left from the right rail overlaps it, and the
+ * popover the user just opened must get the click.
+ */
+.rail__popoverAnchor {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+}
+
+/*
+ * Bottom-zone popovers open upward: the anchor is pinned to the button's bottom, so tall panels
+ * grow into the canvas instead of off the window.
+ */
+.rail__zone--bottom .rail__popoverAnchor {
+  top: auto;
+  bottom: 0;
+}
+
+.rail__popoverAnchor--left {
+  left: calc(100% + var(--pad-sm));
+}
+
+.rail__popoverAnchor--right {
+  right: calc(100% + var(--pad-sm));
+}
+
+.popover {
+  width: 208px;
+  padding: var(--pad);
+  border-radius: var(--radius-lg);
+}
+
+.popover__title {
+  margin: 0 0 var(--pad-sm);
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
+}
+
+/*
+ * The right-hand view panel, docked left of the right rail and pinned to its bottom so it does not
+ * move between tabs. Slightly wider than a popover for its tab strip.
+ */
+.view-panel-dock {
+  position: absolute;
+  right: calc(var(--rail-inset) + var(--side-panel, 0px) + var(--utility-column) + var(--pad));
+  bottom: var(--floor);
+  z-index: 10;
+}
+
+.view-panel-dock .popover {
+  width: 248px;
+}
+
+/* The title is styled as a heading: it names the section the rail icon selected. */
+.view-panel-dock .popover__title {
+  margin: 0 0 var(--pad-sm);
+  padding: 0 0 var(--pad-sm);
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Section tabs in place of the title: text tabs with an underline, distinct from the segmented
+   choices inside. */
+.view-panel__tabs {
+  display: flex;
+  gap: var(--pad);
+  margin: 0 0 var(--pad-sm);
+  border-bottom: 1px solid var(--line);
+}
+
+.view-panel__tabs button {
+  margin: 0 0 -1px;
+  padding: 0 0 var(--pad-sm);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  cursor: default;
+}
+
+.view-panel__tabs button:hover {
+  color: var(--text);
+}
+
+.view-panel__tabs button[aria-selected="true"] {
+  border-bottom-color: var(--text);
+  color: var(--text);
+}
+
+.view-panel__tabs button:focus-visible {
+  outline: 1.5px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* A heading inside a section; "Every workspace" beside it marks an app-wide preference. */
+.view-panel__group {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: var(--pad) 0 var(--pad-xs);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+
+.view-panel__group:first-child {
+  margin-top: var(--pad-xs);
+}
+
+.view-panel__group small {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  font-weight: 500;
+}
+
+/*
+ * Fixed height for every section so the panel does not move or resize when switching: short
+ * sections leave room, tall ones scroll. Width is fixed on the panel.
+ */
+.view-panel__body {
+  height: 372px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Without the modelling view sections hold only a few settings; use a smaller box. */
+.view-panel__body[data-scope="app"] {
+  height: auto;
+}
+
+/* Named views: Zoom to fit on top, the seven views in a grid below. */
+.view-panel__views {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  margin: var(--pad-xs) 0 var(--pad-sm);
+}
+
+.view-panel__views button {
+  padding: 6px 2px;
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: var(--surface-control-glass);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--text-size-sm);
+  cursor: default;
+}
+
+.view-panel__views button:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+.view-panel__views button.view-panel__fit {
+  grid-column: 1 / -1;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+.view-panel__views button.view-panel__fit:hover {
+  background: var(--accent-hover);
+}
+
+/* Show/hide toggles as a row of buttons that stay pressed. */
+.view-panel__chips {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 3px;
+  margin: var(--pad-sm) 0;
+  padding: 0;
+  border: none;
+}
+
+.view-panel__chips legend {
+  margin-bottom: var(--pad-xs);
+}
+
+.view-panel__chip {
+  padding: 6px 4px;
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: var(--surface-control-glass);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--text-size-sm);
+  cursor: default;
+  transition:
+    background var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+.view-panel__chip[aria-pressed="true"] {
+  background: var(--control-hover);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--glass-border);
+}
+
+/* While the panel is open, hide the right-rail labels; they would show through its glass. */
+body:has(.view-panel-dock) .rail--right .rail__labels {
+  visibility: hidden;
+}
+
+.field {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pad-sm);
+}
+
+.field__label {
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.field select,
+.field input[type="number"],
+.field input[type="text"] {
+  width: 6.5rem;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: inherit;
+  font: inherit;
+}
+
+.field input[type="range"] {
+  width: 6.5rem;
+  accent-color: var(--text);
+}
+
+.choice {
+  margin: 0 0 var(--pad-sm);
+  padding: 0;
+  border: none;
+}
+
+.choice__option {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  padding: var(--pad-xs) 0;
+  font-size: var(--text-size);
+  cursor: default;
+}
+
+.icon-choice {
+  margin: var(--pad-sm) 0 var(--pad-sm);
+  padding: 0;
+  border: none;
+}
+
+.icon-choice__row {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 2px;
+  margin-top: var(--pad-xs);
+  padding: 2px;
+  border-radius: var(--radius-control);
+  background: var(--surface-control-glass);
+}
+
+.icon-choice__option {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: 7px 4px 6px;
+  border-radius: calc(var(--radius-control) - 2px);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  cursor: default;
+  transition:
+    background var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+.icon-choice__option:hover {
+  color: var(--text);
+}
+
+.icon-choice__option[data-checked] {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+/* The radio stays for keyboard and screen readers; the segment is its visual. */
+.icon-choice__option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.icon-choice__option:has(input:focus-visible) {
+  outline: 1.5px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.icon-choice__option svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-choice__option small {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+.toggle {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  margin-bottom: var(--pad-xs);
+  font-size: var(--text-size);
+  cursor: default;
+}
+
+.toggle:has(input:disabled) {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.toggle__hint {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+/* A short explanation under a group of controls, e.g. for an intentionally missing option. */
+.popover__note,
+.sheet__note {
+  margin: var(--pad-sm) 0 0;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+/* panel contents */
+
+.panel__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-xs);
+  margin-top: var(--pad-sm);
+}
+
+.panel__buttons button {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-size-sm);
+  cursor: default;
+}
+
+.panel__buttons button:hover {
+  background: var(--surface-control-hover);
+}
+
+/* The button tag raises specificity above `.panel__buttons button` without !important. */
+.panel__buttons button.panel__primary {
+  flex: 1;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+.panel__buttons button.panel__primary:hover {
+  background: var(--accent-hover);
+}
+
+.history {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  counter-reset: step;
+}
+
+.history li {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--pad-xs) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-size-sm);
+}
+
+.history li:last-child {
+  border-bottom: none;
+}
+
+.history__when {
+  flex: none;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  font-variant-numeric: tabular-nums;
+}
+
+/* running work and notifications */
+
+/* No pill and no gap when idle. Opaque, since the title bar is already glass and nested blur would
+   turn both grey. */
+.notification-center {
+  position: relative;
+  flex: none;
+  min-width: 0;
+  -webkit-app-region: no-drag;
+}
+
+.notification-center:empty {
+  margin-left: calc(var(--pad-sm) * -1);
+}
+
+.status {
+  -webkit-app-region: no-drag;
+  display: flex;
+  flex: none;
+  gap: var(--pad-sm);
+  align-items: center;
+  max-width: 30rem;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+}
+
+/* Compact running-task chip: phase, bar, percentage. Details are in the panel on click. */
+.work-chip {
+  -webkit-app-region: no-drag;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: var(--pad-xs) 10px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+  white-space: nowrap;
+  animation: work-chip-in var(--medium) var(--ease);
+}
+
+.work-chip:hover,
+.work-chip[aria-expanded="true"] {
+  background: var(--control-hover);
+}
+
+.work-chip__phase {
+  color: var(--text-dim);
+}
+
+.work-chip__percent {
+  min-width: 6.5ch;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.work-chip__more {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.work-panel {
+  position: absolute;
+  top: calc(100% + var(--pad-xs));
+  right: 0;
+  z-index: 40;
+  width: min(22rem, calc(100vw - var(--pad-lg) * 2));
+  padding: var(--pad-xs);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  background: var(--surface-popover, var(--glass-bg-opaque));
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  text-align: left;
+}
+
+.work-panel ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.work-panel li {
+  display: grid;
+  gap: 6px;
+  padding: var(--pad-sm);
+}
+
+.work-panel li .status__track {
+  width: 100%;
+}
+
+.work-panel__label {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+
+.work-panel__detail {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes work-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--pad-xs) * -1));
+  }
+}
+
+/* notices under the bar (Toasts.tsx) */
+
+/* Toast stack, centred just under the title bar, clear of the model, rails and panels. */
+.toasts {
+  position: fixed;
+  top: calc(var(--bar-height, 52px) + 8px);
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: min(34rem, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  --toast-mark: var(--text-dim);
+  --toast-mark-ink: var(--surface-popover, #2d2d2f);
+
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 5px 12px 5px 10px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  background: var(--surface-popover, var(--glass-bg-opaque));
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.35 var(--font);
+  text-align: left;
+  pointer-events: auto;
+  /* Toasts can be dragged (Toasts.tsx), so a press never selects text or scrolls. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  animation: toast-in 180ms var(--ease);
+}
+
+.toast[data-tone="ok"] {
+  --toast-mark: var(--ok);
+  --toast-mark-ink: #fff;
+}
+
+.toast[data-tone="fail"] {
+  --toast-mark: var(--fail);
+  --toast-mark-ink: #fff;
+}
+
+.toast[data-leaving] {
+  animation: toast-out 160ms var(--ease) forwards;
+}
+
+.toast__mark {
+  flex: none;
+  color: var(--toast-mark);
+}
+
+/* Title and reason on one line, the reason quieter; long text wraps. */
+.toast__text {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+  min-width: 0;
+  text-wrap: pretty;
+}
+
+.toast__title,
+.toast__detail {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.toast__title {
+  font-weight: 600;
+}
+
+.toast__detail {
+  color: var(--text-dim);
+}
+
+.toast__close {
+  display: grid;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity var(--medium) var(--ease);
+}
+
+.toast:hover .toast__close,
+.toast:focus-within .toast__close,
+.toast[data-sticky] .toast__close {
+  opacity: 1;
+}
+
+.toast[data-sticky] {
+  padding-right: 6px;
+}
+
+.toast__close:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+/* Invisible lifetime animation: its end dismisses the notice and hover pauses it. */
+.toast__life {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: toast-life var(--toast-life, 4500ms) linear forwards;
+}
+
+.toast:hover .toast__life,
+.toast:focus-within .toast__life {
+  animation-play-state: paused;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes toast-life {
+  to {
+    opacity: 0;
+  }
+}
+
+.status__task,
+.status__label {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Tabular figures so changing rates do not shift the row. */
+.status__rate {
+  flex: none;
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+  font-variant-numeric: tabular-nums;
+}
+
+.status__task {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.status__task .status__label {
+  min-width: 0;
+  max-width: 14rem;
+  flex: 1 1 auto;
+}
+
+.status__track {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 124px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 2px;
+  /* Faint empty segments, so the remaining length is always visible. */
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text) 14%, transparent) 0 5px,
+    transparent 5px 7px
+  );
+}
+
+/* Lit segments in the text colour, a bright leading edge and a moving glint. At 100% the bar
+   flashes once. */
+.status__fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--text) 0 5px, transparent 5px 7px);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--text) 45%, transparent));
+  transition: width 160ms linear;
+}
+
+/* Leading edge: the segment currently being lit. */
+.status__fill:not([data-indeterminate])::before {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  bottom: -1px;
+  width: 5px;
+  border-radius: 1px;
+  background: var(--text);
+  box-shadow:
+    0 0 6px var(--text),
+    0 0 12px color-mix(in srgb, var(--text) 60%, transparent);
+  content: "";
+  animation: status-edge 0.9s ease-in-out infinite;
+}
+
+.status__fill:not([data-indeterminate])::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    100deg,
+    transparent 25%,
+    color-mix(in srgb, var(--surface, #000) 55%, transparent) 50%,
+    transparent 75%
+  );
+  background-size: 220% 100%;
+  mix-blend-mode: overlay;
+  animation: status-sheen 1.3s linear infinite;
+}
+
+.status__fill[data-complete] {
+  animation: status-done 420ms ease-out;
+}
+
+@keyframes status-edge {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes status-sheen {
+  from {
+    background-position: 160% 0;
+  }
+
+  to {
+    background-position: -60% 0;
+  }
+}
+
+@keyframes status-done {
+  30% {
+    filter: drop-shadow(0 0 8px var(--text)) brightness(1.6);
+  }
+}
+
+/* Fixed-width percentage while digits change. */
+.status__task .status__rate {
+  min-width: 14ch;
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Indeterminate progress animation. */
+.status__fill[data-indeterminate] {
+  width: 40%;
+  animation: status-sweep 1.1s var(--ease) infinite;
+}
+
+@keyframes status-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Only the toast lifetime keeps running, since it dismisses the notice. */
+  .work-chip,
+  .toast {
+    animation: none;
+  }
+
+  .toast[data-leaving] {
+    animation: toast-out 1ms forwards;
+  }
+
+  .status__fill[data-indeterminate] {
+    width: 100%;
+    animation: none;
+    opacity: 0.55;
+  }
+
+  .status__fill::after,
+  .status__fill::before {
+    animation: none;
+  }
+}
+
+/* dropping a file on the window */
+
+/* The whole stage is the drop target (also on Windows and Linux). */
+.dropzone {
+  --drop-x: 50%;
+  --drop-y: 50%;
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  /* Only a soft edge vignette; the view itself deforms under the file (renderer fabric.ts). */
+  background: radial-gradient(ellipse at center, transparent 58%, rgb(0 0 0 / 22%) 100%);
+  pointer-events: none;
+  animation: dropzone-in 220ms var(--ease) both;
+}
+
+/* Placed well above the cursor, which the dragged file covers. */
+.dropzone__label {
+  position: absolute;
+  top: var(--drop-y);
+  left: var(--drop-x);
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  padding: var(--pad-sm) var(--pad);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 76px));
+}
+
+@keyframes dropzone-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropzone {
+    animation: none;
+  }
+}
+
+/* workspace switcher */
+
+/* Uppercase, as in Fusion: it labels a window mode, not part of the document title. */
+.titlebar__workspace {
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar__workspaceButton {
+  display: inline-flex;
+  height: 26px;
+  gap: 6px;
+  align-items: center;
+  padding: 0 9px 0 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--surface-control-glass);
+  color: var(--text);
+  font: 650 var(--text-size-badge) / 1 var(--font);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
+  transition: background var(--fast) var(--ease);
+}
+
+.titlebar__workspaceButton:hover,
+.titlebar__workspaceButton[aria-expanded="true"] {
+  background: var(--control-hover);
+}
+
+.titlebar__workspaceButton > svg:first-child {
+  width: 16px;
+  height: 16px;
+}
+
+.titlebar__workspaceButton > svg:last-child {
+  color: var(--text-dim);
+}
+
+/* Two classes: menu.css loads later and its `.menu { position: relative }` would otherwise win and
+   push the menu out of the window. */
+.menu.titlebar__workspaceMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  min-width: 280px;
+}
+
+.titlebar__workspaceItem .menu__itemLabel {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.titlebar__workspaceItem .menu__itemLabel svg {
+  width: 16px;
+  height: 16px;
+}
+
+.titlebar__workspaceItem[aria-checked="true"] {
+  background: var(--control-press);
+}
+
+.titlebar__workspaceItem small {
+  padding: 1px 5px;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  color: var(--text-faint);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 600;
+}
+
+/* Front leaf of the folder icon (Icons.tsx `FolderIcon`): flat when shut, tips forward from its
+   bottom edge when a project is dragged over the folder. */
+.glyph-folder__leaf {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition:
+    opacity 160ms var(--ease),
+    transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.glyph-folder__leaf[data-open] {
+  opacity: 1;
+  transform: skewX(-20deg) scaleY(0.82);
+}
+
+/* The drawn cross (icons/Icons.tsx), centred by its button. */
+.cross-icon {
+  display: block;
+  margin: auto;
+}
+
+/* Below about 820 px the sixteen sketch tool rows hit the bottom zone; tighten the rows instead. */
+@media (max-height: 820px) {
+  .rail--left {
+    --rail-item-height: 28px;
+  }
+}
+
+/* While a project loads under the loading screen, hide workspace switcher, Export and the report
+   button (boot-loader.ts). */
+html[data-loading-below-bar] .titlebar__workspace,
+html[data-loading-below-bar] .titlebar__export,
+html[data-loading-below-bar] .titlebar__report {
+  display: none;
+}
+
+/* While loading, only Home stays interactive: the progress panel would open under the loading
+   screen, and a rename would target a project with no session yet (`use-dashboard.ts`). */
+html[data-loading-below-bar] .work-chip,
+html[data-loading-below-bar] .titlebar__name,
+html[data-loading-below-bar] .titlebar__nameField {
+  pointer-events: none;
+}
+
+/* A panel opened before loading started is closed with it. */
+html[data-loading-below-bar] .work-panel {
+  display: none;
+}

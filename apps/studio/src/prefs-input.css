@@ -1,0 +1,94 @@
+/* The shortcut recorder in Settings (PreferencesInput.tsx): the key as caps, click to record a new
+   one, with Reset / Clear beside it. */
+
+.prefs-shortcut {
+  display: flex;
+  gap: var(--pad-xs);
+  align-items: center;
+}
+
+.prefs-shortcut__key {
+  min-width: 64px;
+  padding: 2px var(--pad-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.prefs-shortcut__key:hover,
+.prefs-shortcut__key:focus-visible {
+  border-color: var(--line-strong);
+}
+
+.prefs-shortcut__reset {
+  padding: 2px var(--pad-xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: var(--text-size-badge);
+  cursor: pointer;
+}
+
+.prefs-shortcut__reset:hover {
+  color: var(--text);
+}
+
+/* Illustrated orbit, pan and zoom gestures. */
+.gestures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pad-sm);
+  margin: 0;
+  padding: var(--pad-sm) var(--pad);
+  list-style: none;
+}
+
+.gesture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--pad-sm);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border, var(--control-hover));
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted, var(--text));
+}
+
+.gesture strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.gesture kbd {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--surface-popover);
+  font: inherit;
+}
+
+.gesture__picture {
+  width: 64px;
+  height: 38px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gesture__lit {
+  fill: var(--select);
+  stroke: none;
+}
+
+.gesture__motion {
+  stroke: var(--select);
+  stroke-width: 1.8;
+}

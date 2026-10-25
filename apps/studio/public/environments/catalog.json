@@ -1,0 +1,26 @@
+[
+  {
+    "file": "studio-neutral.hdr",
+    "asset": "studio_small_08",
+    "source": "https://polyhaven.com/a/studio_small_08",
+    "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/studio_small_08_2k.hdr",
+    "license": "CC0-1.0",
+    "sha256": "6e677b7421f4a14f0844dece04243c4ab3f4bf1a05bf4bb79e29368b3ecc7746"
+  },
+  {
+    "file": "studio-warm.hdr",
+    "asset": "studio_small_09",
+    "source": "https://polyhaven.com/a/studio_small_09",
+    "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/studio_small_09_2k.hdr",
+    "license": "CC0-1.0",
+    "sha256": "36724313c0fc66dab126ff90f081b85a0b1ef47be65eda1417bd20b033f0573f"
+  },
+  {
+    "file": "studio-cool.hdr",
+    "asset": "studio_small_08",
+    "source": "https://polyhaven.com/a/studio_small_08",
+    "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/studio_small_08_2k.hdr",
+    "license": "CC0-1.0",
+    "sha256": "6e677b7421f4a14f0844dece04243c4ab3f4bf1a05bf4bb79e29368b3ecc7746"
+  }
+]

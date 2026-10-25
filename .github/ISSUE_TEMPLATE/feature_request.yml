@@ -1,0 +1,17 @@
+name: Feature request
+description: Something Bezier should do
+labels: [idea]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What do you want to do?
+      description: The task first, then how you imagine it working.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you do it today?
+      description: In Bezier or in another tool.

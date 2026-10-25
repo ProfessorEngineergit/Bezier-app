@@ -1,0 +1,337 @@
+/* The edit view's timeline. Clips are filled shapes; the selected one uses the selection band. */
+
+.lessons-timeline {
+  --timeline-ruler: 22px;
+  --timeline-chapters: 26px;
+  --timeline-clips: 46px;
+  --timeline-zooms: 24px;
+  position: relative;
+  user-select: none;
+}
+
+.lessons-timeline__zoom {
+  position: absolute;
+  top: -36px;
+  right: 0;
+  display: flex;
+  gap: 2px;
+}
+
+.lessons-timeline__scroll {
+  overflow: auto hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  scrollbar-width: thin;
+}
+
+.lessons-timeline__strip {
+  position: relative;
+  display: grid;
+  grid-template-rows:
+    var(--timeline-ruler) var(--timeline-chapters) var(--timeline-clips)
+    var(--timeline-zooms);
+  gap: 4px;
+  min-width: 100%;
+  padding-bottom: 8px;
+  cursor: text;
+}
+
+.lessons-timeline__lane {
+  position: relative;
+}
+
+/* the ruler */
+
+.lessons-ruler {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+
+.lessons-ruler__tick {
+  position: absolute;
+  bottom: 0;
+  height: 4px;
+  padding-left: 4px;
+  border-left: 1px solid var(--line-strong);
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.lessons-ruler__tick[data-major] {
+  height: 12px;
+  border-left-color: var(--text-faint);
+}
+
+/* chapters: flags along the top */
+
+.lessons-flag {
+  position: absolute;
+  top: 2px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  height: 22px;
+  padding: 0 6px 0 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  white-space: nowrap;
+  cursor: grab;
+}
+
+.lessons-flag[data-fixed] {
+  cursor: default;
+}
+
+.lessons-flag__pin {
+  flex: none;
+  width: 2px;
+  height: 22px;
+  background: var(--text-dim);
+}
+
+.lessons-flag__pin::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2px;
+  border-top: 6px solid var(--text-dim);
+  border-right: 6px solid transparent;
+}
+
+.lessons-flag__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lessons-flag:hover,
+.lessons-flag[aria-current="step"] {
+  color: var(--text);
+}
+
+.lessons-flag[aria-current="step"] .lessons-flag__pin,
+.lessons-flag[aria-pressed="true"] .lessons-flag__pin {
+  background: var(--text);
+}
+
+.lessons-flag[aria-current="step"] .lessons-flag__pin::after,
+.lessons-flag[aria-pressed="true"] .lessons-flag__pin::after {
+  border-top-color: var(--text);
+}
+
+.lessons-flag[aria-pressed="true"] {
+  background: var(--surface-control);
+  color: var(--text);
+}
+
+/* clips and the gaps between them */
+
+.lessons-clip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-control-active);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  white-space: nowrap;
+  transition: background var(--fast) var(--ease);
+}
+
+.lessons-clip:hover {
+  background: var(--control-hover);
+}
+
+.lessons-clip[aria-pressed="true"] {
+  background: var(--lessons-selected);
+  color: var(--lessons-selected-text);
+}
+
+.lessons-clip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lessons-clip__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+.lessons-clip__edge::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--text);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity var(--fast) var(--ease);
+}
+
+.lessons-clip:hover .lessons-clip__edge::before,
+.lessons-clip[aria-pressed="true"] .lessons-clip__edge::before {
+  opacity: 0.8;
+}
+
+.lessons-clip__edge[data-edge="start"] {
+  left: 0;
+}
+
+.lessons-clip__edge[data-edge="start"]::before {
+  left: 3px;
+}
+
+.lessons-clip__edge[data-edge="end"] {
+  right: 0;
+}
+
+.lessons-clip__edge[data-edge="end"]::before {
+  right: 3px;
+}
+
+.lessons-timeline__gap {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: repeating-linear-gradient(-45deg, var(--line) 0 2px, transparent 2px 6px);
+}
+
+.lessons-timeline__gap:hover,
+.lessons-timeline__gap[aria-pressed="true"] {
+  border-color: var(--text);
+  border-style: solid;
+}
+
+/* zooms */
+
+.lessons-zoom {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0 8px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-control);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lessons-zoom svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+
+.lessons-zoom:hover,
+.lessons-zoom[aria-pressed="true"] {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.lessons-timeline__hint {
+  position: sticky;
+  left: 12px;
+  display: inline-block;
+  padding: 4px 0;
+  font-size: var(--text-size-sm);
+  pointer-events: none;
+}
+
+/* In and Out, and the playhead */
+
+.lessons-timeline__mark {
+  position: absolute;
+  top: 2px;
+  padding: 0 3px;
+  border-radius: 3px 3px 3px 0;
+  background: var(--text);
+  color: var(--canvas-bottom);
+  font-size: var(--text-size-badge);
+  font-weight: 700;
+  line-height: 12px;
+  pointer-events: none;
+}
+
+.lessons-timeline__mark[data-out] {
+  border-radius: 3px 3px 0 3px;
+  transform: translateX(-100%);
+}
+
+.lessons-timeline__between {
+  position: absolute;
+  top: var(--timeline-ruler);
+  bottom: 8px;
+  border-right: 1px dashed var(--text-dim);
+  border-left: 1px dashed var(--text-dim);
+  background: var(--surface-control-glass);
+  pointer-events: none;
+}
+
+.lessons-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--text);
+  pointer-events: none;
+}
+
+.lessons-playhead::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -5px;
+  border-top: 7px solid var(--text);
+  border-right: 5.5px solid transparent;
+  border-left: 5.5px solid transparent;
+}
+
+.lessons-playhead__time {
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+  line-height: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.lessons-timeline:hover .lessons-playhead__time,
+.lessons-timeline[data-scrubbing] .lessons-playhead__time {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessons-clip,
+  .lessons-playhead__time,
+  .lessons-clip__edge::before {
+    transition: none;
+  }
+}

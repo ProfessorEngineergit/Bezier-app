@@ -1,0 +1,26 @@
+{
+  "name": "@bezier/sync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted, end-to-end encrypted sync for Bezier: a server for a home server, and the app's client",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "serve": "node server/main.ts serve",
+    "scrub": "node server/main.ts scrub",
+    "test": "node --test \"**/*.test.ts\"",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "main": "./client/index.ts",
+  "types": "./client/index.ts",
+  "exports": {
+    ".": "./client/index.ts",
+    "./server": "./server/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

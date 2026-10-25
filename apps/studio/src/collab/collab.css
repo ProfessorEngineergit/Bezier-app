@@ -1,0 +1,474 @@
+/*
+ * Collaboration: Settings → Collaboration and the start page's Shared section. Tokens only
+ * (packages/ui/src/tokens.css, brand-ui.css). The accent is reserved for the page's main action.
+ */
+
+.collab-splash {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 28px;
+  align-items: center;
+  margin-bottom: var(--pad-lg);
+}
+
+/* The mark on its own background, with the three parties of a shared project below. */
+.collab-splash__stage {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 28px 16px;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: 16px;
+  background: var(--library-pane, var(--surface-sunken));
+}
+
+.collab-splash__mark {
+  width: 72px;
+  height: 72px;
+}
+
+.collab-splash__mark--light {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .collab-splash__mark--dark {
+    display: none;
+  }
+  :root:not([data-theme="dark"]) .collab-splash__mark--light {
+    display: block;
+  }
+}
+
+:root[data-theme="light"] .collab-splash__mark--dark {
+  display: none;
+}
+
+:root[data-theme="light"] .collab-splash__mark--light {
+  display: block;
+}
+
+.collab-splash__devices {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: 220px;
+}
+
+.collab-splash__devices span {
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--library-field, var(--surface-control));
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+  text-align: center;
+}
+
+.collab-splash h2 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
+  font-stretch: 114%;
+  letter-spacing: -0.01em;
+}
+
+.collab-splash__points {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collab-splash__points li {
+  display: grid;
+  gap: 2px;
+}
+
+.collab-splash__points b {
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+
+.collab-splash__points span {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.collab-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.collab-field {
+  width: 220px;
+  min-width: 0;
+}
+
+.collab-field--wide {
+  width: 340px;
+}
+
+.collab-code {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: var(--text-size-badge);
+  user-select: all;
+}
+
+.collab-ways .prefs-action[data-active] {
+  background: var(--library-selected, var(--rail-band-active));
+}
+
+.collab-ways .prefs-action:focus-visible,
+.collab-primary:focus-visible,
+.collab-shared button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.collab-submit {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--pad-lg);
+}
+
+/* The page's one main action. */
+.collab-primary {
+  min-height: 32px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font: inherit;
+  font-weight: 600;
+}
+
+.collab-primary:hover {
+  background: var(--accent-hover);
+}
+
+.collab-primary:disabled {
+  opacity: 0.6;
+}
+
+.collab-problem {
+  margin: 0 0 var(--pad);
+  color: var(--fail);
+  font-size: var(--text-size-sm);
+}
+
+@media (max-width: 760px) {
+  .collab-splash {
+    grid-template-columns: 1fr;
+  }
+  .collab-field,
+  .collab-field--wide {
+    width: 100%;
+  }
+}
+
+/* The start page's Shared section. */
+
+.collab-shared__head {
+  display: flex;
+  gap: var(--pad);
+  align-items: center;
+}
+
+.collab-shared__head h1 {
+  margin-right: auto;
+}
+
+.collab-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 4px 0 var(--pad);
+}
+
+.collab-tabs button {
+  min-height: 30px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+}
+
+.collab-tabs button:hover {
+  background: var(--library-hover, var(--surface-control-hover));
+}
+
+.collab-tabs button[data-active] {
+  background: var(--library-selected, var(--rail-band-active));
+  color: var(--library-selected-text, var(--text));
+}
+
+.collab-toolbar {
+  display: flex;
+  gap: var(--pad);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pad);
+}
+
+.collab-note,
+.collab-empty {
+  margin: 0 0 var(--pad);
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.collab-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--pad);
+  padding: 10px;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: 14px;
+  background: var(--library-pane, var(--surface-sunken));
+}
+
+.collab-picker button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--library-field, var(--surface-control));
+  color: var(--text);
+  font: inherit;
+}
+
+.collab-picker button:hover {
+  background: var(--library-hover, var(--surface-control-hover));
+}
+
+.collab-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collab-project {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--library-hairline, var(--line));
+  border-radius: 16px;
+  background: var(--library-pane, var(--surface-sunken));
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.collab-project:hover {
+  background: var(--library-hover, var(--surface-control-hover));
+}
+
+.collab-project span {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.collab-paste {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 8px;
+}
+
+.collab-paste input {
+  width: 100%;
+}
+
+/* People in the open shared project (ProjectPeople.tsx); floats over the canvas, so glass. */
+.collab-presence__anchor {
+  position: absolute;
+  top: var(--pad);
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+
+.collab-presence {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 10px;
+  max-width: min(640px, 70vw);
+  padding: 5px 12px 5px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.3 var(--font);
+  cursor: pointer;
+}
+
+.collab-presence:focus-visible {
+  outline: var(--focus-ring);
+}
+
+.collab-presence__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Status dot: quiet while edits flow, the busy colour while they wait. */
+.collab-presence__state::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  content: "";
+}
+
+.collab-presence[data-offline] .collab-presence__state::before {
+  background: var(--busy);
+}
+
+.collab-presence__person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.collab-presence__person b {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-control);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.collab-presence__person small {
+  color: var(--text-dim);
+}
+
+/* Changes and branches of the open shared project (ProjectChanges.tsx). */
+.collab-changes {
+  display: grid;
+  gap: 12px;
+  width: min(420px, 90vw);
+  max-height: min(560px, 70vh);
+  padding: 14px;
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  font: var(--text-size-sm) / 1.4 var(--font);
+}
+
+.collab-changes h2 {
+  margin: 4px 0 0;
+  font-size: var(--text-size);
+  font-weight: 600;
+}
+
+.collab-changes p {
+  margin: 0;
+}
+
+.collab-changes__new label {
+  display: grid;
+  gap: 6px;
+}
+
+.collab-changes__new,
+.collab-changes__branch {
+  display: grid;
+  gap: 8px;
+}
+
+.collab-changes__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.collab-changes__said {
+  color: var(--text-dim);
+}
+
+.collab-changes__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collab-changes__list li {
+  display: grid;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.collab-changes__list small {
+  margin-left: 6px;
+  color: var(--text-dim);
+}
+
+.collab-changes__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.collab-changes__actions button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.collab-changes__actions button:hover {
+  color: var(--text);
+}
+
+.collab-changes__actions button:focus-visible {
+  outline: var(--focus-ring);
+}
+
+/* Sharing from the start page (ShareDialog.tsx): wide enough for the people in it, and
+   scrolling inside when a short window cannot hold them. */
+.library-dialog:has(.collab-share) {
+  width: min(640px, calc(100vw - 2 * var(--pad-lg)));
+  max-height: calc(100vh - 2 * var(--pad-lg));
+  overflow: auto;
+}
+
+/* Settings → Community: another store's address, with its response below. */
+.community-address {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-sm);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.prefs-switch:disabled {
+  opacity: 0.45;
+}

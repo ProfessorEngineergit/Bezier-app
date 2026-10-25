@@ -1,0 +1,103 @@
+name: Website
+
+# Builds the website and deploys it to bezier-cad.xyz with the newest stable and beta builds
+# mirrored. Runs only in the main repository (docs/repositories.md): on release, on a beta
+# dispatch, on site or developer-doc changes, manually, and twice daily as a fallback.
+# Hosting setup: website/DEPLOY.md.
+
+on:
+  release:
+    types: [published]
+  repository_dispatch:
+    types: [beta-released]
+  push:
+    branches: [main]
+    # Site, docs and app: bezier-app's main is the stable line served at app.bezier-cad.xyz.
+    paths:
+      - 'website/**'
+      - 'docs/sdk/**'
+      - 'docs/mcp/**'
+      - 'docs/brand/icons/**'
+      - 'apps/**'
+      - 'packages/**'
+      - 'crates/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5,17 * * *'
+
+concurrency:
+  group: website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'ProfessorEngineergit/bezier-app'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      - name: Build
+        run: node website/build/build.mjs
+
+      # RELEASES_TOKEN: fine-grained token with Contents: read on bezier-app and bezier.
+      - name: Newest builds
+        env:
+          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: node website/deploy/releases.mjs
+
+      - name: Upload to the web space
+        env:
+          HOST: ${{ secrets.IONOS_SFTP_HOST }}
+          USER: ${{ secrets.IONOS_SFTP_USER }}
+          PASS: ${{ secrets.IONOS_SFTP_PASSWORD }}
+          TARGET: ${{ vars.IONOS_SITE_PATH || '/bezier-site' }}
+        run: |
+          sudo apt-get install -y lftp >/dev/null
+          # Mirror the site exactly, excluding downloads. Downloads are compared by size only:
+          # they are rewritten on every run, so comparing times would re-upload ~500 MB each time.
+          lftp -u "$USER,$PASS" "sftp://$HOST" -e "
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            mirror --reverse --delete --verbose --parallel=4 --exclude-glob downloads/ website/dist/ $TARGET;
+            quit"
+          if [ -d website/dist/downloads ]; then
+            lftp -u "$USER,$PASS" "sftp://$HOST" -e "
+              set sftp:auto-confirm yes;
+              set net:max-retries 3;
+              mkdir -p $TARGET/downloads;
+              mirror --reverse --delete --ignore-time --verbose --parallel=2 website/dist/downloads $TARGET/downloads;
+              quit"
+          fi
+
+  # The web app at app.bezier-cad.xyz (the same build the desktop app wraps).
+  app:
+    if: github.repository == 'ProfessorEngineergit/bezier-app' && github.event_name != 'schedule' && github.event_name != 'repository_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: cp website/deploy/app.htaccess apps/studio/dist/.htaccess
+      - name: Upload to the web space
+        env:
+          HOST: ${{ secrets.IONOS_SFTP_HOST }}
+          USER: ${{ secrets.IONOS_SFTP_USER }}
+          PASS: ${{ secrets.IONOS_SFTP_PASSWORD }}
+          TARGET: ${{ vars.IONOS_APP_PATH || '/bezier-app' }}
+        run: |
+          sudo apt-get install -y lftp >/dev/null
+          lftp -u "$USER,$PASS" "sftp://$HOST" -e "
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            mirror --reverse --delete --parallel=4 apps/studio/dist/ $TARGET;
+            quit"

@@ -1,0 +1,253 @@
+/*
+ * Nib's box, bubble and pointing ring. All fixed to the window and moved by transform, so frames
+ * cause no layout.
+ */
+
+.nib-companion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.nib-companion[hidden] {
+  display: none;
+}
+
+.nib-companion__button {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nib-companion__poster,
+.nib-companion__stage,
+.nib-companion__stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.nib-companion__poster {
+  object-fit: contain;
+  user-select: none;
+  transition: opacity 160ms;
+}
+
+/* The static image is hidden once the live render draws, so there is never a blank frame. */
+.nib-companion[data-nib="live"] .nib-companion__poster {
+  opacity: 0;
+}
+
+.nib-companion__stage canvas {
+  display: block;
+}
+
+.nib-companion__button:focus-visible {
+  outline: 2px solid var(--focus-ring, currentColor);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* A page spot: sized for him, draws nothing. */
+.nib-spot {
+  flex: none;
+  pointer-events: none;
+}
+
+.nib-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 151;
+  display: grid;
+  gap: 10px;
+  width: max-content;
+  max-width: 264px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border, rgb(128 128 128 / 30%));
+  border-radius: var(--radius-lg, 14px);
+  background: var(--glass-bg-opaque, var(--glass-bg, #2d2d2f));
+  box-shadow: var(--shadow-popover, 0 8px 28px rgb(0 0 0 / 35%));
+  color: var(--text, inherit);
+  font-family: var(--font, system-ui, sans-serif);
+  font-size: var(--text-size, 13px);
+  line-height: 1.45;
+  animation: nib-bubble-in 180ms ease-out;
+}
+
+/* The bubble tail: a rotated square on the side facing him. */
+.nib-bubble::before {
+  content: "";
+  position: absolute;
+  top: 34px;
+  width: 10px;
+  height: 10px;
+  border: inherit;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.nib-bubble[data-side="left"]::before {
+  left: -6px;
+  border-right: 0;
+  border-top: 0;
+}
+
+.nib-bubble[data-side="right"]::before {
+  right: -6px;
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.nib-bubble__text {
+  margin: 0;
+}
+
+.nib-bubble__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.nib-bubble__button {
+  padding: 5px 11px;
+  border: 1px solid var(--glass-border, rgb(128 128 128 / 30%));
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.nib-bubble__button:hover {
+  background: var(--library-hover, rgb(128 128 128 / 14%));
+}
+
+.nib-bubble__button--first {
+  border-color: transparent;
+  background: var(--text, #fff);
+  color: var(--surface-panel, #232323);
+  font-weight: 600;
+}
+
+.nib-bubble__button--first:hover {
+  background: var(--text, #fff);
+  opacity: 0.88;
+}
+
+.nib-bubble__close {
+  margin-left: auto;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--text-dim, inherit);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Pointing ring: pulses, drawn outside the target so it hides nothing. */
+.nib-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 149;
+  box-sizing: border-box;
+  border: 2px solid var(--accent, #0a84ff);
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px var(--accent-quiet, rgb(10 132 255 / 22%));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms;
+  animation: nib-ring 1.4s ease-in-out infinite;
+}
+
+.nib-ring[hidden] {
+  display: none;
+}
+
+@keyframes nib-bubble-in {
+  from {
+    opacity: 0;
+    margin-top: 6px;
+  }
+}
+
+@keyframes nib-ring {
+  50% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nib-bubble,
+  .nib-ring {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .nib-bubble,
+:root[data-motion="reduced"] .nib-ring {
+  animation: none;
+}
+
+/* The live head canvas fills its round window. */
+.nib-head,
+.nib-head canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.nib-head {
+  pointer-events: none;
+}
+
+/*
+ * Round window on the start page: a black-to-grey circle with slight grain, the body cropped by its
+ * edge. Without the live head (not drawn yet, no GPU, reduced motion) the static image is shown
+ * cropped to the head in the same circle.
+ */
+.nib-companion[data-frame="head"],
+.nib-companion[data-frame="whole"] {
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")
+    0 0 / 70px 70px,
+    radial-gradient(90% 70% at 30% 6%, rgb(255 255 255 / 18%), transparent 62%),
+    linear-gradient(165deg, #3b3b40 0%, #1d1d20 52%, #0a0a0c 100%);
+  background-blend-mode: soft-light, normal, normal;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    inset 0 0 0 1px rgb(255 255 255 / 12%),
+    0 14px 36px rgb(0 0 0 / 38%);
+}
+
+.nib-companion[data-frame="head"] .nib-companion__poster {
+  inset: auto;
+  top: -4%;
+  left: -38%;
+  width: 176%;
+  height: auto;
+  max-width: none;
+}
+
+/* Whole figure, small in the circle, with margin around it. */
+.nib-companion[data-frame="whole"] .nib-companion__poster {
+  inset: 7% 0 3%;
+  width: 100%;
+  height: 90%;
+}

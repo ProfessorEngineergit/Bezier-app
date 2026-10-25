@@ -1,0 +1,71 @@
+/**
+ * Base styles for every Lessons surface. Colours, radii, shadows and motion
+ * come from design-system/tokens.css and the start page's brand layer.
+ */
+
+/* Same file and absolute path as the declaration in the app's index.html, so
+   this one cannot 404 and override it. Kept so Lessons works standalone. */
+@font-face {
+  font-family: "Archivo Brand";
+  src: url("/fonts/archivo-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+}
+
+.lessons {
+  /**
+   * The start page uses larger type than the editor's chrome, measured from
+   * design-system/screenshots/library-*.png at 2×: card titles 16 px, labels
+   * 14 px, dates 13 px, heading 32 px. Surfaces over the editor use the
+   * editor's --text-size instead (record.css, follow.css).
+   */
+  --lessons-text: 14px;
+  --lessons-text-sm: 13px;
+  --lessons-text-lg: 16px;
+  --lessons-heading: 32px;
+  --lessons-control: 36px;
+  --lessons-focus: var(--brand-focus, var(--accent));
+  --lessons-selected: var(--brand-selected-band, var(--rail-band-active));
+  --lessons-selected-text: var(--brand-selected-text, var(--text));
+  color: var(--text);
+  /* The system font stack from tokens.css, as in the editor's chrome
+     (docs/DESIGN.md); the brand layer sets --font to Archivo page-wide. */
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: var(--lessons-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lessons *,
+.lessons *::before,
+.lessons *::after {
+  box-sizing: border-box;
+}
+
+/* Zero specificity so button classes can set their own colour. */
+:where(.lessons) :where(button, input, select, textarea) {
+  color: inherit;
+  font: inherit;
+}
+
+:where(.lessons) button {
+  cursor: default;
+}
+
+.lessons :is(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--lessons-focus);
+  outline-offset: 2px;
+}
+
+/* The page heading, in the brand face. */
+.lessons-brand {
+  margin: 0;
+  font-family: "Archivo Brand", "Archivo", sans-serif;
+  font-size: var(--lessons-heading);
+  font-stretch: 114%;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}

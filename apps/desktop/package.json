@@ -1,0 +1,17 @@
+{
+  "name": "@bezier/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The same application, in a native window",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "check": "cargo fmt --manifest-path src-tauri/Cargo.toml -- --check && cargo check --manifest-path src-tauri/Cargo.toml",
+    "icons": "tauri icon ../../docs/brand/logo/bezier-app-icon-dark.png"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.2"
+  }
+}

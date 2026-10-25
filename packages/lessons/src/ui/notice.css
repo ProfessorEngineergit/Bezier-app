@@ -1,0 +1,100 @@
+/* The notice line (NoticeLine.tsx), plus reduced-motion and fieldset resets. */
+
+/* notice line */
+
+.lessons-notice {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: min(34rem, calc(100% - 32px));
+  min-height: 30px;
+  padding: 5px 8px 5px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  background: var(--surface-popover, var(--glass-bg-opaque));
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  font-size: var(--lessons-text-sm);
+  line-height: 1.35;
+  transform: translateX(-50%);
+  animation: lessons-notice-in var(--medium) var(--ease);
+}
+
+.lessons-notice__mark {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--text-dim);
+}
+
+.lessons-notice[data-tone="ok"] .lessons-notice__mark {
+  color: var(--ok);
+}
+
+.lessons-notice[data-tone="fail"] .lessons-notice__mark {
+  color: var(--fail);
+}
+
+.lessons-notice__text {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+  min-width: 0;
+}
+
+.lessons-notice__title {
+  font-weight: 600;
+}
+
+.lessons-notice__detail {
+  color: var(--text-dim);
+}
+
+.lessons-notice__close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-faint);
+}
+
+.lessons-notice__close:hover {
+  background: var(--control-hover);
+  color: var(--text);
+}
+
+.lessons-notice__close svg {
+  width: 12px;
+  height: 12px;
+}
+
+@keyframes lessons-notice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+
+/* Reduced motion, from the host's setting or the system's. */
+[data-reduced-motion="true"] .lessons-notice,
+[data-reduced-motion="true"] .lessons *,
+[data-reduced-motion="true"] .lessons *::before,
+[data-reduced-motion="true"] .lessons *::after {
+  animation-duration: 0.001s;
+  transition-duration: 0.001s;
+}
+
+/* Reset fieldset styles for segmented controls. */
+fieldset.lessons-segmented {
+  margin: 0;
+  min-width: 0;
+}

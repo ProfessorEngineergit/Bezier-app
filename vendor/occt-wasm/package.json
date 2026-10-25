@@ -1,0 +1,25 @@
+{
+  "name": "occt-wasm",
+  "version": "5.3.5-bezier",
+  "description": "occt-wasm with the face tweak, built from better-occt",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./worker": {
+      "import": "./dist/worker.js",
+      "types": "./dist/worker.d.ts"
+    },
+    "./dist/occt-wasm.js": "./dist/occt-wasm.js",
+    "./dist/occt-wasm.wasm": "./dist/occt-wasm.wasm"
+  },
+  "dependencies": {
+    "comlink": "^4.4.2"
+  },
+  "betterOcct": {
+    "commit": "eb4358ba92083abe031f64aa9cb5c4c23fc758c0"
+  }
+}

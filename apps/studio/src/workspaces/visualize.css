@@ -1,0 +1,918 @@
+/**
+ * Visualize. The render fills the stage; the chrome stays monochrome glass so the only colour on
+ * screen is the part's.
+ */
+
+.viz {
+  --viz-panel: 304px;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1c1d20;
+}
+
+/* A transparent backdrop shows as the checkerboard every image tool uses, so
+   it reads as "nothing here" rather than as black. */
+.viz[data-transparent] {
+  background: conic-gradient(#2a2b2f 25%, #222326 0 50%, #2a2b2f 0 75%, #222326 0) 0 0 / 22px 22px;
+}
+
+.viz__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+/*
+ * Shown while the renderer has nothing to draw and its controls do not exist yet, so the canvas
+ * does not look interactive when it is not.
+ */
+.viz__canvas[aria-busy="true"] {
+  filter: grayscale(0.4) brightness(0.55);
+  cursor: wait;
+  pointer-events: none;
+}
+
+.viz__empty {
+  position: absolute;
+  top: 50%;
+  left: calc((100% - var(--viz-panel)) / 2);
+  display: grid;
+  gap: 6px;
+  max-width: 320px;
+  color: var(--text-dim);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.viz__empty strong {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/*
+ * Centred like `.viz__empty`: while it is up, the render below is not final and nothing responds,
+ * so it should be where the eye lands.
+ */
+.viz__status {
+  position: absolute;
+  top: 50%;
+  left: calc((100% - var(--viz-panel)) / 2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 500;
+}
+
+.viz__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--text-dim);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: viz-spin 0.7s linear infinite;
+}
+
+@keyframes viz-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viz__spinner {
+    animation: none;
+  }
+}
+
+/* file-producing actions, top right */
+
+/* Material comes from the shared "glass" rule in shell.css; only position
+   and radius are this workspace's own. */
+.viz__actions,
+.viz-inspector,
+.viz__error {
+  position: absolute;
+  z-index: 5;
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  font: var(--text-size) / 1.4 var(--font);
+}
+
+.viz__actions {
+  top: var(--edge);
+  right: calc(var(--viz-panel) + var(--edge) * 2);
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+}
+
+.viz__actions button {
+  height: 30px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: 500 var(--text-size) / 1 var(--font);
+  transition: background var(--fast) var(--ease);
+}
+
+.viz__actions button:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.viz__actions button:disabled {
+  opacity: 0.4;
+}
+
+.viz__actions button[aria-pressed="true"] {
+  background: var(--surface-control-active);
+}
+
+.viz__actions button[data-recording] {
+  background: rgb(224 85 78 / 22%);
+  color: #ff8a80;
+}
+
+.viz__actions button[data-recording]::before {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #ff5a4f;
+  content: "";
+  animation: viz-record 1.2s ease-in-out infinite;
+}
+
+@keyframes viz-record {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.viz__actions .viz__primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 600;
+}
+
+.viz__actions .viz__primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+/* the inspector: Material / Environment / Camera */
+
+.viz-inspector {
+  top: var(--edge);
+  right: var(--edge);
+  bottom: var(--edge);
+  display: flex;
+  width: var(--viz-panel);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* The grab strip along the panel's left edge, the Drawings inspector's (drawings.css). */
+.viz-inspector__resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  width: 8px;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: none;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.viz-inspector__resize::after {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 3px;
+  width: 1px;
+  background: transparent;
+  content: "";
+  transition: background var(--fast) var(--ease);
+}
+
+.viz-inspector__resize:hover::after,
+.viz-inspector__resize:focus-visible::after {
+  background: var(--accent);
+}
+
+.viz-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 10px 10px 4px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.viz-tabs button {
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 500 var(--text-size-sm) / 1 var(--font);
+}
+
+.viz-tabs button[aria-selected="true"] {
+  background: var(--surface-control-active);
+  color: var(--text);
+}
+
+.viz-pane {
+  flex: 1;
+  padding: 6px 12px 16px;
+  overflow-y: auto;
+}
+
+.viz-search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+  margin: 6px 0 4px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font: var(--text-size) / 1 var(--font);
+}
+
+.viz-search:focus {
+  border-color: var(--line-strong);
+}
+
+.viz-section {
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--line);
+}
+
+.viz-section:first-of-type {
+  border-top: none;
+}
+
+.viz-section > header {
+  display: flex;
+  min-height: 22px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.viz-section h3 {
+  margin: 0;
+  font-size: var(--text-size);
+  font-weight: 600;
+}
+
+.viz-section > header button {
+  padding: 3px 8px;
+  border: none;
+  border-radius: 6px;
+  background: var(--surface-control);
+  color: var(--text-dim);
+  font: 500 var(--text-size-sm) / 1 var(--font);
+}
+
+.viz-section > header button:hover {
+  color: var(--text);
+}
+
+.viz-section__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-section__actions small {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+.viz-used {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.viz-used strong,
+.viz-used small,
+.viz-used em {
+  display: block;
+}
+
+.viz-used small {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.viz-used em {
+  margin-top: 2px;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  font-style: normal;
+}
+
+.viz-ball {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 0 8px 14px -6px rgb(0 0 0 / 55%);
+}
+
+.viz-ball--small {
+  width: 40px;
+}
+
+.viz-adjust {
+  margin-top: 10px;
+  padding: 11px 11px 3px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 13px;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 7%), transparent 45%), var(--surface-sunken);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 8%),
+    0 8px 24px rgb(0 0 0 / 8%);
+}
+
+.viz-assignment {
+  margin: 0 0 12px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.viz-pane {
+  overflow-anchor: none;
+}
+
+.viz-light-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.viz-light-select select {
+  max-width: 160px;
+  padding: 7px 10px;
+  color: var(--text);
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-control);
+}
+
+.viz-library {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.viz-material {
+  display: grid;
+  gap: 1px;
+  justify-items: start;
+  padding: 10px 10px 9px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.3 var(--font);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--fast) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+
+.viz-material .viz-ball {
+  width: 74%;
+  justify-self: center;
+  margin-bottom: 8px;
+}
+
+.viz-material small {
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+.viz-material strong {
+  overflow: hidden;
+  max-width: 100%;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.viz-material:hover {
+  background: var(--control-hover);
+}
+
+.viz-material[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.viz-decal {
+  padding: 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+}
+
+.viz-decal p {
+  margin: 0 0 8px;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+.viz-decal__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.viz-decal__row > button {
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 7px;
+  background: var(--surface-control);
+  color: var(--text);
+  font: 500 var(--text-size-sm) / 1 var(--font);
+}
+
+.viz-decal__size {
+  display: inline-flex;
+  height: 28px;
+  gap: 4px;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
+.viz-decal__size input {
+  width: 44px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font-mono);
+  text-align: right;
+}
+
+.viz-decal__size small {
+  color: var(--text-faint);
+}
+
+/* environments */
+
+.viz-environments {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.viz-environment__loading {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.viz-environment {
+  position: relative;
+  display: grid;
+  height: 88px;
+  align-content: end;
+  padding: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(to bottom, transparent 62%, var(--env-ground) 62%), var(--env-bg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.viz-environment[data-environment="transparent"] {
+  background: conic-gradient(#3a3b40 25%, #2c2d31 0 50%, #3a3b40 0 75%, #2c2d31 0) 0 0 / 12px 12px;
+}
+
+.viz-environment[data-environment="mood"],
+.viz-environment[data-environment="transparent"] {
+  --env-ground: transparent;
+}
+
+.viz-environment__ball {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 27%, var(--env-key, #fff) 0%, transparent 18%),
+    radial-gradient(
+      circle at 42% 36%,
+      color-mix(in srgb, var(--env-key, #fff) 82%, white) 0%,
+      var(--env-fill, #8e9298) 55%,
+      color-mix(in srgb, var(--env-fill, #3b3e43) 58%, black) 100%
+    );
+  box-shadow: 0 10px 8px -8px rgb(0 0 0 / 55%);
+  transform: translateX(-50%);
+}
+
+.viz-environment strong {
+  position: relative;
+  color: #fff;
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+.viz-environment[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Arc's setup makes colour feel like a material rather than a form field. The
+   field, hue rail and presets below keep that direct-manipulation quality while
+   still exposing an exact hexadecimal value. */
+.material-colour {
+  margin: 1px 0 16px;
+}
+
+.material-colour__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.material-colour__title label {
+  display: flex;
+  height: 25px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 8%);
+}
+
+.material-colour__sample {
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgb(255 255 255 / 36%);
+  border-radius: 50%;
+  background: var(--material-color);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
+}
+
+.material-colour__title input {
+  width: 64px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.material-colour__field {
+  position: relative;
+  height: 116px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 14px;
+  outline: none;
+  background:
+    linear-gradient(0deg, #000, transparent), linear-gradient(90deg, #fff, transparent),
+    var(--material-hue);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 18%),
+    inset 0 -1px rgb(0 0 0 / 22%),
+    0 7px 18px rgb(0 0 0 / 16%);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.material-colour__field::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--material-x) var(--material-y),
+    white 0,
+    transparent 34%
+  );
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.material-colour__field:hover::after,
+.material-colour[data-dragging] .material-colour__field::after {
+  opacity: 0.07;
+}
+
+.material-colour__field:focus-visible {
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 18%),
+    0 0 0 3px rgb(255 255 255 / 22%),
+    0 8px 22px rgb(0 0 0 / 2%);
+}
+
+.material-colour__loupe {
+  position: absolute;
+  z-index: 1;
+  top: var(--material-y);
+  left: var(--material-x);
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--material-color);
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 48%),
+    inset 0 0 0 1px rgb(0 0 0 / 14%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition:
+    width 140ms cubic-bezier(0.2, 0.9, 0.25, 1.35),
+    height 140ms cubic-bezier(0.2, 0.9, 0.25, 1.35),
+    box-shadow 140ms ease;
+}
+
+.material-colour__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 42%);
+}
+
+.material-colour[data-dragging] .material-colour__loupe {
+  width: 34px;
+  height: 34px;
+  box-shadow:
+    0 5px 16px rgb(0 0 0 / 48%),
+    0 0 0 6px rgb(255 255 255 / 10%);
+}
+
+.material-colour__palette {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.material-colour__palette-button {
+  position: relative;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 18%),
+    0 2px 5px rgb(0 0 0 / 22%);
+  transition:
+    transform 140ms cubic-bezier(0.2, 0.9, 0.25, 1.35),
+    box-shadow 140ms ease;
+}
+
+.material-colour__palette-button:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.material-colour__palette-button:active {
+  transform: scale(0.9);
+}
+
+.material-colour__palette-button[aria-pressed="true"] {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 24%),
+    0 0 0 2px var(--surface-sunken),
+    0 0 0 4px var(--text),
+    0 3px 8px rgb(0 0 0 / 26%);
+}
+
+.material-colour__check {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.material-colour__palette-button[aria-pressed="true"] .material-colour__check {
+  background: color-mix(in srgb, var(--swatch), white 82%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 42%);
+}
+
+.viz-colour,
+.viz-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 12px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.viz-colour input {
+  width: 34px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.viz-toggle input {
+  accent-color: var(--accent);
+}
+
+.viz-field {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 12px;
+  color: var(--text-dim);
+  font-size: var(--text-size-sm);
+}
+
+.viz-segment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.viz-segment button {
+  flex: 1;
+  min-width: 34px;
+  height: 24px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font: 500 var(--text-size-badge) / 1 var(--font);
+}
+
+.viz-segment button[aria-pressed="true"] {
+  background: var(--surface-control-active);
+  color: var(--text);
+}
+
+/* The aperture drawing (FocusDiagram.tsx): ink on the panel's own surface. */
+.viz-focus {
+  display: block;
+  width: 100%;
+  height: 64px;
+  margin: 4px 0 2px;
+  color: var(--text-dim);
+}
+.viz-focus__ground {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.viz-focus__post {
+  fill: currentColor;
+}
+.viz-focus__plane {
+  stroke: var(--accent);
+  stroke-dasharray: 3 3;
+  stroke-width: 1.2;
+}
+
+/* Colouring single faces (FaceColourSection.tsx). */
+.viz-faces__palette {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.viz-faces__swatch,
+.viz-faces__custom {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  padding: 0;
+}
+.viz-faces__swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--surface-panel),
+    0 0 0 4px var(--accent);
+}
+.viz-faces__swatch:disabled,
+.viz-faces__custom:has(:disabled) {
+  opacity: 0.4;
+}
+.viz-faces__custom {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(#e5484d, #f5d90a, #30a46c, #0a84ff, #8e4ec6, #e5484d);
+}
+.viz-faces__custom input {
+  position: absolute;
+  inset: -6px;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+}
+.viz-faces__clear {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: var(--text-size-sm) / 1 var(--font);
+}
+.viz-faces__clear:disabled {
+  color: var(--text-faint);
+}
+
+.viz-note {
+  margin: 4px 0 8px;
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+  line-height: 1.45;
+}
+
+.viz__error {
+  bottom: 16px;
+  left: calc((100% - var(--viz-panel)) / 2);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: 520px;
+  padding: 8px 8px 8px 14px;
+  border-color: rgb(224 85 78 / 45%);
+  transform: translateX(-50%);
+}
+
+.viz__error button {
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 7px;
+  background: var(--surface-control);
+  color: var(--text);
+  font: 500 var(--text-size-sm) / 1 var(--font);
+}
+
+.workspace[data-workspace="visualize"] .items-panel {
+  top: var(--edge);
+  left: var(--edge);
+  bottom: var(--edge);
+}
+.viz-items-rail {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}

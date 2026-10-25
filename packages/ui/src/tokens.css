@@ -1,0 +1,368 @@
+/*
+ * Design tokens: every colour, size and duration the interface uses. Components must not hard-code
+ * these values. Measured values were sampled from reference captures as region medians; comments
+ * say what was measured. Reference viewport for pixel sizes: 1266 × 768.
+ */
+
+:root {
+  /* Distance from the stage edges to everything floating on it (rails, workspace panels, top bars,
+     bottom readouts), and the gap between neighbours, so they line up across workspaces. */
+  --edge: 8px;
+  /* Colour scheme for native controls (select, scrollbar, date field). Without it they follow the
+     system theme, e.g. a light select with unreadable light text on Linux. */
+  color-scheme: dark;
+  /* surfaces */
+
+  /* The canvas has a subtle vertical gradient: #1c1c1c at the top, #1a1a1a at the bottom. */
+  --canvas-top: #1c1c1c;
+  --canvas-bottom: #1a1a1a;
+  --grid-minor: #444446;
+  --grid-major: #626266;
+
+  --surface-bar: #282828;
+  --surface-control: #303030;
+  /* The same control, letting the glass beneath show through. */
+  --surface-control-glass: rgb(255 255 255 / 8%);
+  --surface-control-hover: #3a3a3a;
+  --surface-control-active: #4a4c4c;
+  --surface-panel: #232323;
+  --surface-popover: #2d2d2f;
+  --surface-sunken: #191919;
+
+  /* The active rail button. Band and label pills use the shared glass rule. */
+  --rail-band-active: #575857;
+
+  --line: #383838;
+  --line-strong: #4a4a4a;
+
+  /* glass */
+
+  /*
+   * Translucent surfaces. Glass never sits on glass: a second blur reads the first's blurred output
+   * and turns grey. So the rail is opaque and its flyouts are glass. The title bar is the one
+   * exception (its floating children start below it). Plain CSS `backdrop-filter`, not native
+   * vibrancy, so Windows and Linux look the same. Saturation is raised because blur alone washes
+   * out colour.
+   */
+  --glass-blur: blur(24px) saturate(150%);
+  --glass-bg: rgb(34 34 36 / 78%);
+  /* Panes have no drop shadow, so this faint border is what separates them from a flat backdrop. */
+  --glass-border: rgb(255 255 255 / 10%);
+  /* Keyboard focus ring (styles.css): quiet and neutral, never the accent. */
+  --focus-ring: rgb(255 255 255 / 55%);
+  --modal-scrim: rgb(0 0 0 / 34%);
+
+  /* Fallback when blur is unsupported (`@supports not`). Opaque, since unblurred translucency is
+     unreadable over a busy model. */
+  --glass-bg-opaque: #2d2d2f;
+
+  /* pressable */
+
+  /*
+   * Hover and press: a plain filled shape, no border, bevel or inner light (an edge reads as an
+   * outline at 32 px). Press is a darker shade of hover.
+   */
+  --control-hover: #454547;
+  --control-press: #3a3a3c;
+
+  /* status */
+
+  /* Running work next to Export. One hue for "running", distinct from the selection accent. */
+  --busy: #48a0e8;
+  --busy-track: rgb(72 160 232 / 20%);
+  --ok: #4fb06a;
+  --fail: #e0554e;
+
+  /* text */
+
+  /* Measured: label glyphs peak at 234 and sit at 200 for most of a stroke. */
+  --text: #e0e0e0;
+  --text-dim: #909090;
+  --text-faint: #6a6c6e;
+  --text-on-accent: #111113;
+
+  /* accent */
+
+  /* The interface is black and white: active states and a view's primary action are white (ink in
+     the light scheme). Blue is for the model: `--select`. */
+  --accent: #f2f2f4;
+  --accent-hover: #ffffff;
+  --accent-quiet: rgb(255 255 255 / 14%);
+
+  /* Selection and actions share one hue. */
+  --select: #0a84ff;
+
+  /* geometry */
+
+  /* 52 px (104 px in a 2× capture), as in desktop CAD apps. Shared so web and desktop wrappers
+     move the stage, panels and rails together. */
+  --bar-height: 52px;
+
+  /*
+   * Left-rail grid, measured from 2× Retina captures (logical px):
+   * band 36 px wide (x 11–47), inset 11 px, item height ~26 px, pitch 28 px (26 + 2 gap),
+   * band-to-pill gap 10 px (x 47–57), label font 12 px.
+   */
+  --rail-column: 44px;
+  --rail-item-height: 32px;
+  --rail-gap: 3px;
+  --rail-band-pad: 3px;
+  /*
+   * Pitch = item height + gap. A flyout column starts one pitch right of its parent, overlapping
+   * the parent band by 2 px (one band-pad each side).
+   */
+  --rail-pitch: 35px;
+  --rail-inset: var(--edge);
+  /** Gap between the icon band and the label pills beside it. */
+  --rail-pill-gap: 10px;
+  /* Width the left rail claims (worst case: longest pill visible). */
+  --rail-width: 160px;
+
+  /* Right utility strip icons are larger: measured column 169–212 logical px (43 px), item height
+     ~40 px. */
+  --utility-column: 40px;
+  --utility-height: 40px;
+  /* Legacy alias, used by existing right-positioning math. */
+  --utility-size: 40px;
+
+  /* The view cube, top right of the canvas. Size includes the gnomon, so the cube's own edge
+     stays close to the reference's ~46 px. */
+  --cube-size: 48px;
+  --cube-half: 24px;
+  /* Perspective distance in front of the cube. Mirrored in ViewCube.tsx, which projects the gnomon
+     the same way. */
+  --cube-perspective: 320px;
+  --cube-edge: #2a2a2c;
+  /* Per-face shading (top lightest, bottom darkest), fixed to the world side each face names so the
+     lighting turns with the cube. */
+  --cube-top: #77777a;
+  --cube-front: #5e5e61;
+  --cube-back: #5e5e61;
+  --cube-right: #525255;
+  --cube-left: #525255;
+  --cube-bottom: #3f3f42;
+  --cube-hover: #409cff;
+  /* The bevelled cube is shaded per face from these two by how much light each face catches
+     (view-cube-geometry.ts). */
+  --cube-light: #bdbdc2;
+  --cube-dark: #2a2a2d;
+  /* The inner core cube that fills the gaps between the rounded face plates. */
+  --cube-core: #4a4a4d;
+  /* Panel width, so the core shows as a thin seam. The outer cube size is unchanged because the
+     gnomon arms are measured against it. */
+  --cube-panel: 52px;
+  --cube-radius: 5px;
+  --cube-core-radius: 7px;
+  /* Panel depth: slightly in front of the core to avoid z-fighting. */
+  --cube-panel-z: calc(var(--cube-half) + 0.5px);
+  /** The quarter-turn buttons flanking the cube. */
+  --spin-size: 24px;
+
+  /*
+   * Axis gnomon: red X, green Y, blue Z, brighter than the scene axes so they show on the shaded
+   * cube. `--gnomon-half` is half the drawing's box and centres it on the cube; arm and label
+   * distances live in ViewCube.tsx, which sets the matching width and height.
+   */
+  --gnomon-x: #e0554e;
+  --gnomon-y: #4fb06a;
+  --gnomon-z: #4a78d6;
+  --gnomon-half: 88px;
+
+  --drawer-width: 232px;
+  --dialog-width: 420px;
+  --dialog-list-max: 280px;
+  --dialog-heading-size: 16px;
+  /* Project library: a strict 4 px spatial grid, independent of compact CAD chrome. */
+  --library-sidebar-width: 232px;
+  --library-sidebar-narrow: 192px;
+  --library-mark-size: 32px;
+  --library-row-height: 32px;
+  --library-section-heading-height: 28px;
+  --library-small-control: 24px;
+  --library-folder-list-max: 42vh;
+  --library-bar-height: var(--bar-height);
+  --library-content-max: 1120px;
+  --library-heading-size: 20px;
+  --library-card-min: 216px;
+  --library-empty-height: 240px;
+  --library-empty-copy: 340px;
+  --library-thumbnail-icon: 40px;
+  --library-card-footer: 52px;
+  --library-menu-width: 184px;
+  --library-feature-icon: 32px;
+  --library-edge: 4px;
+  --library-active-edge: 2px;
+  --library-control-radius: 10px;
+  --library-card-radius: 16px;
+  --library-gutter: 8px;
+  --library-gutter-negative: -8px;
+  --library-inset: 12px;
+  --library-content-pad: 24px;
+  --library-grid-gap: 12px;
+  /* Docked side panels (Items left, History right), measured at 262 px. Opening Items moves the
+     left rail by this much, so the rail reads it. */
+  --panel-width: 262px;
+  /* The raised "All Items" filter control in the panel. */
+  --panel-control: #2e2e2e;
+
+  /* Pills for on-canvas gizmos (fillet size, extrude distance). Theme-coloured, slightly lighter
+     than a popover to separate from the viewport. */
+  --gizmo-surface: #37373a;
+  --gizmo-arrow-outline: #59616b;
+  --gizmo-label-surface: #f7f7f8;
+  --gizmo-label-text: #1c1c1e;
+  --gizmo-surface-raised: #414145;
+  --gizmo-text: #f2f2f4;
+  --gizmo-text-dim: #a6a6ac;
+  /* Gizmo pill separation: a hairline and a short tight shadow, not the popover's deep shadow. */
+  --gizmo-edge: 0 1px 2px rgb(0 0 0 / 28%), 0 0 0 1px var(--glass-border);
+
+  /* Corner radii, measured: a 32 px rail button ~10 px, its band ~14 px. The band is always rounder
+     than the button inside it. */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-control: 10px;
+  --radius-lg: 14px;
+  --radius-panel: 16px;
+
+  --pad-xs: 3px;
+  --pad-sm: 6px;
+  --pad: 10px;
+  --pad-lg: 16px;
+  /*
+   * Bottom margin for everything floating over the canvas, equal to the side margin of the rails.
+   */
+  --floor: var(--edge);
+
+  /* type */
+
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-size: 12px;
+  --text-size-sm: 11px;
+  --text-size-badge: 10px;
+
+  /* Rail label font: "Modeling" spans ~56 px in a ~74 px pill, implying ~12 px. */
+  --text-size-rail: 12px;
+  --text-size-rail-detail: 10px;
+
+  /* depth */
+
+  --shadow-popover: 0 8px 28px rgb(0 0 0 / 55%), 0 0 0 1px rgb(255 255 255 / 6%);
+  --shadow-drawer: 0 0 24px rgb(0 0 0 / 40%);
+
+  /* motion */
+
+  /* Short enough to feel like a response, not an animation. */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --fast: 90ms;
+  --medium: 150ms;
+}
+
+/*
+ * Light theme: when the in-app preference is "Light", or "System" (default) with a light OS. The
+ * token set is complete, so no dark surface remains.
+ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --canvas-top: #e8e8e8;
+    --canvas-bottom: #e0e0e0;
+    --grid-minor: #b8b8ba;
+    --grid-major: #98989c;
+    --surface-bar: #d8d8d8;
+    --surface-control: #c8c8c8;
+    --surface-control-glass: rgb(0 0 0 / 7%);
+    --surface-control-hover: #bdbdbd;
+    --surface-control-active: #aaaaaa;
+    --surface-panel: #d4d4d4;
+    --surface-popover: #e4e4e6;
+    --surface-sunken: #cccccc;
+    --rail-band-active: #9898a0;
+    --line: #b8b8b8;
+    --line-strong: #a0a0a0;
+    --text: #1a1a1a;
+    --text-dim: #505050;
+    --text-faint: #888888;
+    --text-on-accent: #ffffff;
+    --accent: #1a1a1a;
+    --accent-hover: #000000;
+    --accent-quiet: rgb(0 0 0 / 12%);
+    --select: #007aff;
+    --cube-hover: #007aff;
+    --panel-control: #ccccce;
+    --gizmo-surface: #f4f4f6;
+    --gizmo-surface-raised: #e4e4e8;
+    --gizmo-text: #1a1a1a;
+    --gizmo-text-dim: #6a6a6a;
+    --shadow-popover: 0 8px 28px rgb(0 0 0 / 20%), 0 0 0 1px rgb(0 0 0 / 8%);
+    --shadow-drawer: 0 0 24px rgb(0 0 0 / 15%);
+    --glass-bg: rgb(246 246 248 / 78%);
+    --glass-border: rgb(0 0 0 / 8%);
+    --focus-ring: rgb(0 0 0 / 50%);
+    --modal-scrim: rgb(72 72 78 / 22%);
+    --glass-bg-opaque: #e8e8ea;
+    --control-hover: #b6b6ba;
+    --control-press: #a6a6aa;
+    --busy: #1f77c4;
+    --busy-track: rgb(31 119 196 / 18%);
+    --ok: #2f8f4c;
+    --fail: #c23b34;
+  }
+}
+
+/* In-app override: light regardless of OS setting. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --canvas-top: #e8e8e8;
+  --canvas-bottom: #e0e0e0;
+  --grid-minor: #b8b8ba;
+  --grid-major: #98989c;
+  --surface-bar: #d8d8d8;
+  --surface-control: #c8c8c8;
+  --surface-control-glass: rgb(0 0 0 / 7%);
+  --surface-control-hover: #bdbdbd;
+  --surface-control-active: #aaaaaa;
+  --surface-panel: #d4d4d4;
+  --surface-popover: #e4e4e6;
+  --surface-sunken: #cccccc;
+  --rail-band-active: #9898a0;
+  --line: #b8b8b8;
+  --line-strong: #a0a0a0;
+  --text: #1a1a1a;
+  --text-dim: #505050;
+  --text-faint: #888888;
+  --text-on-accent: #ffffff;
+  --accent: #1a1a1a;
+  --accent-hover: #000000;
+  --accent-quiet: rgb(0 0 0 / 12%);
+  --select: #007aff;
+  --cube-hover: #007aff;
+  --panel-control: #ccccce;
+  --gizmo-surface: #f4f4f6;
+  --gizmo-surface-raised: #e4e4e8;
+  --gizmo-text: #1a1a1a;
+  --gizmo-text-dim: #6a6a6a;
+  --shadow-popover: 0 8px 28px rgb(0 0 0 / 20%), 0 0 0 1px rgb(0 0 0 / 8%);
+  --shadow-drawer: 0 0 24px rgb(0 0 0 / 15%);
+  --glass-bg: rgb(246 246 248 / 78%);
+  --glass-border: rgb(0 0 0 / 8%);
+  --focus-ring: rgb(0 0 0 / 50%);
+  --modal-scrim: rgb(72 72 78 / 22%);
+  --glass-bg-opaque: #e8e8ea;
+  --control-hover: #b6b6ba;
+  --control-press: #a6a6aa;
+  --busy: #1f77c4;
+  --busy-track: rgb(31 119 196 / 18%);
+  --ok: #2f8f4c;
+  --fail: #c23b34;
+}
+
+/* Reduced motion: nothing conveys meaning by moving, so motion is disabled. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fast: 0ms;
+    --medium: 0ms;
+  }
+}

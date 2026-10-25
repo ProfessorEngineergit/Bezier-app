@@ -1,0 +1,177 @@
+/* The Items tree (ItemsTree.tsx): collapsible folders with bodies, meshes and sketches, one line
+   each. The selection is a band; the eye shows only where needed. Sized like a file list, since
+   an imported assembly can have hundreds of rows. */
+
+.tree {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 2px var(--pad-xs) var(--pad-sm);
+  list-style: none;
+}
+
+/* Group heading, when the list holds both bodies and sketches. */
+.tree__heading {
+  padding: 10px 8px 4px;
+  color: var(--text-faint);
+  font: 500 var(--text-xs) / 1 var(--font);
+}
+
+.tree__heading:first-child {
+  padding-top: 4px;
+}
+
+.tree-row {
+  display: flex;
+  height: 26px;
+  align-items: center;
+  padding-right: 2px;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.tree-row:hover {
+  background: var(--control-hover);
+}
+
+.tree-row[aria-current="true"] {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+
+/* Not currently drawn: hidden, or a sketch that has been built from. */
+.tree-row[data-hidden] {
+  color: var(--text-faint);
+}
+
+.tree-row__chevron {
+  display: grid;
+  flex: none;
+  width: 14px;
+  height: 16px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: transform var(--fast) var(--ease);
+}
+
+.tree-row__chevron svg {
+  width: 8px;
+  height: 8px;
+}
+
+.tree-row__chevron[data-open] {
+  transform: rotate(90deg);
+}
+
+.tree-row__main {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: 400 var(--text-size-sm) / 1 var(--font);
+  text-align: left;
+  cursor: default;
+}
+
+.tree-row__icon {
+  display: grid;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  color: var(--text-dim);
+}
+
+.tree-row__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tree-row[aria-current="true"] .tree-row__icon,
+.tree-row[data-hidden] .tree-row__icon {
+  color: inherit;
+}
+
+.tree-row__name {
+  overflow: hidden;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tree-row[data-kind="folder"] .tree-row__name {
+  font-weight: 500;
+}
+
+/* The body a sketch was built into, at the end of the line; truncated first. */
+.tree-row__description {
+  overflow: hidden;
+  min-width: 0;
+  flex: 1 100 0;
+  margin-left: 4px;
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tree-row[aria-current="true"] .tree-row__description {
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* The eye: on the selected row, the hovered row, and hidden items. */
+.tree-row__eye {
+  display: grid;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  color: inherit;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--fast) var(--ease);
+}
+
+.tree-row__eye svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tree-row__eye:hover {
+  background: var(--control-hover);
+}
+
+.tree-row:hover .tree-row__eye,
+.tree-row[aria-current="true"] .tree-row__eye,
+.tree-row[data-hidden] .tree-row__eye,
+.tree-row__eye:focus-visible {
+  opacity: 1;
+}
+
+.tree-row__input {
+  min-width: 0;
+  height: 22px;
+  flex: 1;
+  padding: 0 6px;
+  border: 1px solid var(--glass-border);
+  border-radius: 5px;
+  background: var(--panel-control);
+  color: var(--text);
+  font: 400 var(--text-size-sm) / 1 var(--font);
+}

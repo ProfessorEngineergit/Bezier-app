@@ -1,0 +1,49 @@
+[package]
+name = "bezier-desktop"
+version = "0.1.0"
+description = "Bezier — local-first parametric CAD"
+edition = "2021"
+rust-version = "1.77"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+base64 = "0.22"
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream"] }
+serde_json = "1"
+
+# The Dock icon that follows the system's appearance (src/dock_icon.rs). The
+# same crates Tauri's own window layer already builds; nothing new is fetched.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["NSApplication", "NSImage", "NSResponder"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["NSData"] }
+
+# A page whose process died is loaded again (src/crash.rs). The crate Tauri's
+# own web view layer already builds on Windows; nothing new is fetched.
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.38"
+
+# A desktop build exists to be handed to someone. Optimise for the size of the
+# thing they download rather than for how long we wait for it.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# Proc-macro crates and build scripts are dynamic libraries that *rustc itself*
+# loads during the build. Stripping their symbols makes them unloadable, and
+# with LTO on, the failure surfaces as a crate that "cannot be found" while
+# sitting compiled in the target directory:
+#
+#   error[E0463]: can't find crate for `phf_macros`
+#
+# Neither option causes it alone. Measured by bisecting the profile.
+[profile.release.build-override]
+strip = false

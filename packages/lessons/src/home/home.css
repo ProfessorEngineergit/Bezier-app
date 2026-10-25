@@ -1,0 +1,182 @@
+/* The Lessons home, inside the start page's grid next to its sidebar. */
+
+.lessons-root {
+  position: relative;
+  min-height: 100%;
+}
+
+/* The list is only as tall as its content so the user's projects follow directly; the player and
+   edit view keep the full height. */
+.lessons-root:has(> .lessons-home) {
+  min-height: 0;
+}
+
+/* Matches the start page's section (`library__section`, `library__head`) in width, padding and
+   type, so Learn and All Projects look alike. */
+.lessons-home {
+  position: relative;
+  min-height: 0;
+  font: var(--text-size) / 1.5 var(--font);
+}
+
+.lessons-home__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.lessons-home__gap {
+  flex: 1;
+}
+
+.lessons-home__none {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* Every section starts with a panel label. */
+.lessons-home__section {
+  margin: 0 0 10px 2px;
+}
+
+/* record sheet */
+
+.lessons-sheet {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  display: grid;
+  gap: 14px;
+  width: min(360px, calc(100vw - 48px));
+  padding: 16px;
+  border-radius: var(--radius-panel);
+}
+
+.lessons-sheet__note {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: var(--lessons-text-sm);
+  line-height: 1.45;
+}
+
+/* interrupted recording */
+
+.lessons-draft {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius-panel);
+  background: var(--surface-panel);
+}
+
+.lessons-draft__mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-control);
+  color: var(--fail);
+}
+
+.lessons-draft p {
+  flex: 1 1 240px;
+  margin: 0;
+}
+
+.lessons-draft__actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* continue */
+
+.lessons-continue {
+  margin-bottom: 28px;
+}
+
+.lessons-continue__open {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--library-card-radius, 16px);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.lessons-continue__poster {
+  position: relative;
+  flex: none;
+  width: var(--library-card-min, 216px);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--library-card-radius, 16px);
+  background: var(--surface-panel);
+  transition: border-color var(--fast) var(--ease);
+}
+
+.lessons-continue__open:hover .lessons-continue__poster {
+  border-color: var(--line-strong);
+}
+
+.lessons-continue__text {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lessons-continue__title {
+  overflow: hidden;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessons-continue__where {
+  color: var(--text-dim);
+  font-size: var(--lessons-text-sm);
+}
+
+.lessons-continue__go {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: var(--lessons-text-sm);
+  font-weight: 500;
+  transition: color var(--fast) var(--ease);
+}
+
+.lessons-continue__go svg {
+  width: 14px;
+  height: 14px;
+}
+
+.lessons-continue__open:hover .lessons-continue__go {
+  color: var(--text);
+}
+
+@media (max-width: 800px) {
+  .lessons-continue__poster {
+    width: 144px;
+  }
+
+  .lessons-continue__title {
+    font-size: var(--lessons-text-lg);
+  }
+}

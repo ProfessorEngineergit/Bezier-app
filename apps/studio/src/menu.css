@@ -1,0 +1,195 @@
+/**
+ * The shared menu component: the title bar's export chooser and the start page's project and
+ * folder menus. Kept in its own file so a workspace restyle cannot drop these rules.
+ */
+
+/*
+ * Anchored under the title bar. Positioned here rather than by measuring the button: its place in
+ * the bar is fixed, and measuring would lag a frame after every resize.
+ */
+.menu__anchor {
+  position: absolute;
+  top: var(--pad-sm);
+  left: var(--pad-lg);
+  z-index: 8;
+}
+
+/* The export chooser hangs off the right end of the bar, under its button. */
+.menu__anchor--right {
+  right: var(--pad-lg);
+  left: auto;
+}
+
+/* Clicking anywhere else closes it. A scrim rather than a document listener, so a child that stops
+   propagation cannot swallow the dismissal. */
+.menu__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  background: transparent;
+}
+
+/* Material comes from the shared "glass" rule in @bezier/ui's shell.css; only layout lives here. */
+.menu {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: var(--pad-xs);
+  border-radius: var(--radius-panel);
+}
+
+.menu--wide {
+  min-width: 264px;
+}
+
+.menu__item {
+  padding: var(--pad-sm) var(--pad);
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.menu__item:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.menu__item:active:not(:disabled) {
+  background: var(--control-press);
+}
+
+/*
+ * Shown but disabled, with the reason in the title, so users learn where a future option will be.
+ */
+.menu__item:disabled {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.menu__item[data-destructive]:not(:disabled) {
+  color: var(--fail);
+}
+
+/* A row with a name above an explanation of its trade-off. */
+.menu__item--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  padding: var(--pad-sm) var(--pad);
+}
+
+.menu__itemLabel {
+  font-weight: 500;
+}
+
+.menu__itemNote {
+  color: var(--text-dim);
+  font-size: var(--text-size-badge);
+  line-height: 1.35;
+  white-space: normal;
+}
+
+/* An option that applies to the rows below it (ExportMenu: only the selected bodies). */
+.menu__check {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  border-bottom: 1px solid var(--glass-border);
+  cursor: pointer;
+}
+
+/* A three-way choice above the formats (ExportMenu: STL and 3MF resolution). */
+.menu__segments {
+  display: flex;
+  gap: 2px;
+  margin: var(--pad-sm) var(--pad) var(--pad-sm);
+  padding: 2px;
+  border-radius: 8px;
+  border: 0;
+  background: rgb(127 127 127 / 10%);
+}
+.menu__segments button {
+  flex: 1;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-dim);
+  font: 500 var(--text-size-badge) var(--font);
+  cursor: pointer;
+}
+.menu__segments button:hover {
+  color: var(--text);
+  background: rgb(127 127 127 / 12%);
+}
+/* The buttons mark the chosen one with aria-pressed, not aria-checked. */
+.menu__segments button[aria-pressed="true"] {
+  background: var(--glass-strong, rgb(127 127 127 / 22%));
+  color: var(--text);
+}
+.menu__segmentsLabel {
+  margin: var(--pad-sm) var(--pad) 0;
+  color: var(--text-faint);
+  font: 500 var(--text-size-badge) var(--font);
+}
+
+/* Select through: opened at the right-click position, above everything. */
+.pick-through {
+  position: fixed;
+  z-index: 40;
+}
+
+.pick-through .menu__scrim {
+  position: fixed;
+}
+
+.menu__heading {
+  padding: var(--pad-xs) var(--pad) var(--pad-xs);
+  color: var(--text-faint);
+  font-size: var(--text-xs, 11px);
+}
+
+.pick-through .menu__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pad);
+}
+
+.menu__hint {
+  color: var(--text-faint);
+}
+
+/* Saved camera views, in the quick settings below the standard ones. */
+.saved-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-xs);
+  margin-top: var(--pad-sm);
+}
+
+.saved-views__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.saved-views__remove {
+  padding: 0 6px;
+  color: var(--text-faint);
+}
+
+.saved-views__save {
+  display: flex;
+  flex: 1 1 100%;
+  gap: var(--pad-xs);
+}
+
+.saved-views__save input {
+  flex: 1;
+  min-width: 0;
+}

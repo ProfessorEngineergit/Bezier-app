@@ -1,0 +1,17 @@
+Date: 2026-10-22
+Host: Apple M1 Max, 10 cores, 64 GB, macOS 27.0, Docker 28.5.1 (8 GB, 10 CPUs to Docker)
+
+Fedora runs (fedora-41-*.txt, fedora-shots/):
+  Fedora 41 x86_64 in Docker, emulated on the Apple-silicon host (much slower than a real PC,
+  in the region of a weak laptop), Xvfb 1440x900, Mesa llvmpipe (software OpenGL), no GPU.
+  The .rpm installed with dnf; driven by scripts/platform-check (tauri-driver, WebKitWebDriver).
+  before: the alpha .rpm of 4ad7a61f (film from a blob, Nib bubble); after: of the commit that
+  serves the film over HTTP (this change).
+
+Chromium runs (chromium-cpu4x-before-after.txt):
+  Playwright Chromium 1.62.1 (WebView2's engine), arm64 Linux container, 1366x768,
+  processor slowed 4x with Emulation.setCPUThrottlingRate. gpu=0: --disable-gpu
+  --disable-gpu-compositing; gpu=1: default flags (SwiftShader, no real GPU either).
+  before: studio build of b9511560; now: of 4c415082.
+
+Other applications were open; power state not controlled.

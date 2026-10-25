@@ -1,0 +1,131 @@
+/*
+ * The recognition intro: a glass sheet over the page. Tokens only; the only
+ * colour comes from the badge renders.
+ */
+
+.ri-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: var(--pad-lg);
+  background: var(--modal-scrim);
+}
+
+.ri-sheet {
+  box-sizing: border-box;
+  width: min(520px, 100%);
+  max-height: calc(100vh - 2 * var(--pad-lg));
+  overflow-y: auto;
+  padding: var(--pad-lg) calc(var(--pad-lg) * 1.5) calc(var(--pad-lg) * 1.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-panel);
+  background: var(--glass-bg);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--text-size);
+  text-align: center;
+  backdrop-filter: var(--glass-blur);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .ri-sheet {
+    background: var(--glass-bg-opaque);
+  }
+}
+
+.ri-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 var(--pad);
+}
+
+.ri-badges img {
+  width: 108px;
+  height: 108px;
+  margin: 0 -14px;
+  animation: ri-float 6s var(--ease) infinite alternate;
+}
+
+.ri-badges .ri-badges__hero {
+  position: relative;
+  z-index: 1;
+  width: 152px;
+  height: 152px;
+  animation-delay: -3s;
+}
+
+@keyframes ri-float {
+  from {
+    transform: translateY(2px);
+  }
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+.ri-title {
+  margin: 0;
+  font-size: var(--library-heading-size);
+  font-weight: 700;
+}
+
+.ri-lead {
+  margin: var(--pad-sm) auto var(--pad-lg);
+  max-width: 400px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.ri-points {
+  margin: 0 auto;
+  padding: 0;
+  max-width: 360px;
+  list-style: none;
+  text-align: left;
+}
+
+.ri-points li {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--pad-sm) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ri-points strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.ri-levels {
+  margin: var(--pad) 0 var(--pad-lg);
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.ri-switch {
+  justify-content: center;
+  text-align: left;
+}
+
+.ri-switch__note {
+  color: var(--text-faint);
+  font-size: var(--text-size-sm);
+}
+
+.ri-actions {
+  margin-top: var(--pad-lg);
+}
+
+.ri-actions .lessons-button {
+  min-width: 180px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ri-badges img,
+  .ri-badges .ri-badges__hero {
+    animation: none;
+  }
+}

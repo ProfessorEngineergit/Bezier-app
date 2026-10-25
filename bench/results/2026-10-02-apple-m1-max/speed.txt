@@ -1,0 +1,34 @@
+
+=== chromium, median of 3 ===
+S1 start → projects                 364 ms   [363, 385, 364]
+S2 new project                       53 ms   [54, 40, 53]
+S6 first solid                      216 ms   [669, 216, 187]
+S6 duplicate a body                  28 ms   [27, 28, 29]
+S6 duplicate, 9th body               29 ms   [29, 26, 31]
+S8 undo                              22 ms   [23, 22, 15]
+S8 redo                              16 ms   [32, 16, 15]
+S13 export STL                       67 ms   [131, 67, 67]
+S13 export STEP                     149 ms   [604, 149, 135]
+S13 export 3MF                       82 ms   [247, 69, 82]
+S3 reopen project                    48 ms   [227, 40, 48]
+last run, by phase:
+  S6 first solid                 {"change":100,"write":13,"history":7,"rebuild":78,"bodies":0,"display":2,"part-show":0,"upload":1}
+  S8 undo                        {"write":5,"history":3,"rebuild":0,"part-show":0,"upload":0}
+  S3 reopen project              {"open":19,"load":17,"part-show":0,"upload":0,"history-read":0,"rebuild":0,"bodies":0,"display":1}
+
+=== webkit, median of 3 ===
+S1 start → projects                 325 ms   [322, 325, 335]
+S2 new project                       79 ms   [79, 84, 77]
+S6 first solid                      220 ms   [220, 203, 234]
+S6 duplicate a body                  24 ms   [25, 23, 24]
+S6 duplicate, 9th body               23 ms   [23, 23, 31]
+S8 undo                              12 ms   [13, 12, 12]
+S8 redo                              15 ms   [15, 15, 15]
+S13 export STL                       89 ms   [89, 100, 84]
+S13 export STEP                     129 ms   [125, 130, 129]
+S13 export 3MF                       93 ms   [88, 96, 93]
+S3 reopen project                    70 ms   [81, 70, 69]
+last run, by phase:
+  S6 first solid                 {"change":126,"write":14,"history":12,"rebuild":89,"bodies":1,"display":8,"part-show":0,"upload":0}
+  S8 undo                        {"write":2,"history":1,"rebuild":1,"part-show":0,"upload":0}
+  S3 reopen project              {"load":21,"open":23,"part-show":0,"upload":0,"history-read":0,"rebuild":1,"bodies":0,"display":1}

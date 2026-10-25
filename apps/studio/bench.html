@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bezier — frame budget</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; background: #101215; color: #e6e8ea;
+        font: 14px/1.6 ui-sans-serif, system-ui, sans-serif;
+        height: 100vh; overflow: hidden;
+      }
+      canvas { display: block; width: 100vw; height: 100vh; }
+      /* Over the canvas, not under it: the results are the point of the page,
+         and a panel that grows off the bottom of a fixed window shows nothing. */
+      #results {
+        position: fixed; top: 0; left: 0; padding: 0.9rem 1.1rem;
+        background: rgba(23, 26, 31, 0.94); border-bottom-right-radius: 8px;
+      }
+      #results p { margin: 0 0 0.4rem; }
+      .agent { color: #8b929c; font-size: 0.75rem; }
+      table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+      th, td { padding: 0.2rem 0.9rem 0.2rem 0; text-align: right; }
+      th:first-child, td:first-child { text-align: left; }
+      th { color: #8b929c; font-weight: 500; font-size: 0.78rem; }
+      .ok { color: #7ee0a5; }
+      .over { color: #ff9a8b; }
+      #verdict { margin-top: 0.6rem; font-weight: 600; letter-spacing: 0.04em; }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <div id="results">starting…</div>
+    <script type="module" src="/src/bench.ts"></script>
+  </body>
+</html>

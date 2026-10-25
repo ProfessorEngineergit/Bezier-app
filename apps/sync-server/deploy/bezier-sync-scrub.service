@@ -1,0 +1,10 @@
+[Unit]
+Description=Bezier sync: check and repair every stored copy
+
+[Service]
+Type=oneshot
+User=bezier-sync
+WorkingDirectory=/opt/bezier-sync
+Environment=BEZIER_SYNC_DATA=/var/lib/bezier-sync
+EnvironmentFile=-/etc/bezier-sync.env
+ExecStart=/usr/bin/node server/main.ts scrub

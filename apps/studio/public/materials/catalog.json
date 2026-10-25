@@ -1,0 +1,749 @@
+[
+  {
+    "provider": "ambientCG",
+    "asset": "Plastic013A",
+    "name": "Fine Pebble Plastic",
+    "source": "https://ambientcg.com/a/Plastic013A",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Plastic013A_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "plastic013a/albedo.jpg",
+        "sha256": "408912822248b35039739705f8601b1e9d0a301327cea500fd460b472dd939f2"
+      },
+      "normal": {
+        "file": "plastic013a/normal.jpg",
+        "sha256": "0c6d87fd8eeb4f49efc9abc3ba8b544e1398b509eb96d1b4ceb977a57f3c3b17"
+      },
+      "roughness": {
+        "file": "plastic013a/roughness.jpg",
+        "sha256": "626c9c14aa290c0b5af4d86890253077acb565f643fadb7697af3c48df2de392"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Plastic012A",
+    "name": "Carbon Black Plastic",
+    "source": "https://ambientcg.com/a/Plastic012A",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Plastic012A_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "plastic012a/albedo.jpg",
+        "sha256": "53d325f7bdd2ce9987c149bb16a9ccc36e65aff85a87a3c74ae13df9e23fcc24"
+      },
+      "normal": {
+        "file": "plastic012a/normal.jpg",
+        "sha256": "8534b86e28af0daf35ad388e3d5bc4ca18dab463bf57695f9111d4eef28bc0b5"
+      },
+      "roughness": {
+        "file": "plastic012a/roughness.jpg",
+        "sha256": "eccee72322acbdac4cd9406f37cd9ae3df2ccb3577d7a21ef39f172958748964"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Metal049A",
+    "name": "Satin Silver",
+    "source": "https://ambientcg.com/a/Metal049A",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Metal049A_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "metal049a/albedo.jpg",
+        "sha256": "6b89852cf052f6971211a747325d0eb3b36b40a4ada50d84d69b95bdc7c1d131"
+      },
+      "normal": {
+        "file": "metal049a/normal.jpg",
+        "sha256": "d35a12f2ab0cad9b2c3a44d500ae487def27d0cd0f6ff8edae826b8ced5c5103"
+      },
+      "roughness": {
+        "file": "metal049a/roughness.jpg",
+        "sha256": "fec66f48ad91492fda505129cbd068948ae0d91d6dc0356f2b37d8959a7f89ed"
+      },
+      "metalness": {
+        "file": "metal049a/metalness.jpg",
+        "sha256": "d4d6595950de243cbbde8abb7383248fb8d2e352b8d4dfe1e2d6882cb9e97716"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Metal030",
+    "name": "Micro-scratched Steel",
+    "source": "https://ambientcg.com/a/Metal030",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Metal030_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "metal030/albedo.jpg",
+        "sha256": "093fa11247c8949799dc94c8ac2bd84e43599c5c4b9b606d9c4d298b9ea5291c"
+      },
+      "normal": {
+        "file": "metal030/normal.jpg",
+        "sha256": "3ae505e46c40bad887cd26e7f1dd6df39b35fa7942bc4ef51b4936f6804d76cc"
+      },
+      "roughness": {
+        "file": "metal030/roughness.jpg",
+        "sha256": "22be9175c73e8f02ba2526767bf5897e1e42fdbe0d448e85ba2b7194ac546281"
+      },
+      "metalness": {
+        "file": "metal030/metalness.jpg",
+        "sha256": "9ea8a75a20cd9bb5d9001bedd8d3a9a67f1313e2ee3f99f93cb729b330d3783d"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Cork004",
+    "name": "Natural Cork",
+    "source": "https://ambientcg.com/a/Cork004",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Cork004_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "cork004/albedo.jpg",
+        "sha256": "80b0a48eaca62fc7ffed35722d243d11ae1453a890d4109bc202216eb27c2574"
+      },
+      "normal": {
+        "file": "cork004/normal.jpg",
+        "sha256": "e08d80c59bc909104ee70bf3f01e9fbd3e3fd1dba2455d0ea029730d78d03ff4"
+      },
+      "roughness": {
+        "file": "cork004/roughness.jpg",
+        "sha256": "284afa616df5d3d9fdb6848c45f193cd4c92694fe0d418bae6839316fd3bf9e8"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Leather026",
+    "name": "Black Leather",
+    "source": "https://ambientcg.com/a/Leather026",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Leather026_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "leather026/albedo.jpg",
+        "sha256": "6e54ff80bfbb6ae66ac0b7e5b519de00dcb5f045f25237cb51b0194363836ffc"
+      },
+      "normal": {
+        "file": "leather026/normal.jpg",
+        "sha256": "a6e9f68c0aac875557fc28ac106cae2571aa3b7c4d28ca19032b2b7622269f7a"
+      },
+      "roughness": {
+        "file": "leather026/roughness.jpg",
+        "sha256": "2c3bc5e4e333ac08e61f6fb3649970f3c0eb7bf5a4f45b15f591c8488a1f3235"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Fabric036",
+    "name": "Fine Woven Fabric",
+    "source": "https://ambientcg.com/a/Fabric036",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Fabric036_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "fabric036/albedo.jpg",
+        "sha256": "ab7245168ccf3695be9e8c51781b02e52960b7f3b1ef42ee28249d37ce268616"
+      },
+      "normal": {
+        "file": "fabric036/normal.jpg",
+        "sha256": "abeafd39776643b6ea8eea7272d955077e87c3626b01d32e7ca438584101850a"
+      },
+      "roughness": {
+        "file": "fabric036/roughness.jpg",
+        "sha256": "dfae92f8680c307a851dc7c663251dfc05afae341bcf49fcc71f1515098c998d"
+      },
+      "ao": {
+        "file": "fabric036/ao.jpg",
+        "sha256": "6ee151dd168446bf5fb7b279bc9c8abf4972adfe29ea9fb869fb6f0f4583fdca"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Marble012",
+    "name": "Carrara Marble",
+    "source": "https://ambientcg.com/a/Marble012",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Marble012_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "marble012/albedo.jpg",
+        "sha256": "4da0b1763862490d011e7612f67495c90ea7cee37956c7beca027ec41df95405"
+      },
+      "normal": {
+        "file": "marble012/normal.jpg",
+        "sha256": "101ba13f3b6069f845d2a6e2ffd75c35c47b8f4bd4c5978dd447307e21d9e31d"
+      },
+      "roughness": {
+        "file": "marble012/roughness.jpg",
+        "sha256": "067574124fa6e278f8a762ee2483c43fb689f9ccfacca97566b5e04d6fb634d0"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "ambientCG",
+    "asset": "Wood092",
+    "name": "Warm Hardwood",
+    "source": "https://ambientcg.com/a/Wood092",
+    "license": "CC0-1.0",
+    "package": "https://ambientcg.com/get?file=Wood092_2K-JPG.zip",
+    "maps": {
+      "albedo": {
+        "file": "wood092/albedo.jpg",
+        "sha256": "8f51a26b28002e386babd170808c1567208587f1728d76a7d3055c4941206bfb"
+      },
+      "normal": {
+        "file": "wood092/normal.jpg",
+        "sha256": "787bc277e00a1c6558b922ea09e00f5956b79924f102d9f5cc418e5681386f36"
+      },
+      "roughness": {
+        "file": "wood092/roughness.jpg",
+        "sha256": "5caf11ed23da34c39b29587844a6d9f155cbc3fbf4b74cae1d9e1f438fe89818"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "c12edfda-a5bd-4469-8147-4a6540a0a213",
+    "name": "Brushed Aluminium",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=c12edfda-a5bd-4469-8147-4a6540a0a213",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/5fd8a2ae-77bb-489c-b5d7-8598b2fdcbd0/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_brushed_aluminium/albedo.png",
+        "sha256": "846eaa5a3e53f4eabfc7f2c61045dcd08f32a595323ce436ff07158715ff63a6"
+      },
+      "roughness": {
+        "file": "gpu_brushed_aluminium/roughness.png",
+        "sha256": "b785a3fd2dcc7e5f35a47f6efa70f476d0ebde5fd1bbbc23ddd5be1e85f6f099"
+      },
+      "normal": {
+        "file": "gpu_brushed_aluminium/normal.png",
+        "sha256": "39f785d4259c65cbd2fa4ec77a434bfa560fd432f207763f782004c1d8c57183"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "01ca2bda-f072-4349-8ee0-353ed5f9f555",
+    "name": "Stainless Steel",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=01ca2bda-f072-4349-8ee0-353ed5f9f555",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/6bf680ca-5b50-47c5-922d-b3de8f14de31/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_stainless_steel/albedo.png",
+        "sha256": "ab0743e23076da1d2c8148a991a409bb9a660131d471eb9f2a0556c705ab2e8e"
+      },
+      "roughness": {
+        "file": "gpu_stainless_steel/roughness.png",
+        "sha256": "5b0c8f9e1ef83bc840a4c0a00267fa201e6cc44f473b6017c74c5d87f4608ba7"
+      },
+      "normal": {
+        "file": "gpu_stainless_steel/normal.png",
+        "sha256": "6490e77d3e2a4228d445feae4922a9cbff2116d810f404a310eca88f5fbca097"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "5936d911-6aed-4197-9117-8eea7cf40d65",
+    "name": "Matte Aluminium",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=5936d911-6aed-4197-9117-8eea7cf40d65",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/7e1dd4f4-7c9e-433d-81d0-29bd1d852f52/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_matte_aluminium/albedo.png",
+        "sha256": "846eaa5a3e53f4eabfc7f2c61045dcd08f32a595323ce436ff07158715ff63a6"
+      },
+      "roughness": {
+        "file": "gpu_matte_aluminium/roughness.png",
+        "sha256": "142d833cea5b78bbe682f29d8b3993ed69d13dd4e06f5274909e739a2e7fa868"
+      },
+      "normal": {
+        "file": "gpu_matte_aluminium/normal.png",
+        "sha256": "5624dcd4ea3e78135bb99460b7d056df18c077482bdb7cfbe002a648df8c920e"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "78c066dd-defa-4d49-9489-f1a1a9a0390c",
+    "name": "Brushed Brass",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=78c066dd-defa-4d49-9489-f1a1a9a0390c",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/9c4817b0-5efc-42ff-8ab5-bc8c5ef33bbc/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_brushed_brass/albedo.png",
+        "sha256": "95c56d392cace9b854681e65b1ba27fa71f2db52cea03db7c0dc0dcc8085dab3"
+      },
+      "roughness": {
+        "file": "gpu_brushed_brass/roughness.png",
+        "sha256": "8863e4b084f1692bd25218eeeee61376fa140c4e98dcd246d819a08358d8ca9c"
+      },
+      "normal": {
+        "file": "gpu_brushed_brass/normal.png",
+        "sha256": "39f785d4259c65cbd2fa4ec77a434bfa560fd432f207763f782004c1d8c57183"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "fff5176e-fdf5-4503-aab1-cb2de56b6fe0",
+    "name": "Brushed Copper",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=fff5176e-fdf5-4503-aab1-cb2de56b6fe0",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/fd86b3f2-55c0-44a0-8ca1-dfd429511b09/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_brushed_copper/albedo.png",
+        "sha256": "ded579e83e4849df36bfb882df16c7e83564dc5d496838fd1bf5af918ef063e1"
+      },
+      "roughness": {
+        "file": "gpu_brushed_copper/roughness.png",
+        "sha256": "d1140158f9141eaa11791a95b761ac8b0aa0884b9484fdc0a56cba8c4de3d17c"
+      },
+      "normal": {
+        "file": "gpu_brushed_copper/normal.png",
+        "sha256": "55bd2858e8351f8c7d5f9c3989a5e0644a9b040a5c40478c193bd5d716151157"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "fef69a7f-0927-4e86-b193-6af21686b9d9",
+    "name": "Textured Graphite",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=fef69a7f-0927-4e86-b193-6af21686b9d9",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/1a89a2ec-6b6c-4e12-9eca-d277238a7538/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_textured_graphite/albedo.png",
+        "sha256": "333c9f13683037e6b4866592292e2feddb66da3d209ae0f56471a49f351c8182"
+      },
+      "roughness": {
+        "file": "gpu_textured_graphite/roughness.png",
+        "sha256": "6f2d7b0c9554da30150e7bf732329e116789f33f8d817b6ad6bcebeb1dbc9582"
+      },
+      "normal": {
+        "file": "gpu_textured_graphite/normal.png",
+        "sha256": "46241695bc65921051f3b9d8bc1991b834e1b59122410ffdb6ff14a62de8af06"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "5132e245-e58c-4ee7-8d12-363725f91b0e",
+    "name": "Rubber",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=5132e245-e58c-4ee7-8d12-363725f91b0e",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/def15348-a751-476c-8288-0b9a58382f15/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_rubber/albedo.png",
+        "sha256": "29b40f508a0a849bb4a7582f174226aeedc8839fd35fb1e54fa93f630e1f489b"
+      },
+      "roughness": {
+        "file": "gpu_rubber/roughness.png",
+        "sha256": "fbb6a63a6c3160f407ff14a4abb568c066d343878523fb2d19f55cd075a316cb"
+      },
+      "normal": {
+        "file": "gpu_rubber/normal.png",
+        "sha256": "1da3c2daefa037cbb5583bd50b2264ad7a6dab78c5265c54b751f4c07672da17"
+      }
+    }
+  },
+  {
+    "provider": "GPUOpen",
+    "asset": "ec63ffd7-32c7-4890-a76c-bc7eaad9639c",
+    "name": "European Beech",
+    "source": "https://matlib.gpuopen.com/main/materials/all?material=ec63ffd7-32c7-4890-a76c-bc7eaad9639c",
+    "license": "MIT",
+    "package": "https://api.matlib.gpuopen.com/api/packages/a0a307a0-4f8f-48fb-9a55-baeb7ceca6f3/download/",
+    "maps": {
+      "albedo": {
+        "file": "gpu_european_beech/albedo.png",
+        "sha256": "2ba2b3bcc28af9a9657ce417222ea99a547318a6e1b283526f71bce80501ecae"
+      },
+      "roughness": {
+        "file": "gpu_european_beech/roughness.png",
+        "sha256": "2bea2106d109e76a1a3541bdf23bd0df2123555e0587d56a3e55bc6c17057808"
+      },
+      "normal": {
+        "file": "gpu_european_beech/normal.png",
+        "sha256": "6436d453c2484847c88337ddd0ac68249c3cdb7167ff52b57a1d64a838ae8232"
+      }
+    }
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "american_walnut_veneer",
+    "name": "American Walnut",
+    "source": "https://polyhaven.com/a/american_walnut_veneer",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/american_walnut_veneer/american_walnut_veneer_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/american_walnut_veneer/american_walnut_veneer_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/american_walnut_veneer/american_walnut_veneer_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/american_walnut_veneer/american_walnut_veneer_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "american_walnut_veneer/albedo.jpg",
+        "sha256": "97d3b6b7d3048ae47dd2df7e2e333195dde10b9564fd7c58619a018695914d47"
+      },
+      "normal": {
+        "file": "american_walnut_veneer/normal.jpg",
+        "sha256": "a5d2c4d8e634d29dac8038a8368364bcce61ed23ef90aa4ec061d01f5ff2489c"
+      },
+      "roughness": {
+        "file": "american_walnut_veneer/roughness.jpg",
+        "sha256": "eb42906b6fcb92ef0d5df0a0ebeb135a2ca2f2f3d0048e103323a1f8b81e8b20"
+      },
+      "ao": {
+        "file": "american_walnut_veneer/ao.jpg",
+        "sha256": "4ea154f6f9d2659432b5b186ab36357763e8ebfdb5d36edbc2a3c4b533a29135"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "ash_veneer",
+    "name": "Natural Ash",
+    "source": "https://polyhaven.com/a/ash_veneer",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/ash_veneer/ash_veneer_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/ash_veneer/ash_veneer_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/ash_veneer/ash_veneer_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/ash_veneer/ash_veneer_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "ash_veneer/albedo.jpg",
+        "sha256": "92369399c3098438f9867de688e7b59293931ee75b44a419d3ab59a7caad1bc9"
+      },
+      "normal": {
+        "file": "ash_veneer/normal.jpg",
+        "sha256": "ebd959cfc46d66c47f8da5563e4c9bacf2362b9e7eab26f85dc4fa0a601ddd5b"
+      },
+      "roughness": {
+        "file": "ash_veneer/roughness.jpg",
+        "sha256": "d7c01c552ed303d4fa63dfdb5ccab294363147aa2615c316e15204f566b9bdc2"
+      },
+      "ao": {
+        "file": "ash_veneer/ao.jpg",
+        "sha256": "4697d1cac6a4625b9c2d9af387f7c692c6376da5baf81f1d9a6ff812d306376f"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "rosewood_veneer1",
+    "name": "Lacquered Rosewood",
+    "source": "https://polyhaven.com/a/rosewood_veneer1",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rosewood_veneer1/rosewood_veneer1_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rosewood_veneer1/rosewood_veneer1_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rosewood_veneer1/rosewood_veneer1_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rosewood_veneer1/rosewood_veneer1_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "rosewood_veneer1/albedo.jpg",
+        "sha256": "c3d473c58786cef45119e16158141e8b5d59a79464bb732026bcb44d82ae9e09"
+      },
+      "normal": {
+        "file": "rosewood_veneer1/normal.jpg",
+        "sha256": "f7d6cfe75a893e18642cf85a40f221e443d8b0f88099f3272f022bc36db2b65e"
+      },
+      "roughness": {
+        "file": "rosewood_veneer1/roughness.jpg",
+        "sha256": "71845fd84735f31e5ebba2ccc48760d075d447896436300aadb38cd2011ca318"
+      },
+      "ao": {
+        "file": "rosewood_veneer1/ao.jpg",
+        "sha256": "169084fb75cfd7e645067f9b206d2b9e783f51f3a2bd645ef661e5fdaf7239c7"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "plywood",
+    "name": "Birch Plywood",
+    "source": "https://polyhaven.com/a/plywood",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/plywood/plywood_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/plywood/plywood_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/plywood/plywood_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/plywood/plywood_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "plywood/albedo.jpg",
+        "sha256": "bd55da463e45b481661d51564fe0b8429d6d61677a4f67b6806047f35f023a2b"
+      },
+      "normal": {
+        "file": "plywood/normal.jpg",
+        "sha256": "290a87a09e06cda48415aea9fe09f2d12f06828db3774761cc17e5d0dac10753"
+      },
+      "roughness": {
+        "file": "plywood/roughness.jpg",
+        "sha256": "cf09144d5332fcb20f9768011f762f9d502011022acdafda67836e3ab0bf7ba7"
+      },
+      "ao": {
+        "file": "plywood/ao.jpg",
+        "sha256": "4eb8d43702c0c65adeb6ce211f38059664c7f96b91f85c2376a2b5b7485591c8"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "rock_01",
+    "name": "Weathered Stone",
+    "source": "https://polyhaven.com/a/rock_01",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_01/rock_01_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_01/rock_01_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_01/rock_01_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_01/rock_01_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "rock_01/albedo.jpg",
+        "sha256": "0fef5f279a0f16158073eab0e5c084c7ffc00321d12bf4e2b182644118c408d1"
+      },
+      "normal": {
+        "file": "rock_01/normal.jpg",
+        "sha256": "6d15a21af802c46f80c074cc270e500c33896c2043226268d822514650abca80"
+      },
+      "roughness": {
+        "file": "rock_01/roughness.jpg",
+        "sha256": "465225921680eccf6ec8186f3900bb848af17ebd408e5d52ecb8a454a053be9a"
+      },
+      "ao": {
+        "file": "rock_01/ao.jpg",
+        "sha256": "4d511946d527159772632f8e0c17f0fbba0475106697070bd7350a7d82be1433"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "brushed_concrete",
+    "name": "Brushed Concrete",
+    "source": "https://polyhaven.com/a/brushed_concrete",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brushed_concrete/brushed_concrete_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brushed_concrete/brushed_concrete_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brushed_concrete/brushed_concrete_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brushed_concrete/brushed_concrete_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "brushed_concrete/albedo.jpg",
+        "sha256": "059341c00332520fc8a79106ab17dfda207d38409a5e86328792722676c3fd58"
+      },
+      "normal": {
+        "file": "brushed_concrete/normal.jpg",
+        "sha256": "f3932ed0142174e29cf9e893ebec38b4a9f1c349595e1f435fa26d078fa11e0c"
+      },
+      "roughness": {
+        "file": "brushed_concrete/roughness.jpg",
+        "sha256": "97223e7c4fbad6673d9135e48f0fec941c45d7a4d3a573fcd98a6b2ea78184c4"
+      },
+      "ao": {
+        "file": "brushed_concrete/ao.jpg",
+        "sha256": "e90078a50b9d815cbc5eb63895040fb2e3d8b3462977d8fb5dd0de90e6386c8a"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "brown_leather",
+    "name": "Vintage Brown Leather",
+    "source": "https://polyhaven.com/a/brown_leather",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_leather/brown_leather_albedo_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_leather/brown_leather_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_leather/brown_leather_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/brown_leather/brown_leather_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "brown_leather/albedo.jpg",
+        "sha256": "6c3f198010c62f68f595367bbabfa30b68312a69545d639137a9bd668ac779ae"
+      },
+      "normal": {
+        "file": "brown_leather/normal.jpg",
+        "sha256": "0279192519ce035355c39c50008d996a7ac807bb5f11bdc0a8ec21563a1dc4b2"
+      },
+      "roughness": {
+        "file": "brown_leather/roughness.jpg",
+        "sha256": "54ca5b97f70b454f2f25af1215c63382a2a19264eb833b7584536068f24a967d"
+      },
+      "ao": {
+        "file": "brown_leather/ao.jpg",
+        "sha256": "c09d8819a099846b8eb8749f8f002ee102c50b1ca8d0d55bf4a6df39257d16c6"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "denim_fabric_03",
+    "name": "Indigo Denim",
+    "source": "https://polyhaven.com/a/denim_fabric_03",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/denim_fabric_03/denim_fabric_03_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/denim_fabric_03/denim_fabric_03_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/denim_fabric_03/denim_fabric_03_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/denim_fabric_03/denim_fabric_03_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "denim_fabric_03/albedo.jpg",
+        "sha256": "f6eb4422351a3751fe70cd20d0ec357e4a8f28f8004d267aef9799c782c8cfd4"
+      },
+      "normal": {
+        "file": "denim_fabric_03/normal.jpg",
+        "sha256": "1c37c3cbe45f106a31f0e7817a5978e76c3d0c2550ab6e5bf3df7b642945acd1"
+      },
+      "roughness": {
+        "file": "denim_fabric_03/roughness.jpg",
+        "sha256": "ffd75de591c0551495c3ce70b57e5d825d4f2f05dd492bc65017d149c3f71216"
+      },
+      "ao": {
+        "file": "denim_fabric_03/ao.jpg",
+        "sha256": "d967d86768e7e356708a9d57b188c723513694a22e48542a5da86c3fec3325d3"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "fine_grained_wood",
+    "name": "Fine Grained Wood",
+    "source": "https://polyhaven.com/a/fine_grained_wood",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/fine_grained_wood/fine_grained_wood_col_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/fine_grained_wood/fine_grained_wood_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/fine_grained_wood/fine_grained_wood_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/fine_grained_wood/fine_grained_wood_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "fine_grained_wood/albedo.jpg",
+        "sha256": "84fe01eaf22d7740f5c3a84c5f9a0b3ccf1749a9ade9873386e93fc125d0caae"
+      },
+      "normal": {
+        "file": "fine_grained_wood/normal.jpg",
+        "sha256": "dfc5b41b54c1275cb5f9258947f8f77f0428bb86555403576f2004bc013e63f1"
+      },
+      "roughness": {
+        "file": "fine_grained_wood/roughness.jpg",
+        "sha256": "669762b50956799e0be1692fc48b245dc8a21cb43e5a1855666cc29edb5418f6"
+      },
+      "ao": {
+        "file": "fine_grained_wood/ao.jpg",
+        "sha256": "c31da3579a474df4b481782f3f7beb3ea7a190a7230d452464dc33fe1df095f3"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "leather_white",
+    "name": "Ivory Leather",
+    "source": "https://polyhaven.com/a/leather_white",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/leather_white/leather_white_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/leather_white/leather_white_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/leather_white/leather_white_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/leather_white/leather_white_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "leather_white/albedo.jpg",
+        "sha256": "cdd99dd5eaaac3095cb0ed4c50948f2b09103f5f6e55e282b6fdad86ddb65179"
+      },
+      "normal": {
+        "file": "leather_white/normal.jpg",
+        "sha256": "2cf4162862a6e5274c69d94cb04df6943317e168a0c18ae7dc4da2bb3bbc39b1"
+      },
+      "roughness": {
+        "file": "leather_white/roughness.jpg",
+        "sha256": "2c22272e04e320b007976531954ad86e4a553319f824e0999750be1d4ead5804"
+      },
+      "ao": {
+        "file": "leather_white/ao.jpg",
+        "sha256": "5670913e9a924408f7e0a0eb3ea6c0047b8e34ed370bc4862f63231cce76d13a"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  },
+  {
+    "provider": "Poly Haven",
+    "asset": "marble_01",
+    "name": "Pale Marble",
+    "source": "https://polyhaven.com/a/marble_01",
+    "license": "CC0-1.0",
+    "package": {
+      "albedo": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_01/marble_01_diff_2k.jpg",
+      "normal": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_01/marble_01_nor_gl_2k.jpg",
+      "roughness": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_01/marble_01_rough_2k.jpg",
+      "ao": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/marble_01/marble_01_ao_2k.jpg"
+    },
+    "maps": {
+      "albedo": {
+        "file": "marble_01/albedo.jpg",
+        "sha256": "a8a11ff5015745e74a9cb41c733bd2ad7e6d378066804b5af1a3c0e6733eb066"
+      },
+      "normal": {
+        "file": "marble_01/normal.jpg",
+        "sha256": "8f3db8e6fdf90f63558f0bf41158329f5fc9ae8302d6864046fc283d6bde8136"
+      },
+      "roughness": {
+        "file": "marble_01/roughness.jpg",
+        "sha256": "a0f7438023c21dc7e4b8560afa13bfc8f5badbab6de9a98e8c11592b118d55d2"
+      },
+      "ao": {
+        "file": "marble_01/ao.jpg",
+        "sha256": "19a9bbae4e90a4bbd09e3a59343a4f80456bf1affaa5da431eb1913dc5a9b59c"
+      }
+    },
+    "processing": "JPEG maps re-encoded at quality 80 (sips) from the downloaded package, to halve the download; the hashes are of the files as shipped."
+  }
+]

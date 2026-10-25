@@ -1,0 +1,98 @@
+.confirm-overlay,
+.library-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: grid;
+  place-items: center;
+  padding: var(--pad-lg);
+  background: var(--modal-scrim);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.confirm-dialog,
+.library-dialog {
+  width: min(var(--dialog-width), calc(100vw - 2 * var(--pad-lg)));
+  padding: var(--pad-lg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface-popover);
+  color: var(--text);
+  box-shadow: var(--shadow-popover);
+}
+
+.confirm-dialog h2,
+.library-dialog h2 {
+  margin: 0;
+  font-size: var(--dialog-heading-size);
+  font-weight: 600;
+}
+
+.confirm-dialog p,
+.library-dialog__note {
+  margin: var(--pad) 0 var(--pad-lg);
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.confirm-dialog__actions,
+.library-dialog__actions {
+  display: flex;
+  gap: var(--pad-sm);
+  justify-content: flex-end;
+}
+
+.confirm-dialog__actions button,
+.library-dialog__actions button {
+  min-width: 76px;
+  padding: var(--pad-sm) var(--pad);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--surface-control);
+  color: var(--text);
+  font: 500 var(--text-size) / 1.2 var(--font);
+}
+
+.confirm-dialog__actions button:hover,
+.library-dialog__actions button:hover {
+  background: var(--control-hover);
+}
+
+.confirm-dialog__actions button[data-destructive] {
+  background: var(--fail);
+  color: var(--text-on-accent);
+}
+
+.library-dialog__destinations {
+  display: grid;
+  gap: var(--pad-xs);
+  max-height: var(--dialog-list-max);
+  margin-bottom: var(--pad-lg);
+  overflow-y: auto;
+}
+
+.library-dialog__destinations button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-sm) var(--pad);
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text);
+  font: var(--text-size) / 1.3 var(--font);
+  text-align: left;
+}
+
+.library-dialog__destinations button:hover {
+  background: var(--control-hover);
+}
+
+.library-dialog__destinations button[data-current] {
+  background: var(--surface-control);
+}
+
+.library-dialog__destinations small {
+  color: var(--text-faint);
+}

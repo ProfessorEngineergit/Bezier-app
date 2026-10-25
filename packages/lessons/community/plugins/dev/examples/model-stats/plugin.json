@@ -1,0 +1,10 @@
+{
+  "format": "bezier-plugin",
+  "version": 1,
+  "id": "bezier.model-stats",
+  "name": "Model statistics",
+  "description": "Counts the features, sketches and sketch elements in the open model, in a small panel.",
+  "pluginVersion": "1.0.0",
+  "api": 1,
+  "permissions": ["project:read", "ui:panel", "ui:command"]
+}

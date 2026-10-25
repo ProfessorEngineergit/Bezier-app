@@ -1,0 +1,99 @@
+name: End to end on Windows
+
+# The browser suite on Windows, in Chromium (the Windows app uses WebView2).
+# Catches Ctrl/Cmd, path and line-ending issues and other Unix or Mac assumptions.
+# Not run on every push because Windows minutes count double.
+#
+# By default only platform-sensitive specs run (keys, storage, library,
+# navigation, window chrome). The full suite exceeds an hour on one Windows
+# runner; `all` runs it in slices.
+#
+# Triggered manually or by the `build:all-os` label. Read-only token, no secrets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      all:
+        description: The whole suite, in four slices, not only the platform-sensitive specs
+        type: boolean
+        default: false
+      specs:
+        description: Only these specs (names, space-separated), one worker, to find out why a test is slow or fails
+        type: string
+        default: ''
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Which slices
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build:all-os'
+    outputs:
+      shards: ${{ steps.pick.outputs.shards }}
+    steps:
+      - id: pick
+        env:
+          ALL: ${{ inputs.all }}
+        run: |
+          if [ "$ALL" = true ]; then echo 'shards=[1,2,3,4]' >> "$GITHUB_OUTPUT"
+          else echo 'shards=[0]' >> "$GITHUB_OUTPUT"; fi
+
+  e2e:
+    name: End to end, Chromium on Windows (${{ matrix.shard == 0 && 'platform specs' || format('{0}/4', matrix.shard) }})
+    needs: plan
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browser
+        run: pnpm exec playwright install chromium
+
+      # One worker: with two, CPU contention triggers the geometry engine's 30 s
+      # watchdog ("extrude did not answer") even on trivial extrudes.
+      #
+      # Not `pnpm e2e:webkit`: its `VAR=1 command` syntax needs a Unix shell.
+      - name: End-to-end tests
+        shell: bash
+        env:
+          SPECS: ${{ inputs.specs }}
+        run: |
+          if [ -n "$SPECS" ]; then
+            # Diagnostic run: one worker, per-test timings.
+            pnpm exec playwright test --project=chromium --workers=1 --reporter=list $SPECS
+          elif [ "${{ matrix.shard }}" = 0 ]; then
+            pnpm exec playwright test --project=chromium --workers=1 view/shortcuts view/workspace-shortcuts library/library files/document files/undo-reopen files/storage-fallback view/rail view/navigation-input view/viewcube view/native-feel view/viewport view/brand-controls
+          else
+            pnpm exec playwright test --project=chromium --workers=1 --shard=${{ matrix.shard }}/4
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-windows-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

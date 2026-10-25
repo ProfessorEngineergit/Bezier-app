@@ -1,0 +1,8 @@
+
+=== chromium, 5 cold runs ===
+shell interactive  p50 120 ms  worst 125 ms
+first geometry     p50 405 ms  worst 489 ms
+
+=== webkit, 5 cold runs ===
+shell interactive  p50 182 ms  worst 202 ms
+first geometry     p50 282 ms  worst 302 ms

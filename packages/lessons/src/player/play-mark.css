@@ -1,0 +1,88 @@
+/* The paused indicator over the picture (Stage.tsx). */
+
+/*
+ * A translucent disc with a tinted blur, hairline and white glyph, readable on
+ * light and dark recordings. On play it scales up and fades; on pause it
+ * returns from that size. It lifts slightly on hover.
+ */
+.lessons-stage__play {
+  --play-scale: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 50%;
+  background: rgb(18 18 20 / 34%);
+  color: #fff;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(var(--play-scale));
+  transition:
+    transform 420ms var(--ease),
+    opacity 320ms var(--ease),
+    background var(--medium) var(--ease);
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+}
+
+/* Offset right so the triangle looks optically centred. */
+.lessons-stage__play svg {
+  margin-left: 2px;
+}
+
+.lessons-stage[data-playing] .lessons-stage__play {
+  --play-scale: 1.45;
+  opacity: 0;
+  transition-duration: 380ms, 260ms, var(--medium);
+}
+
+.lessons-stage:not([data-playing]):hover .lessons-stage__play,
+.lessons-stage:not([data-playing]):focus-within .lessons-stage__play {
+  --play-scale: 1.07;
+  background: rgb(18 18 20 / 46%);
+}
+
+/* On pause: returns from its enlarged size, with a spreading ring. */
+.lessons-stage__play::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgb(255 255 255 / 40%);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+}
+
+.lessons-stage:not([data-playing]) .lessons-stage__play::after {
+  animation: lessons-play-ring 900ms var(--ease) 1;
+}
+
+@keyframes lessons-play-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessons-stage__play {
+    transition: opacity 150ms linear;
+  }
+
+  .lessons-stage__play::after {
+    animation: none;
+  }
+}
+
+.lessons-stage[data-compact] .lessons-stage__play {
+  width: 40px;
+  height: 40px;
+}

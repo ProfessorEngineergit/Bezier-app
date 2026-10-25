@@ -1,0 +1,17 @@
+{
+  "name": "@bezier/spikes",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Throwaway experiments that answer architecture questions. Results go into ADRs.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "face-hash": "node face-hash-stability.ts"
+  },
+  "dependencies": {
+    "occt-wasm": "^3.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

@@ -1,0 +1,62 @@
+/**
+ * Brand styling for the app chrome. Geometry selection and Simulation keep their own blue signals.
+ */
+
+.workspace:not([data-workspace="simulation"]),
+.library {
+  --font: "Archivo Brand", "Archivo", sans-serif;
+  --font-mono: var(--font);
+  --accent: #e8e8ea;
+  --accent-hover: #f2f2f4;
+  --accent-quiet: rgb(255 255 255 / 13%);
+  --text-on-accent: #19191b;
+  --brand-focus: #f4f4f5;
+  --brand-selected-band: #575857;
+  --brand-selected-text: #f2f2f4;
+  --busy: #c9c9cf;
+  --busy-track: rgb(201 201 207 / 20%);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Notices sit outside the workspace, so they need the brand font set explicitly. Font only. */
+.toasts {
+  --font: "Archivo Brand", "Archivo", sans-serif;
+}
+
+:is(.workspace:not([data-workspace="simulation"]), .library) button {
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * No extra focus ring here: it drew a second bar over each field's own ring, so each control keeps
+ * its own focus style.
+ */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .workspace:not([data-workspace="simulation"]),
+  :root:not([data-theme="dark"]) .library {
+    --accent: #29292b;
+    --accent-hover: #111113;
+    --accent-quiet: rgb(0 0 0 / 9%);
+    --text-on-accent: #fff;
+    --brand-focus: #29292b;
+    --brand-selected-band: #b8b8bc;
+    --brand-selected-text: #19191b;
+    --busy: #5c5c5e;
+    --busy-track: rgb(92 92 94 / 18%);
+  }
+}
+
+:root[data-theme="light"] .workspace:not([data-workspace="simulation"]),
+:root[data-theme="light"] .library {
+  --accent: #29292b;
+  --accent-hover: #111113;
+  --accent-quiet: rgb(0 0 0 / 9%);
+  --text-on-accent: #fff;
+  --brand-focus: #29292b;
+  --brand-selected-band: #b8b8bc;
+  --brand-selected-text: #19191b;
+  --busy: #5c5c5e;
+  --busy-track: rgb(92 92 94 / 18%);
+}

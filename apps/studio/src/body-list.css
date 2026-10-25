@@ -1,0 +1,68 @@
+/* Body rows in the Items panel. Styled like the history rows (styles.css, `.items-row`) but a
+   separate class so the two lists stay distinguishable; see BodyList.tsx. */
+
+.items-section {
+  margin: 0;
+  padding: var(--pad-sm) var(--pad-lg) 0;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+  font-weight: 600;
+}
+
+.body-row {
+  display: flex;
+  gap: var(--pad-sm);
+  align-items: center;
+  width: 100%;
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: var(--text-size) / 1 var(--font);
+  text-align: left;
+}
+
+.body-row:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.body-row[aria-current="true"] {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+
+.body-row[aria-current="true"] .items-row__icon {
+  color: var(--brand-selected-text);
+}
+
+.items-entry .body-row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Hidden bodies are dimmed, like hidden history steps. */
+.items-entry[data-hidden] .body-row {
+  opacity: 0.45;
+}
+
+/* The rename field takes exactly the row it replaces. */
+.body-row--input {
+  border: 1px solid var(--select);
+  background: var(--surface-control);
+}
+
+/* A body folder: a collapsible heading with its bodies indented below. */
+.body-folder__head {
+  font-weight: 600;
+}
+
+.body-folder__count {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: var(--text-size-badge);
+}
+
+.body-folder__list {
+  padding-left: var(--pad-lg);
+}

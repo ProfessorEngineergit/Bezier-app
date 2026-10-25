@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200" role="img" aria-label="installs sapphire">
+  <defs>
+    <radialGradient id="b-installs-sapphire" cx="34%" cy="28%" r="80%">
+      <stop offset="0" stop-color="#c9dbff"/><stop offset=".55" stop-color="#4f7fe0"/><stop offset="1" stop-color="#1d3a8a"/>
+    </radialGradient>
+    <linearGradient id="r-installs-sapphire" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c9dbff"/><stop offset=".5" stop-color="#1d3a8a"/><stop offset="1" stop-color="#4f7fe0"/>
+    </linearGradient>
+    <linearGradient id="s-installs-sapphire" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="c-installs-sapphire"><path d="M50 6l38 22v44L50 94 12 72V28z"/></clipPath>
+  </defs>
+  <g transform="translate(0 2)" opacity=".35" fill="#000"><path d="M50 6l38 22v44L50 94 12 72V28z"/></g>
+  <g fill="url(#r-installs-sapphire)"><path d="M50 6l38 22v44L50 94 12 72V28z"/></g>
+  <g transform="translate(50 50) scale(.86) translate(-50 -50)" fill="url(#b-installs-sapphire)"><path d="M50 6l38 22v44L50 94 12 72V28z"/></g>
+  <g clip-path="url(#c-installs-sapphire)"><ellipse cx="40" cy="22" rx="52" ry="26" fill="url(#s-installs-sapphire)"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5">
+    <g transform="translate(0 .9)" stroke="#c9dbff" opacity=".7"><path d="M50 34v24 M40 48l10 10 10-10 M36 66h28"/></g>
+    <g stroke="#eef3ff"><path d="M50 34v24 M40 48l10 10 10-10 M36 66h28"/></g>
+  </g>
+</svg>

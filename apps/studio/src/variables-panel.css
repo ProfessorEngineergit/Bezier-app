@@ -1,0 +1,95 @@
+/* The document's variables (VariablesPanel.tsx), over the viewport and clear of both rails. */
+
+.variables-panel {
+  position: absolute;
+  top: calc(var(--bar-height) + var(--pad-sm));
+  right: calc(var(--utility-size) + var(--pad-lg));
+  z-index: 6;
+  width: 320px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: var(--pad);
+  border-radius: var(--radius-lg);
+  background: var(--surface-popover);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  font: var(--text-size-sm) / 1.3 var(--font);
+}
+
+.variables-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pad-sm);
+}
+
+.variables-panel__head h2 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.variables-panel button {
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.variables-panel__list {
+  display: grid;
+  gap: var(--pad-xs);
+  margin: 0 0 var(--pad-sm);
+  padding: 0;
+  list-style: none;
+}
+
+.variables-panel__list li,
+.variables-panel__add {
+  display: grid;
+  grid-template-columns: 5.5em auto 1fr auto auto;
+  gap: var(--pad-xs);
+  align-items: center;
+}
+
+.variables-panel__add {
+  grid-template-columns: 5.5em auto 1fr auto;
+}
+
+.variables-panel input {
+  min-width: 0;
+  padding: 2px var(--pad-xs);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--panel-control);
+  color: var(--text);
+  font: inherit;
+}
+
+.variables-panel output {
+  min-width: 3em;
+  color: var(--text-dim);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.variables-panel__empty {
+  margin: 0 0 var(--pad-sm);
+  color: var(--text-dim);
+}
+
+.variables-panel .variables-panel__error {
+  color: #ff9a8b;
+}
+
+/* A parameter given as an expression shows its value under the field. */
+.property-panel__value {
+  grid-column: 2 / -1;
+  color: var(--text-dim);
+  font-size: 0.9em;
+}
+
+.property-panel__value[data-error] {
+  color: #ff9a8b;
+}

@@ -1,0 +1,216 @@
+name: Desktop smoke
+
+# Builds the desktop app on Windows and Linux (macOS on request), starts it, and
+# checks that it is alive after 20 s, has a correctly titled window with a web
+# view, and has drawn something. Unsigned, no installer, no secrets.
+#
+# The only job that runs the Windows app on a pull request (see
+# docs/contributing/ci.md). Not run on every push: Windows minutes count double,
+# macOS minutes tenfold, and a cold Rust build takes 10–20 minutes.
+#
+# Triggered manually or by the `build:all-os` label (requires triage access).
+# Read-only token, no secrets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      systems:
+        description: Which system to build and start
+        type: choice
+        options: [all, linux, windows, macos]
+        default: all
+      macos:
+        description: With "all", also macOS (ten times the minutes)
+        type: boolean
+        default: false
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Which systems
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'build:all-os'
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        env:
+          SYSTEMS: ${{ inputs.systems }}
+          MACOS: ${{ inputs.macos }}
+        run: |
+          matrix=""
+          add() { matrix="${matrix:+$matrix,}$1"; }
+          # A label starts Windows and Linux: `inputs` is empty then.
+          want() { [ -z "$SYSTEMS" ] || [ "$SYSTEMS" = all ] || [ "$SYSTEMS" = "$1" ]; }
+          want windows && add '{"name":"Windows","os":"windows-latest","binary":"apps/desktop/src-tauri/target/release/bezier-desktop.exe"}'
+          want linux && add '{"name":"Linux","os":"ubuntu-22.04","binary":"apps/desktop/src-tauri/target/release/bezier-desktop"}'
+          if [ "$SYSTEMS" = macos ] || { [ "$SYSTEMS" = all ] && [ "$MACOS" = true ]; }; then
+            add '{"name":"macOS","os":"macos-14","binary":"apps/desktop/src-tauri/target/release/bezier-desktop"}'
+          fi
+          echo "matrix=[$matrix]" >> "$GITHUB_OUTPUT"
+
+  smoke:
+    name: ${{ matrix.name }}
+    needs: plan
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      # The version comes from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Linux build and display dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
+            xvfb imagemagick xdotool x11-utils openbox gdb dbus webkit2gtk-driver
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # `--no-bundle`: the binary only. `--ci`: no prompts.
+      - name: Build
+        run: pnpm --filter @bezier/desktop exec tauri build --ci --no-bundle
+
+      - name: Start it (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path "${{ matrix.binary }}").Path
+          $size = [math]::Round((Get-Item $exe).Length / 1MB, 1)
+          $p = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 20
+          $p.Refresh()
+          $alive = -not $p.HasExited
+          $title = $p.MainWindowTitle
+          $webviews = @(Get-Process msedgewebview2 -ErrorAction SilentlyContinue).Count
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+          $bitmap.Save("$PWD/screen.png")
+          if ($alive) { Stop-Process -Id $p.Id -Force }
+          "| | |`n|---|---|" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+          "| Binary | $size MB |`n| Still running after 20 s | $alive |`n| Window title | '$title' |`n| Web view processes | $webviews |`n| Screen | $($bounds.Width) x $($bounds.Height) |" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+          if (-not $alive) { throw "The app exited within 20 seconds." }
+          if ($title -notmatch '^Bezier') { throw "No window titled Bezier; the title is '$title'." }
+          if ($webviews -lt 1) { throw "No WebView2 process is running behind the window." }
+
+      # A live process may still show a black screen, so the screenshot's colours
+      # are counted. The GPU-less display needs:
+      #   - a window manager (openbox);
+      #   - a session bus (dbus-run-session): GTK makes a synchronous D-Bus call
+      #     (g_dbus_proxy_new_sync) with a 25 s timeout before showing the window,
+      #     so without a bus the window appears too late for this check.
+      # No web view workaround is needed (docs/contributing/ci.md). On failure the
+      # stacks and the X tree are kept for the report.
+      - name: Start it (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          size=$(du -m "${{ matrix.binary }}" | cut -f1)
+          dbus-run-session -- xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
+            openbox > /dev/null 2>&1 &
+            sleep 2
+            "$0" > app.log 2>&1 &
+            pid=$!
+            sleep 20
+            if kill -0 $pid 2>/dev/null; then echo alive > alive.txt; fi
+            import -window root screen.png || true
+            xdotool search --onlyvisible --name . getwindowname %@ > windows.txt 2>&1 || true
+            if [ "$(identify -format %k screen.png 2>/dev/null || echo 0)" -le 10 ]; then
+              xwininfo -root -tree > tree.txt 2>&1 || true
+              sudo gdb -p $pid -batch -ex "thread apply all bt 12" > stacks.txt 2>&1 || true
+            fi
+            kill $pid 2>/dev/null || true
+          ' "${{ matrix.binary }}"
+          alive=$([ -f alive.txt ] && echo true || echo false)
+          colours=$(identify -format %k screen.png 2>/dev/null || echo 0)
+          title=$(head -1 windows.txt 2>/dev/null || true)
+          {
+            echo "| | |"; echo "|---|---|"
+            echo "| Binary | ${size} MB |"
+            echo "| Still running after 20 s | $alive |"
+            echo "| Colours on screen | $colours |"
+            echo "| Window title | '$title' |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$alive" != "true" ]; then echo "The app exited within 20 seconds."; tail -20 app.log; exit 1; fi
+          if [ "$colours" -le 10 ]; then echo "The app is running but drew nothing."; exit 1; fi
+
+      # Drive the first-run flow via tauri-driver, then restart and check that the
+      # project persisted (scripts/drive-desktop-app.mjs, docs/contributing/ci.md).
+      - name: Cache tauri-driver
+        if: runner.os == 'Linux'
+        id: driver
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/tauri-driver
+          key: tauri-driver-2.1.0-${{ runner.os }}
+
+      - name: Install tauri-driver
+        if: runner.os == 'Linux' && steps.driver.outputs.cache-hit != 'true'
+        run: cargo install tauri-driver --locked --version 2.1.0
+
+      - name: Drive it (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          dbus-run-session -- xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
+            openbox > /dev/null 2>&1 &
+            sleep 2
+            tauri-driver > driver.log 2>&1 &
+            sleep 3
+            node scripts/drive-desktop-app.mjs "$0"
+          ' "$PWD/${{ matrix.binary }}"
+
+      - name: Start it (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          size=$(du -m "${{ matrix.binary }}" | cut -f1)
+          "${{ matrix.binary }}" > app.log 2>&1 &
+          pid=$!
+          sleep 20
+          alive=false
+          if kill -0 $pid 2>/dev/null; then alive=true; fi
+          screencapture -x screen.png || true
+          kill $pid 2>/dev/null || true
+          {
+            echo "| | |"; echo "|---|---|"
+            echo "| Binary | ${size} MB |"
+            echo "| Still running after 20 s | $alive |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$alive" != "true" ]; then echo "The app exited within 20 seconds."; tail -20 app.log; exit 1; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-${{ matrix.name }}
+          path: |
+            screen.png
+            driver.log
+            app.log
+            windows.txt
+            tree.txt
+            stacks.txt
+          if-no-files-found: ignore
+          retention-days: 7

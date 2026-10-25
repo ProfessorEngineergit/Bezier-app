@@ -1,0 +1,146 @@
+/* Lesson cards, the empty state and the package drop target. */
+
+/* card: the start page's `tile` with a lesson picture */
+
+/* Both classes, so this wins regardless of stylesheet order. */
+.tile__face.lessons-tile__face {
+  display: block;
+  padding: 0;
+}
+
+.lessons-tile__face .lessons-poster {
+  border-radius: inherit;
+}
+
+.lessons-tile__name {
+  overflow: hidden;
+  color: var(--text);
+  font: 500 var(--text-size) / 1.35 var(--font);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lessons-poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lessons-poster--empty {
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  background: linear-gradient(to bottom, var(--canvas-top), var(--canvas-bottom));
+}
+
+.lessons-card__length {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--text);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+  backdrop-filter: var(--glass-blur);
+}
+
+.lessons-card__length svg {
+  width: 12px;
+  height: 12px;
+  color: var(--ok);
+}
+
+.lessons-card__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--text);
+}
+
+/* The preview draws its own track, so hide the saved progress meanwhile. */
+[data-previewing] .lessons-card__progress {
+  opacity: 0;
+}
+
+.lessons-tile .lessons-confirm {
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  width: auto;
+}
+
+/* empty state */
+
+.lessons-empty {
+  display: grid;
+  justify-items: center;
+  max-width: 480px;
+  margin: 48px auto 0;
+  padding: 36px 24px;
+  border-radius: var(--library-card-radius, 16px);
+  background: var(--surface-panel);
+  text-align: center;
+}
+
+.lessons-empty__mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: var(--surface-control);
+  color: var(--text-dim);
+}
+
+.lessons-empty__title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.lessons-empty p {
+  margin: 0 0 6px;
+}
+
+.lessons-empty code {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}
+
+.lessons-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+/* package drop target */
+
+.lessons-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, transparent 58%, var(--modal-scrim) 100%);
+  pointer-events: none;
+}
+
+.lessons-drop__label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+}

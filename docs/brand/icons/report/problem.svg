@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Problem" viewBox="0 0 24 24" width="24" height="24" fill="none">
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.4" result="b"/><feFlood flood-color="#ff453a" flood-opacity="0.75"/><feComposite in2="b" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="fill" x1="12" y1="3" x2="12" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6b61"/><stop offset="1" stop-color="#d92d20"/></linearGradient>
+</defs>
+<g filter="url(#glow)"><path d="M12 3.6 21 19.2a1.2 1.2 0 0 1-1 1.8H4a1.2 1.2 0 0 1-1-1.8L12 3.6Z" fill="url(#fill)" stroke="#ffb4ae" stroke-width="1" stroke-linejoin="round"/></g>
+<path d="M12 9.5v4.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.1" fill="#fff"/>
+</svg>

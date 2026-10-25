@@ -1,0 +1,7 @@
+# Fedora 41, x86_64, with the Bezier .rpm installed the way a person installs it, a virtual screen,
+# software OpenGL (llvmpipe) and the WebDriver pieces to drive the real app. Build from a folder
+# holding `bezier.rpm` and a Linux `tauri-driver` binary (run-fedora.sh lays it out).
+FROM fedora:41
+COPY bezier.rpm /tmp/bezier.rpm
+RUN dnf -y -q install /tmp/bezier.rpm webkitgtk6.0 xorg-x11-server-Xvfb dbus-x11 mesa-dri-drivers nodejs glx-utils gstreamer1-plugins-base-tools && dnf clean all
+COPY tauri-driver /usr/local/bin/tauri-driver

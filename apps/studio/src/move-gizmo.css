@@ -1,0 +1,287 @@
+.move-gizmo {
+  position: absolute;
+  margin-top: calc(-1 * var(--bar-height));
+  width: 1px;
+  height: 1px;
+  z-index: 5;
+  pointer-events: none;
+  color: var(--gizmo-label-surface);
+}
+.move-gizmo__origin {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+  border-radius: 50%;
+  background: var(--select);
+  border: 1.5px solid var(--gizmo-arrow-outline);
+}
+.move-gizmo__axis,
+.move-gizmo__plane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+}
+.move-gizmo__axis {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 32px;
+  color: var(--gizmo-label-surface);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+}
+.move-gizmo__axis svg {
+  pointer-events: none;
+  overflow: visible;
+}
+.move-gizmo__axis:hover,
+.move-gizmo__axis[aria-pressed="true"] {
+  color: var(--select);
+}
+.move-gizmo__plane {
+  width: 19px;
+  height: 19px;
+  transform-origin: 0 0;
+  border: 1.5px solid var(--gizmo-label-surface);
+  background: color-mix(in srgb, var(--gizmo-label-surface) 22%, transparent);
+  border-radius: 3px;
+}
+.move-gizmo__plane:hover,
+.move-gizmo__plane[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--select) 48%, transparent);
+}
+.move-gizmo .move-gizmo__turns {
+  position: absolute;
+  left: -120px;
+  top: -120px;
+  overflow: visible;
+  pointer-events: none;
+}
+.move-gizmo__turn {
+  color: var(--gizmo-label-surface);
+  cursor: grab;
+  touch-action: none;
+  pointer-events: none;
+}
+.move-gizmo__turn:hover,
+.move-gizmo__turn[aria-pressed="true"] {
+  color: var(--select);
+}
+.move-gizmo__turn path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.move-gizmo__turn-hit {
+  stroke: transparent;
+  stroke-width: 20;
+  pointer-events: stroke;
+}
+.move-gizmo__turn-outline {
+  stroke: var(--gizmo-arrow-outline);
+  stroke-width: 5.5;
+}
+.move-gizmo__turn-line {
+  stroke: currentColor;
+  stroke-width: 3.5;
+}
+.move-gizmo--dragging .move-gizmo__axis,
+.move-gizmo--dragging .move-gizmo__plane,
+.move-gizmo--dragging .move-gizmo__turn {
+  cursor: grabbing;
+}
+.move-gizmo__toolbar {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px 9px 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 18px;
+  box-shadow:
+    0 8px 28px rgb(0 0 0 / 16%),
+    inset 0 1px 0 rgb(255 255 255 / 7%);
+  pointer-events: auto;
+  white-space: nowrap;
+  color: var(--text);
+}
+.move-gizmo__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 102px;
+}
+.move-gizmo__heading strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.move-gizmo__heading span {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+.move-gizmo__entry {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--glass-border);
+  border-radius: 9px;
+  padding: 0 8px;
+  height: 32px;
+  background: rgb(127 127 127 / 8%);
+}
+.move-gizmo__entry:focus-within {
+  border-color: var(--gizmo-label-surface);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--select) 16%, transparent);
+}
+.move-gizmo__entry input {
+  width: 65px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: none;
+  font: 500 12px var(--font);
+  -moz-appearance: textfield;
+}
+.move-gizmo__entry textarea,
+.move-gizmo__entry select {
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: none;
+  font: 500 12px var(--font);
+}
+/* The text being placed grows with its lines, up to four, instead of hiding all but the first. */
+.sketch-action-bar__text {
+  height: auto;
+  min-height: 32px;
+  align-items: flex-start;
+  padding-block: 7px;
+}
+.sketch-action-bar__text textarea {
+  width: 160px;
+  resize: none;
+  line-height: 18px;
+}
+.move-gizmo__entry input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.move-gizmo__entry span {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.move-gizmo__copy-toggle,
+.move-gizmo__done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 10px;
+  font: 600 11px var(--font);
+  cursor: pointer;
+}
+.move-gizmo__copy-toggle {
+  background: rgb(127 127 127 / 10%);
+  color: var(--text);
+}
+.move-gizmo__copy-toggle[aria-pressed="true"],
+.move-gizmo__done {
+  background: var(--select);
+  color: white;
+}
+.move-gizmo__copy-toggle svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.move-gizmo button:focus-visible,
+.move-gizmo__turn:focus-visible {
+  outline: 2px solid var(--select);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .move-gizmo__toolbar {
+    background: var(--glass-bg-opaque);
+  }
+}
+
+.move-gizmo__turns[data-hidden] {
+  display: none;
+}
+
+/* The dashed drag path (MoveGizmo.tsx), above the model and below the handles. */
+.move-gizmo__trail {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.move-gizmo__trail line {
+  stroke: var(--select);
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+.move-gizmo__trail circle {
+  fill: var(--select);
+}
+
+/* The current snap target, beside the handle being dragged. */
+.move-gizmo__snap {
+  color: var(--select);
+  font-weight: 600;
+}
+
+/* The rotation plane, large and faint, so the direction of the turn is clear in space. */
+.move-gizmo__ring {
+  fill: none;
+  stroke: var(--select);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* The angle at its arc, upright. */
+.move-gizmo__angle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 2px 6px;
+  border-radius: var(--radius-control);
+  background: var(--select);
+  color: var(--on-select, #fff);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.move-gizmo__last {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
