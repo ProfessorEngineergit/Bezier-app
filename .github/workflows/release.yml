@@ -109,7 +109,14 @@ jobs:
 
       # Checks run on every push in CI; this workflow only builds.
       - name: Build
-        run: node scripts/release.mjs --skip-checks --version ${{ inputs.version }}
+        shell: bash
+        # An empty APPLE_CERTIFICATE still counts as set to tauri, which then tries to import
+        # it; so the unused ones are removed from the environment, not left empty.
+        run: |
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            [ -n "${!name}" ] || unset "$name"
+          done
+          node scripts/release.mjs --skip-checks --version ${{ inputs.version }}
         env:
           VITE_CHANNEL: ${{ inputs.channel == 'alpha' && 'alpha' || '' }}
           # Signing and notarisation, used only when these secrets are set and the certificate imports.
