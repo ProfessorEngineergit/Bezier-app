@@ -57,8 +57,8 @@ function link(file, accent) {
   return a;
 }
 
-function render(root, releases, channel) {
-  const release = releases[channel];
+function render(root, releases) {
+  const release = releases.stable;
   const yours = thisComputer();
   const status = root.querySelector('[data-status]');
   const list = root.querySelector('[data-platforms]');
@@ -66,10 +66,7 @@ function render(root, releases, channel) {
   list.replaceChildren();
   primary.replaceChildren();
   if (!release) {
-    status.textContent =
-      channel === 'beta'
-        ? 'No beta is out at the moment. The stable version is the newest.'
-        : 'The first release is on its way. Until then, Bezier runs in the browser.';
+    status.textContent = 'The first release is on its way. Until then, Bezier runs in the browser.';
     return;
   }
   const date = release.date
@@ -79,7 +76,7 @@ function render(root, releases, channel) {
   status.append(
     `Bezier ${release.version}${date ? `, ${date}` : ''}. `,
     Object.assign(document.createElement('a'), { href: release.notes, textContent: 'What is new' }),
-    channel === 'beta' ? '. A beta has what is next, and what is not finished yet.' : '.',
+    '.',
   );
   const order = ['macos', 'windows', 'linux'].sort((a, b) =>
     a === yours ? -1 : b === yours ? 1 : 0,
@@ -107,22 +104,7 @@ function render(root, releases, channel) {
 const download = document.querySelector('[data-download]');
 if (download) {
   fetch('/releases.json', { cache: 'no-cache' })
-    .then((response) => (response.ok ? response.json() : { stable: null, beta: null }))
-    .catch(() => ({ stable: null, beta: null }))
-    .then((releases) => {
-      const buttons = download.querySelectorAll('[data-channel]');
-      const choose = (channel) => {
-        for (const button of buttons) {
-          button.setAttribute('aria-pressed', String(button.dataset.channel === channel));
-        }
-        render(download, releases, channel);
-      };
-      for (const button of buttons) {
-        button.addEventListener('click', () => {
-          history.replaceState(null, '', button.dataset.channel === 'beta' ? '#beta' : '#');
-          choose(button.dataset.channel);
-        });
-      }
-      choose(location.hash === '#beta' ? 'beta' : 'stable');
-    });
+    .then((response) => (response.ok ? response.json() : { stable: null }))
+    .catch(() => ({ stable: null }))
+    .then((releases) => render(download, releases));
 }

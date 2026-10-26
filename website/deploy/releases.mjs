@@ -5,7 +5,7 @@
  *   RELEASES_TOKEN=… node website/deploy/releases.mjs --link     link to GitHub instead
  *
  * Channels map to repositories (docs/repositories.md): stable is the newest release of
- * `bezier-app` (tag v1.2.3), beta the newest pre-release of `bezier` (tag v1.3.0-beta.1).
+ * `bezier-app` (tag v1.2.3). The beta is a setting in the app, not a download.
  *
  * Files are mirrored by default because private repositories cannot serve public downloads, and to
  * avoid GitHub rate limits. A channel without a release is written as null.
@@ -24,10 +24,6 @@ const CHANNELS = {
   stable: {
     repository: process.env.STABLE_REPOSITORY ?? 'ProfessorEngineergit/bezier-app',
     prerelease: false,
-  },
-  beta: {
-    repository: process.env.BETA_REPOSITORY ?? 'ProfessorEngineergit/bezier',
-    prerelease: true,
   },
 };
 

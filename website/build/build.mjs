@@ -79,7 +79,7 @@ export function build() {
   cpSync(join(site, 'static'), dist, { recursive: true });
   writeFileSync(
     keepReleases,
-    releases ?? `${JSON.stringify({ generatedAt: null, stable: null, beta: null }, null, 2)}\n`,
+    releases ?? `${JSON.stringify({ generatedAt: null, stable: null }, null, 2)}\n`,
   );
 
   for (const name of readdirSync(join(site, 'pages')).sort()) {
