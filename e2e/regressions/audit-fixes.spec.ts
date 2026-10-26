@@ -1227,7 +1227,8 @@ test('G3: a report can be started from the editor and from the start page, with 
   await expect(dialog.getByLabel('Picture of the view, to draw on')).toBeVisible();
   // The GitHub issue contains the text, the workspace and the log.
   const popup = page.waitForEvent('popup').catch(() => null);
-  await page.route('https://github.com/**', (route) => route.fulfill({ body: 'ok' }));
+  // On the context: the popup is a page of its own, and github.com would send it to a login.
+  await page.context().route('https://github.com/**', (route) => route.fulfill({ body: 'ok' }));
   await dialog.getByRole('button', { name: 'Open issue on GitHub' }).click();
   const opened = await popup;
   if (opened !== null) {
