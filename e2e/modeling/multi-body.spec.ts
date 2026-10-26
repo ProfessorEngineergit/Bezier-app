@@ -12,6 +12,7 @@ import {
   afterFrames,
   BOX,
   canvasRect,
+  expectSaid,
   openApp,
   openItems,
   pickAt,
@@ -115,7 +116,7 @@ test('moving with several bodies and nothing picked asks which', async ({ page }
   await twoBodies(page);
   await page.keyboard.press('Escape');
   await page.keyboard.press('m');
-  await expect(page.getByText('Select the body to move first.')).toBeVisible();
+  await expectSaid(page, 'Select the body to move first.');
 });
 
 test('Split along a picked face takes a lid off the part', async ({ page }) => {
