@@ -62,7 +62,7 @@ const FOOTER = `<footer class="footer">
     <div><strong>Bezier</strong><a href="/">Product</a><a href="/download/">Download</a><a href="${APP_URL}">Open in the browser</a><a href="/download/#beta">Beta</a></div>
     <div><strong>Learn</strong><a href="/learn/">Getting started</a><a href="/learn/#lessons">Lessons</a><a href="/learn/#assistants">Working with an assistant</a></div>
     <div><strong>Developers</strong><a href="/developers/plugins/">Plugin SDK</a><a href="/developers/mcp/">MCP</a><a href="/developers/mcp/server/">Your own server</a><a href="${REPOSITORY}">Source on GitHub</a></div>
-    <div><strong>About</strong><a href="${REPOSITORY}/blob/main/LICENSING.md">Licence</a><a href="${REPOSITORY}/blob/main/SECURITY.md">Security</a><a href="/imprint/">Imprint</a><a href="/privacy/">Privacy</a></div>
+    <div><strong>About</strong><a href="${REPOSITORY}/blob/main/LICENSING.md">Licence</a><a href="${REPOSITORY}/blob/main/SECURITY.md">Security</a><a href="/imprint/">Imprint</a><a href="/privacy/">Privacy</a><a href="/code-signing/">Code signing policy</a></div>
   </div>
   <p class="footer__line">Bezier is free for people. All of its code is public on GitHub. No account, no tracking on this site.</p>
 </footer>`;

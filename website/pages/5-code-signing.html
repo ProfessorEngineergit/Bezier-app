@@ -1,0 +1,30 @@
+<!-- {"title":"Code signing policy","path":"/code-signing/","tab":"","description":"How the Windows installer of Bezier is built, who may approve a signature, and what is signed."} -->
+<section class="section">
+  <h1 class="headline">Code signing policy.</h1>
+  <p class="lede">What gets signed, who decides, and how a signed file ties back to the source.</p>
+  <p class="notice">Bezier is not signed yet. This is the policy the signing will follow, written for the application to the SignPath Foundation. Until a certificate has been granted, no installer carries a signature, and this page says so.</p>
+
+  <h2>What is signed</h2>
+  <p>The Windows installers of a stable release: the setup program and the MSI. Nothing else is signed, and nothing that Bezier does not build itself: the one prebuilt component, the geometry kernel <code>occt-wasm</code>, is built from <a href="https://github.com/ProfessorEngineergit/better-occt">its public repository</a> and is part of the installer, not signed on its own.</p>
+
+  <h2>How a build gets there</h2>
+  <ul>
+    <li>The installers are built by the release workflow in the public repository, on GitHub's own build machines, from the source in the repository. The workflow and the build scripts are part of that source.</li>
+    <li>Every file of a release is listed with its SHA-256 sum on the release page. From the next release on, GitHub also attests which build made each file.</li>
+    <li>A signature is only requested for a release that has been approved by hand. Nobody else can approve one.</li>
+  </ul>
+
+  <h2>Who holds which role</h2>
+  <ul>
+    <li><strong>Authors</strong> (may change the source without a second review): <a href="https://github.com/ProfessorEngineergit">ProfessorEngineergit</a></li>
+    <li><strong>Reviewers</strong> (review every change from someone who is not an author, such as a pull request): <a href="https://github.com/ProfessorEngineergit">ProfessorEngineergit</a></li>
+    <li><strong>Approvers</strong> (approve each signing request): <a href="https://github.com/ProfessorEngineergit">ProfessorEngineergit</a></li>
+  </ul>
+  <p>Bezier has one maintainer today, so one person holds all three. If others join, they are listed here with their role.</p>
+
+  <h2>Privacy</h2>
+  <p>Bezier does not measure what you do and sends nothing on its own. What the app and this website do with data is on the <a href="/privacy/">privacy page</a>.</p>
+
+  <h2>Source</h2>
+  <p>The source of the app is on <a href="https://github.com/ProfessorEngineergit/Bezier">GitHub</a>, under the GPL. The downloads are released from <a href="https://github.com/ProfessorEngineergit/Bezier-app/releases">the app repository</a>.</p>
+</section>
