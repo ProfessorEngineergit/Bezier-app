@@ -28,7 +28,7 @@ objc2-foundation = { version = "0.3", default-features = false, features = ["NSD
 # A page whose process died is loaded again (src/crash.rs). The crate Tauri's
 # own web view layer already builds on Windows; nothing new is fetched.
 [target.'cfg(windows)'.dependencies]
-webview2-com = "0.38"
+webview2-com = "0.39"
 
 # A desktop build exists to be handed to someone. Optimise for the size of the
 # thing they download rather than for how long we wait for it.
