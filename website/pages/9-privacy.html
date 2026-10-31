@@ -6,7 +6,8 @@
   <h2>The app</h2>
   <ul>
     <li><strong>Your projects stay on your computer.</strong> They are kept in the app's own storage on this device.</li>
-    <li><strong>No telemetry, no tracking, no account.</strong> Bezier does not count downloads or starts, and it does not check for updates by itself. New versions come from the website.</li>
+    <li><strong>No telemetry, no tracking, no account.</strong> Bezier does not count downloads or starts.</li>
+    <li><strong>One request by itself, in the desktop app only:</strong> when it opens, it asks <code>api.github.com</code> whether a newer release is out. GitHub sees your address and the name of the app, nothing about you or your projects. It is a switch in Settings, Updates (<em>Look at start</em>). Bezier never installs anything by itself; the download is a link to the release page. The browser version makes no such request.</li>
     <li><strong>Off until you switch them on:</strong> Community, Collaboration and the plugins and wiki of the alpha channel talk to a server, and only to the server whose address you enter. Assistants over MCP connect to a program on your own computer.</li>
     <li><strong>Report a problem</strong> opens a GitHub issue form in your browser with the report text filled in. The text is in the address of that page, so GitHub receives it when the page opens. You decide whether to submit it there. The picture, if you add one, goes to your clipboard and not to GitHub.</li>
     <li><strong>Links</strong> open in your browser only when you click them, and only <code>https://github.com/</code> addresses are opened from the desktop app.</li>

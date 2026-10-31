@@ -92,3 +92,16 @@
   stroke: var(--select);
   stroke-width: 1.8;
 }
+
+/* The notes of a release, as GitHub holds them. */
+.prefs-notes {
+  margin: 0;
+  padding: 12px 14px;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--text-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 260px;
+  overflow: auto;
+}

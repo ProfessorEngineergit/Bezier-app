@@ -289,7 +289,11 @@ Alpha is by invitation. Choose **Alpha**, paste the code you were sent (it start
 
 A code that has run out or was withdrawn stops opening alpha, and the app comes back up on beta.
 
-Bezier does not update itself yet. New versions come from the website.
+## Looking for a newer version
+
+In the desktop app, Settings, Updates asks GitHub once when Bezier opens whether a newer stable release is out, and says so in a notice. **Look now** asks again. When there is one, the page shows what changed and a **Download** button that opens the release page; run the installer over the version you have. Bezier does not install anything by itself.
+
+**Look at start** turns the check off. Asking sends only what any web request carries, your address and the name of the app, to api.github.com; nothing about you or your projects. The browser version has no check: it is always the newest, so reload the page.
 
 When you report a problem, the version is filled in for you, see [Contribute](doc:settings-contribute).`,
     shots: { page: 'Settings, Updates, with the channel' },
@@ -343,7 +347,7 @@ A change to a setting is said on screen and listed here under **Changed by an as
 
 ## Local-first storage
 
-Projects stay in this app's private storage on this device. Nothing is sent anywhere.
+Projects stay in this app's private storage on this device. They are never sent anywhere. The one thing the desktop app asks for by itself is whether a newer version is out ([Updates](doc:settings-updates)), and that can be turned off.
 
 - **Telemetry** says None. Bezier does not measure what you do.
 - **Storage used** is how much of the browser's storage for Bezier is in use, as the browser reports it. It reads Unavailable if the browser will not say.

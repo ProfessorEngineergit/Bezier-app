@@ -91,6 +91,7 @@ import { useSettingsReturn } from './use-settings-return.js';
 import { useShortcuts } from './use-shortcuts.js';
 import { useSketchCommands } from './use-sketch-commands.js';
 import { useSketchMode } from './use-sketch-mode.js';
+import { useUpdateNotice } from './use-update-notice.js';
 import { useVariables } from './use-variables.js';
 import { useViewportSettings } from './use-viewport-settings.js';
 import { useWindowRequests } from './use-window-requests.js';
@@ -145,6 +146,8 @@ export function App() {
     const said = spoken(message);
     setNotices((all) => (all.some((known) => sameSaid(known, said)) ? all : [...all, said]));
   }, []);
+
+  useUpdateNotice(prefs.checkForUpdates, say);
 
   // The dashboard reaches the task bar through this ref before the project hook exists.
   const tasksRef = useRef<TasksHandle | null>(null);

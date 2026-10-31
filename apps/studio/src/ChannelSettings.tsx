@@ -14,9 +14,13 @@ import {
   useChannel,
   useInvite,
 } from '@bezier/lessons';
+import { isTauri } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
 import { CHANNEL_FEATURES } from './channel-features.js';
-import { Group, Row, Segmented } from './PrefsControls.js';
+import { openExternal } from './open-external.js';
+import { Group, Row, Segmented, Switch } from './PrefsControls.js';
+import type { AppPrefs } from './preferences.js';
+import { checkForUpdate, useUpdateState } from './use-update-check.js';
 
 const NOTES: Record<Channel, string> = {
   stable: 'Stable is what is finished. The new parts below are not shown.',
@@ -28,7 +32,103 @@ const NOTES: Record<Channel, string> = {
 const day = (seconds: number) =>
   new Date(seconds * 1000).toLocaleDateString(undefined, { dateStyle: 'long' });
 
-export function ChannelSettings({ version }: { version: string }) {
+const NEWEST: Record<string, string> = {
+  idle: 'Not looked yet.',
+  checking: 'Looking…',
+  current: 'This is the newest version.',
+  failed: 'Could not reach GitHub. Try again later.',
+};
+
+/** Looking for a newer version. The desktop app only: the browser always loads the newest. */
+function UpdateCheck({
+  version,
+  prefs,
+  onCheck,
+}: {
+  version: string;
+  prefs: AppPrefs;
+  onCheck: (value: boolean) => void;
+}) {
+  const update = useUpdateState();
+  if (!isTauri()) {
+    return (
+      <Group label="Updates" note="This is the browser version. Reload the page to get the newest.">
+        <Row label="Installed version">
+          <span className="prefs-value">Bezier {version}</span>
+        </Row>
+      </Group>
+    );
+  }
+  const release = update.release;
+  return (
+    <>
+      <Group
+        label="Updates"
+        note="Looking asks api.github.com for the newest release. GitHub sees your address and the name of the app; nothing about you or your projects is sent."
+      >
+        <Row label="Installed version">
+          <span className="prefs-value">Bezier {version}</span>
+        </Row>
+        <Row
+          label="Look at start"
+          note="Once, when the app opens. A newer version is mentioned, not installed."
+        >
+          <Switch
+            checked={prefs.checkForUpdates}
+            label="Look for updates at start"
+            onChange={onCheck}
+          />
+        </Row>
+        <Row
+          label="Newest version"
+          note={
+            update.status === 'available' && release !== null
+              ? `Bezier ${release.version} is out.`
+              : (NEWEST[update.status] ?? '')
+          }
+        >
+          <button
+            className="prefs-button"
+            disabled={update.status === 'checking'}
+            onClick={() => void checkForUpdate(version)}
+            type="button"
+          >
+            Look now
+          </button>
+        </Row>
+        {update.status === 'available' && release !== null && (
+          <Row
+            label={release.name}
+            note="Opens the release page. Download the installer for your system and run it over this one."
+          >
+            <button
+              className="prefs-button"
+              onClick={() => openExternal(release.url)}
+              type="button"
+            >
+              Download
+            </button>
+          </Row>
+        )}
+      </Group>
+      {update.status === 'available' && release !== null && release.notes !== '' && (
+        <Group label="What changed">
+          <pre className="prefs-notes">{release.notes}</pre>
+        </Group>
+      )}
+    </>
+  );
+}
+
+export function ChannelSettings({
+  version,
+  prefs,
+  onCheck,
+}: {
+  version: string;
+  prefs: AppPrefs;
+  onCheck: (value: boolean) => void;
+}) {
   const channel = useChannel();
   const invite = useInvite();
   const [asking, setAsking] = useState(false);
@@ -79,13 +179,11 @@ export function ChannelSettings({ version }: { version: string }) {
 
   return (
     <>
+      <UpdateCheck onCheck={onCheck} prefs={prefs} version={version} />
       <Group
         label="Release channel"
-        note="Bezier does not update itself yet. New versions come from the website."
+        note="Bezier does not install updates by itself. Which parts you see depends on the channel."
       >
-        <Row label="Installed version">
-          <span className="prefs-value">Bezier {version}</span>
-        </Row>
         <Row label="Channel" note={NOTES[channel]}>
           <Segmented<Channel>
             name="release-channel"

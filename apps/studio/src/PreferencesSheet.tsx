@@ -102,7 +102,13 @@ export function PreferencesPage({ prefs, onChange, version, tab, onTab, filter }
         {tab === 'shortcuts' && <ShortcutSettings prefs={prefs} set={set} />}{' '}
         {tab === 'collaboration' && <CollaborationSettings />}{' '}
         {tab === 'community' && <CommunitySettings />}{' '}
-        {tab === 'updates' && <ChannelSettings version={version} />}{' '}
+        {tab === 'updates' && (
+          <ChannelSettings
+            onCheck={(value) => set('checkForUpdates', value)}
+            prefs={prefs}
+            version={version}
+          />
+        )}{' '}
         {tab === 'mcp' && <McpSettings />}{' '}
         {tab === 'data' && <Data onReset={() => onChange(DEFAULT_PREFS)} />}{' '}
         {tab === 'contribute' && <Contribute version={version} />}

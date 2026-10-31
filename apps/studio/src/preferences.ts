@@ -67,6 +67,8 @@ export interface AppPrefs {
   startPage: StartPage;
   openView: OpenView;
   updateChannel: UpdateChannel;
+  /** The desktop app asks GitHub once at start whether a newer version is out. */
+  checkForUpdates: boolean;
   /**
    * Lists the model's build steps under Items. Not in Settings; kept because browser tests drive
    * the model through its rows.
@@ -123,6 +125,7 @@ export const DEFAULT_PREFS: AppPrefs = {
   // A top view reads as a flat drawing rather than a solid.
   openView: 'angled',
   updateChannel: 'stable',
+  checkForUpdates: true,
   showHistory: false,
   nib: 'quiet',
   nibStyle: DEFAULT_NIB_STYLE,
@@ -182,6 +185,7 @@ export function parsePrefs(value: unknown): AppPrefs {
     startPage: member(source.startPage, ['home', 'projects'], DEFAULT_PREFS.startPage),
     openView: member(source.openView, ['top', 'angled'], DEFAULT_PREFS.openView),
     updateChannel: member(source.updateChannel, ['stable', 'beta'], DEFAULT_PREFS.updateChannel),
+    checkForUpdates: boolean(source.checkForUpdates, DEFAULT_PREFS.checkForUpdates),
     showHistory: boolean(source.showHistory, DEFAULT_PREFS.showHistory),
     // "Show Nib" off maps to off; everyone else gets friendly.
     nib: member(
