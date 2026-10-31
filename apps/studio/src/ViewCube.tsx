@@ -1,19 +1,20 @@
 /**
- * The orientation cube, top right of the canvas. Drawn in the DOM rather than the scene so face
- * labels stay crisp. Synced every frame by writing the camera's rotation matrix into a `matrix3d`
- * transform; the camera remains the source of truth.
+ * The orientation cube, top right of the canvas. Drawn on one canvas (`view-cube-canvas.ts`), the
+ * same bevelled solid on every system: the DOM version was dozens of 3D layers, which the browser
+ * cut into pieces where its axis arms crossed them, and which a window without a GPU recomposited
+ * every frame. The camera stays the source of truth: its rotation matrix is read each frame.
  *
  * A shaded, bevelled cube, an axis gnomon at its foot, and two quarter-turn arrows. Click a face
  * to square the view onto it, an edge for a 45° view, a corner for an isometric view; drag to
- * orbit, or press an arrow to rotate 90°.
+ * orbit, or press an arrow to rotate 90°. Every face, edge and corner is also a hidden button, for
+ * the keyboard and for assistive technology, which a canvas cannot offer.
  */
 
 /// <reference lib="dom" />
 
 import type { CubeSide, ViewPlane } from '@bezier/renderer';
-import type { CSSProperties, RefObject } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { paintFor } from './glass-fallback.js';
+import type { RefObject } from 'react';
+import { useEffect, useRef } from 'react';
 import { cubeHover } from './square-view.js';
 import {
   CANVAS_SIZE,
@@ -23,47 +24,11 @@ import {
   paintCube,
   readPalette,
 } from './view-cube-canvas.js';
-import type { CubeFace } from './view-cube-geometry.js';
-import {
-  AXES,
-  AXIS_PARTS,
-  CORE,
-  CUBE,
-  DRAG_THRESHOLD,
-  labelOf,
-  ORBIT_PER_PIXEL,
-  pickFace,
-  shadeOf,
-} from './view-cube-model.js';
-import './viewcube-zones.css';
+import { CUBE, DRAG_THRESHOLD, labelOf, ORBIT_PER_PIXEL, pickFace } from './view-cube-model.js';
+import './viewcube-canvas.css';
 import type { ViewportHandle } from './Viewport.js';
 
 export { CUBE_HALF, FACES } from './view-cube-model.js';
-
-const fillFor = (lit: number) => `color-mix(in srgb, var(--cube-light) ${lit}%, var(--cube-dark))`;
-
-/**
- * A face's box and initial shade, a mix of the cube's lit and unlit tones so both themes can set
- * them. The sync loop then updates the shade with the view.
- */
-function styleOf(face: CubeFace): CSSProperties {
-  const lit = Math.round(face.light * 100);
-  return {
-    width: `${face.width}px`,
-    height: `${face.height}px`,
-    transform: face.transform,
-    clipPath: face.clipPath,
-    '--face-fill': fillFor(lit),
-  } as CSSProperties;
-}
-
-/**
- * Whether the cube is drawn on a canvas: without graphics acceleration (`glass-fallback.ts`), where
- * its 3D layers cost the whole window its frame rate (`view-cube-canvas.ts`).
- */
-function onCanvas(): boolean {
-  return typeof document !== 'undefined' && paintFor() === 'light';
-}
 
 /**
  * A three-quarter arc with a solid head. A path rather than a font glyph, so it takes the button's
@@ -102,23 +67,18 @@ export function ViewCube({
   // Read inside handlers bound once, so a preference change applies on the next click.
   const animateRef = useRef(animate);
   animateRef.current = animate;
-  const cubeRef = useRef<HTMLDivElement | null>(null);
-  /** Each face's element, and the shade last written to it, by index in `CUBE`. */
-  const faceRefs = useRef<Array<HTMLElement | null>>([]);
-  const shades = useRef<number[]>([]);
-  const labelRefs = useRef<Array<HTMLElement | null>>([]);
   /** Set on press; a drag past the threshold suppresses the click that follows. */
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null);
-  // Decided once: hardware acceleration does not change at runtime.
-  const [canvas] = useState(onCanvas);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  /** Canvas mode: each face's drawn shape, the hovered face, and the colours. */
+  /** Each face's drawn shape, the hovered face, and the colours. */
   const drawn = useRef<Drawn>([]);
   const hovered = useRef(-1);
   const palette = useRef<CubePalette | null>(null);
+  /** Read with the palette: asking the stylesheet on every frame of a turn forces a style pass. */
+  const perspective = useRef(320);
 
-  // The sync loop: reads the camera orientation each frame and writes it to the cube and gnomon,
-  // never through React state.
+  // The sync loop: reads the camera orientation each frame and draws the cube, never through React
+  // state.
   useEffect(() => {
     let frame = 0;
     let written = '';
@@ -127,9 +87,7 @@ export function ViewCube({
       const handle = handleRef.current;
       if (handle === null) return;
 
-      // Write nothing while the camera is still. Setting a transform, even to the same value,
-      // repaints and recomposites the 3D layers, which without a GPU costs the whole window
-      // (`view-cube-canvas.ts`).
+      // Draw nothing while the camera is still.
       const matrix = handle.viewCubeMatrix();
       const squared = handle.isOrthographic();
       const state = `${matrix.join(',')}|${String(squared)}|${hovered.current}|${palette.current === null}`;
@@ -140,57 +98,47 @@ export function ViewCube({
       rootRef.current?.classList.toggle('viewcube--squared', squared);
 
       const board = canvasRef.current;
-      if (board !== null) {
-        const context = board.getContext('2d');
-        const root = rootRef.current;
-        if (context === null || root === null) return;
-        palette.current ??= readPalette(root);
-        const perspective = Number.parseFloat(
+      const root = rootRef.current;
+      const context = board?.getContext('2d');
+      if (board === null || root === null || context === null || context === undefined) return;
+      // How squarely each side points at the viewer, 1 being head on: the view as the cube shows it,
+      // for tests and tools to read.
+      root.dataset.facing = JSON.stringify(
+        Object.fromEntries(
+          CUBE.filter((face) => face.kind === 'side').map((face) => [
+            labelOf(face),
+            Math.round(
+              ((matrix[2] ?? 0) * face.normal[0] +
+                (matrix[6] ?? 0) * face.normal[1] +
+                (matrix[10] ?? 0) * face.normal[2]) *
+                100,
+            ) / 100,
+          ]),
+        ),
+      );
+      if (palette.current === null) {
+        palette.current = readPalette(root);
+        const read = Number.parseFloat(
           getComputedStyle(root).getPropertyValue('--cube-perspective'),
         );
-        drawn.current = paintCube(
-          context,
-          matrix,
-          perspective > 0 ? perspective : 320,
-          palette.current,
-          hovered.current,
-          Math.min(devicePixelRatio, 2),
-        );
-        return;
+        perspective.current = read > 0 ? read : 320;
       }
-
-      const cube = cubeRef.current;
-      if (cube === null) return;
-      cube.style.transform = `translateZ(calc(var(--cube-half) * -1)) matrix3d(${matrix.join(',')})`;
-
-      // Re-shade only faces whose lighting changed by at least one percent; a still camera writes
-      // nothing.
-      CUBE.forEach((face, index) => {
-        const lit = Math.round(shadeOf(matrix, face.normal) * 100);
-        if (shades.current[index] === lit) return;
-        shades.current[index] = lit;
-        faceRefs.current[index]?.style.setProperty('--face-fill', fillFor(lit));
-      });
-
-      // The letters face the viewer: the cube's rotation undone (its transpose), then moved out to
-      // the arm's end. They stay in the cube's space, so the cube still occludes them.
-      const m = matrix;
-      const facing = [m[0], m[4], m[8], 0, m[1], m[5], m[9], 0, m[2], m[6], m[10], 0, 0, 0, 0, 1];
-      const turned = `matrix3d(${facing.join(',')})`;
-      AXIS_PARTS.forEach((part) => {
-        const label = labelRefs.current[part.axis];
-        if (label === null || label === undefined) return;
-        const [x, y, z] = part.labelAt;
-        label.style.transform = `translate3d(${x}px, ${y}px, ${z}px) ${turned}`;
-      });
+      drawn.current = paintCube(
+        context,
+        matrix,
+        perspective.current,
+        palette.current,
+        hovered.current,
+        Math.min(devicePixelRatio, 2),
+      );
     };
     tick();
     return () => cancelAnimationFrame(frame);
   }, [handleRef]);
 
-  // Drag to orbit, tracked on the window so a fast drag off the cube keeps going. In canvas mode
-  // the pointer is also tracked here for hover: the canvas only takes the pointer over a face, so
-  // the area around the cube still reaches the model.
+  // Drag to orbit, tracked on the window so a fast drag off the cube keeps going. The pointer is also
+  // tracked here for hover: the canvas only takes the pointer over a face, so the area around the
+  // cube still reaches the model.
   useEffect(() => {
     let box: DOMRect | null = null;
     const forget = () => {
@@ -232,9 +180,8 @@ export function ViewCube({
     };
   }, [handleRef]);
 
-  // In canvas mode, re-read the colours when the theme changes.
+  // Re-read the colours when the theme changes.
   useEffect(() => {
-    if (!canvas) return;
     const stale = () => {
       palette.current = null;
     };
@@ -249,7 +196,7 @@ export function ViewCube({
       observer.disconnect();
       scheme.removeEventListener('change', stale);
     };
-  }, [canvas]);
+  }, []);
 
   return (
     <nav className="viewcube" aria-label="Orientation" ref={rootRef}>
@@ -273,128 +220,56 @@ export function ViewCube({
       </button>
 
       <div className="viewcube__stage">
-        {canvas ? (
-          <canvas
-            aria-label="Orientation cube"
-            className="viewcube__canvas"
-            height={CANVAS_SIZE * Math.min(devicePixelRatio, 2)}
-            onClick={(event) => {
-              if (drag.current?.moved === true) return;
-              const box = event.currentTarget.getBoundingClientRect();
-              const face =
-                CUBE[faceAt(drawn.current, event.clientX - box.left, event.clientY - box.top)];
-              if (face !== undefined)
-                pickFace(face, handleRef.current, animateRef.current, onSketchPlane, onPicked);
+        <canvas
+          aria-label="Orientation cube"
+          className="viewcube__canvas"
+          height={CANVAS_SIZE * Math.min(devicePixelRatio, 2)}
+          onClick={(event) => {
+            if (drag.current?.moved === true) return;
+            const box = event.currentTarget.getBoundingClientRect();
+            const face =
+              CUBE[faceAt(drawn.current, event.clientX - box.left, event.clientY - box.top)];
+            if (face !== undefined)
+              pickFace(face, handleRef.current, animateRef.current, onSketchPlane, onPicked);
+          }}
+          onPointerDown={(event) => {
+            drag.current = { x: event.clientX, y: event.clientY, moved: false };
+          }}
+          ref={canvasRef}
+          width={CANVAS_SIZE * Math.min(devicePixelRatio, 2)}
+        />
+        {/* The same targets for the keyboard and assistive technology, out of sight. */}
+        {CUBE.map((face, index) => (
+          <button
+            aria-label={face.kind === 'side' ? undefined : `View from ${face.sides.join(', ')}`}
+            className={face.kind === 'side' ? 'viewcube__face' : 'viewcube__zone'}
+            data-corner={face.kind === 'corner' ? '' : undefined}
+            data-face={face.kind === 'side' ? face.sides[0] : undefined}
+            data-zone={face.kind === 'side' ? undefined : face.sides.join('-')}
+            key={face.sides.join('-')}
+            onBlur={() => {
+              hovered.current = -1;
+              cubeHover.sides = null;
             }}
-            onPointerDown={(event) => {
-              drag.current = { x: event.clientX, y: event.clientY, moved: false };
+            onClick={() =>
+              pickFace(face, handleRef.current, animateRef.current, onSketchPlane, onPicked)
+            }
+            // Out of sight, so keyboard focus shows as the hover colour on the drawn face.
+            onFocus={() => {
+              hovered.current = index;
+              cubeHover.sides = face.sides;
             }}
-            ref={canvasRef}
-            width={CANVAS_SIZE * Math.min(devicePixelRatio, 2)}
-          />
-        ) : (
-          <div
-            className="viewcube__cube"
-            onPointerDown={(event) => {
-              drag.current = { x: event.clientX, y: event.clientY, moved: false };
+            onPointerEnter={() => {
+              cubeHover.sides = face.sides;
             }}
-            ref={cubeRef}
+            onPointerLeave={() => {
+              cubeHover.sides = null;
+            }}
+            type="button"
           >
-            {CORE.map((face) => (
-              <span
-                aria-hidden="true"
-                className="viewcube__core"
-                key={`core-${face.sides.join('-')}`}
-                style={{
-                  width: `${face.width}px`,
-                  height: `${face.height}px`,
-                  transform: face.transform,
-                  clipPath: face.clipPath,
-                }}
-              />
-            ))}
-            {CUBE.map((face, index) =>
-              face.kind === 'side' ? (
-                <button
-                  ref={(el) => {
-                    faceRefs.current[index] = el;
-                  }}
-                  className="viewcube__face"
-                  data-face={face.sides[0]}
-                  key={face.sides.join('-')}
-                  onPointerEnter={() => {
-                    cubeHover.sides = face.sides;
-                  }}
-                  onPointerLeave={() => {
-                    cubeHover.sides = null;
-                  }}
-                  onClick={() => {
-                    if (drag.current?.moved === true) return;
-                    pickFace(face, handleRef.current, animateRef.current, onSketchPlane, onPicked);
-                  }}
-                  style={styleOf(face)}
-                  type="button"
-                >
-                  {labelOf(face)}
-                </button>
-              ) : (
-                <button
-                  ref={(el) => {
-                    faceRefs.current[index] = el;
-                  }}
-                  aria-label={`View from ${face.sides.join(', ')}`}
-                  className="viewcube__zone"
-                  data-corner={face.kind === 'corner' ? '' : undefined}
-                  data-zone={face.sides.join('-')}
-                  key={face.sides.join('-')}
-                  onPointerEnter={() => {
-                    cubeHover.sides = face.sides;
-                  }}
-                  onPointerLeave={() => {
-                    cubeHover.sides = null;
-                  }}
-                  onClick={() => {
-                    if (drag.current?.moved === true) return;
-                    pickFace(face, handleRef.current, animateRef.current, onSketchPlane, onPicked);
-                  }}
-                  style={styleOf(face)}
-                  type="button"
-                />
-              ),
-            )}
-
-            {/* The axes, part of the solid rather than drawn over it. */}
-            {AXIS_PARTS.flatMap((part) =>
-              part.strips.map((strip) => (
-                <span
-                  aria-hidden="true"
-                  className="viewcube__axis"
-                  key={strip.transform}
-                  style={{
-                    width: `${strip.width}px`,
-                    height: `${strip.height}px`,
-                    margin: `${-strip.height / 2}px 0 0 ${-strip.width / 2}px`,
-                    transform: strip.transform,
-                    background: AXES[part.axis]?.colour,
-                  }}
-                />
-              )),
-            )}
-            {AXIS_PARTS.map((part) => (
-              <span
-                aria-hidden="true"
-                className="viewcube__axis-label"
-                key={`${part.axis}-label`}
-                ref={(el) => {
-                  labelRefs.current[part.axis] = el;
-                }}
-                style={{ color: AXES[part.axis]?.colour }}
-              >
-                {AXES[part.axis]?.label}
-              </span>
-            ))}
-          </div>
-        )}
+            {labelOf(face)}
+          </button>
+        ))}
       </div>
     </nav>
   );

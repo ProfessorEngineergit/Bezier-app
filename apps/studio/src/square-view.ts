@@ -1,9 +1,10 @@
 /**
  * The Space key: over the view cube, go to the face, edge or corner under the pointer; otherwise
- * square the view to the face under the pointer and frame it, or, over empty space, to the side the
- * view is already nearest.
+ * square the view to the face under the pointer and frame it (and hand that face to `onFace`, which
+ * starts a sketch on it), or, over empty space, to the side the view is already nearest.
  */
 
+import type { StableRef } from '@bezier/core';
 import type { CubeSide } from '@bezier/renderer';
 import type { ViewportHandle } from './Viewport.js';
 
@@ -30,7 +31,11 @@ export function nearestSide(matrix: readonly number[]): CubeSide {
   return from.y >= 0 ? 'back' : 'front';
 }
 
-export function squareView(viewport: ViewportHandle | null, animate: boolean): void {
+export function squareView(
+  viewport: ViewportHandle | null,
+  animate: boolean,
+  onFace?: (face: StableRef) => void,
+): void {
   if (viewport === null) return;
   // Over the cube: go to the face, edge or corner under the pointer.
   if (cubeHover.sides !== null) {
@@ -38,6 +43,10 @@ export function squareView(viewport: ViewportHandle | null, animate: boolean): v
     return;
   }
   const { x, y, over } = pointerOverCanvas;
-  if (!over || !viewport.squareAt(x, y, animate))
-    viewport.setView(nearestSide(viewport.viewCubeMatrix()), animate);
+  const face = over ? viewport.squareAt(x, y, animate) : null;
+  if (face !== null) {
+    onFace?.(face);
+    return;
+  }
+  viewport.setView(nearestSide(viewport.viewCubeMatrix()), animate);
 }

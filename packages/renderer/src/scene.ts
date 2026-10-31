@@ -670,6 +670,32 @@ export class ViewportScene {
     this.#glideFrom(fromPosition, fromTarget, fromZoom, fromParallel);
   }
 
+  /**
+   * Whether the model covers the middle of the view, which is where the user is working. An empty
+   * scene counts, so it is still framed on the origin.
+   */
+  #modelUnderCentre(): boolean {
+    clipBox.makeEmpty();
+    clipBox.expandByObject(this.content);
+    if (clipBox.isEmpty()) return true;
+    this.camera.updateMatrixWorld();
+    const { min, max } = clipBox;
+    let left = Number.POSITIVE_INFINITY;
+    let right = Number.NEGATIVE_INFINITY;
+    let bottom = Number.POSITIVE_INFINITY;
+    let top = Number.NEGATIVE_INFINITY;
+    for (let corner = 0; corner < 8; corner++) {
+      scratchVec
+        .set(corner & 1 ? max.x : min.x, corner & 2 ? max.y : min.y, corner & 4 ? max.z : min.z)
+        .project(this.camera);
+      left = Math.min(left, scratchVec.x);
+      right = Math.max(right, scratchVec.x);
+      bottom = Math.min(bottom, scratchVec.y);
+      top = Math.max(top, scratchVec.y);
+    }
+    return left <= 0 && right >= 0 && bottom <= 0 && top >= 0;
+  }
+
   #placeView(view: ViewName): void {
     this.#placeDirection(VIEW_DIRECTIONS[view], view !== 'default');
   }
@@ -687,7 +713,9 @@ export class ViewportScene {
       .copy(this.controls.target)
       .add(new Vector3((x / length) * distance, (y / length) * distance, (z / length) * distance));
     this.controls.update();
-    this.fit();
+    // Frames the model only when the user is looking at it; over empty ground the view is taken
+    // there, not at a model off to one side.
+    if (this.#modelUnderCentre()) this.fit();
     // After the camera has landed, so the lock records the axis it settled on.
     this.#lockOrtho();
   }

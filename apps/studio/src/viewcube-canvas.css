@@ -1,0 +1,11 @@
+/* The cube on its canvas (view-cube-canvas.ts). Larger than the cube by the room its corners and
+   arms need; the pointer passes through to the model except over a face (ViewCube.tsx). */
+.viewcube__canvas {
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: calc(var(--cube-size) + 60px);
+  height: calc(var(--cube-size) + 60px);
+  cursor: pointer;
+  pointer-events: none;
+}

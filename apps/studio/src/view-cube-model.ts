@@ -1,7 +1,6 @@
 /**
- * The view cube independent of rendering: faces and their click targets, shading and axes. Drawn in
- * the DOM (`ViewCube.tsx`) when 3D compositing is cheap and on a canvas (`view-cube-canvas.ts`)
- * when it is not.
+ * The view cube independent of rendering: faces and their click targets, shading and axes. Drawn on
+ * a canvas (`view-cube-canvas.ts`).
  */
 
 import type { SketchPlane } from '@bezier/core';
@@ -72,13 +71,6 @@ function planeForView(view: Face['view']): SketchPlane {
   return 'YZ';
 }
 
-/** The three axes: a letter and colour each, in cube axis order. */
-export const AXES = [
-  { label: 'X', colour: 'var(--gnomon-x)' },
-  { label: 'Y', colour: 'var(--gnomon-y)' },
-  { label: 'Z', colour: 'var(--gnomon-z)' },
-];
-
 /** Orbit radians per pixel dragged. */
 export const ORBIT_PER_PIXEL = 0.01;
 /** Pixels before a press becomes a drag, so a small wobble still counts as a click. */
@@ -91,12 +83,6 @@ export const CUBE_HALF = 24;
 
 /** Every face of the bevelled cube, computed once. */
 export const CUBE = bevelledCube(FACES, CUBE_HALF, EDGE_CUT, CORNER_CUT);
-
-/**
- * A slightly smaller dark copy behind the faces. Antialiased face edges leave hairline gaps,
- * through which a rear axis arm would otherwise show.
- */
-export const CORE = bevelledCube(FACES, CUBE_HALF - 1.5, EDGE_CUT - 1, CORNER_CUT - 1);
 
 /**
  * The corner the axis arms grow from. Measured against the camera, not derived: CSS counts Y

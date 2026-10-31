@@ -1,0 +1,6 @@
+# LF everywhere, also in a Windows checkout (Git for Windows sets core.autocrlf), so Biome
+# sees the same files as on a Mac.
+* text=auto eol=lf
+
+# Kept byte for byte as they were committed.
+*.csv -text

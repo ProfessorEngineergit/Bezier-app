@@ -4,7 +4,7 @@
  */
 
 import type { Page } from '@playwright/test';
-import { canvasRect, openApp, openItems, railButton } from '../app.js';
+import { afterFrames, canvasRect, openApp, openItems, railButton } from '../app.js';
 import { expect, test } from '../fixtures.js';
 
 type Box = { x0: number; y0: number; x1: number; y1: number };
@@ -19,10 +19,18 @@ async function newSketch(page: Page) {
 /** Draws a rectangle between two points given as canvas fractions. */
 async function rectangle(page: Page, box: Box) {
   const rect = await canvasRect(page);
-  await page.keyboard.press('r');
+  // `r` switches the tool on or off, and Escape after a shape can end the sketch, depending on
+  // whether the app has taken the last click yet. So: `r` only when the tool is off, no Escape;
+  // every rectangle is followed by another one or by Finish.
+  const tool = railButton(page, 'Rectangle');
+  // A sketch that is still opening can reset the tool after the key, so this checks again.
+  await expect(async () => {
+    if ((await tool.getAttribute('aria-current')) !== 'true') await page.keyboard.press('r');
+    await expect(tool).toHaveAttribute('aria-current', 'true', { timeout: 1500 });
+  }).toPass({ timeout: 15_000 });
   await page.mouse.click(rect.x + rect.width * box.x0, rect.y + rect.height * box.y0);
   await page.mouse.click(rect.x + rect.width * box.x1, rect.y + rect.height * box.y1);
-  await page.keyboard.press('Escape');
+  await afterFrames(page);
 }
 
 /** Clicks inside an area and extrudes it to a typed distance. */
@@ -41,7 +49,7 @@ async function extrudeAt(page: Page, fx: number, fy: number, distance: string) {
  * plane: clicking the middle of the view would pick the first part's face instead.
  */
 async function fromTop(page: Page) {
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
 }
 
@@ -169,6 +177,31 @@ test('keeping a part apart leaves two bodies and asks nothing more', async ({ pa
 
   const prompt = page.getByRole('dialog', { name: 'Bodies meet' });
   await prompt.getByRole('button', { name: 'New body' }).click();
+  await expect(prompt).toHaveCount(0);
+  await openItems(page);
+  await expect(page.locator('.body-row')).toHaveCount(2);
+});
+
+test('the question goes away when a click lands anywhere else, and keeps the parts apart', async ({
+  page,
+}) => {
+  await openApp(page);
+  await fromTop(page);
+  await onTop(page);
+  await rectangle(page, { x0: 0.35, y0: 0.42, x1: 0.5, y1: 0.58 });
+  await finish(page);
+  await extrudeAt(page, 0.4, 0.5, '10');
+  await clickEmpty(page);
+
+  await onTop(page);
+  await rectangle(page, { x0: 0.45, y0: 0.44, x1: 0.62, y1: 0.56 });
+  await finish(page);
+  await extrudeAt(page, 0.58, 0.5, '6');
+
+  const prompt = page.getByRole('dialog', { name: 'Bodies meet' });
+  await expect(prompt).toBeVisible();
+  // Not an answer in the prompt: a click on empty space.
+  await clickEmpty(page);
   await expect(prompt).toHaveCount(0);
   await openItems(page);
   await expect(page.locator('.body-row')).toHaveCount(2);

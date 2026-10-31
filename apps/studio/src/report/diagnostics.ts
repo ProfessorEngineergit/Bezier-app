@@ -4,6 +4,7 @@
  * the UTC offset). The window shows every line before sending, and the block is one toggle.
  */
 
+import { accelerationReport, glassFor } from '../glass-fallback.js';
 import { VERSION } from '../version.js';
 
 const FIRST_SEEN = 'bezier.firstSeen';
@@ -149,6 +150,9 @@ export async function collectDiagnostics(facts: ProjectFacts = {}): Promise<stri
     `Machine: ${String(nav.hardwareConcurrency)} cores${nav.deviceMemory === undefined ? '' : `, at least ${String(nav.deviceMemory)} GB memory`}`,
   );
   lines.push(`Graphics: ${graphics()}`);
+  // Decided once at start; `auto` glass follows it (glass-fallback.ts).
+  glassFor('auto');
+  lines.push(`Acceleration: ${accelerationReport()}`);
   lines.push(
     `Screen: ${String(screen.width)}×${String(screen.height)} at ${String(window.devicePixelRatio)}×, window ${String(window.innerWidth)}×${String(window.innerHeight)}`,
   );

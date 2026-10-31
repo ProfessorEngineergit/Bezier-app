@@ -13,7 +13,7 @@ test('a second sketch snaps to the corners and edges of the first', async ({ pag
   const at = (x: number, y: number) => [rect.x + rect.width * x, rect.y + rect.height * y] as const;
 
   // Squared to Top, Sketch starts on XY directly, both times.
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   await railButton(page, 'Rectangle').click();

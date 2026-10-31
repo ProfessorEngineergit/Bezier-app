@@ -4,27 +4,8 @@
  * not on CSS axes.
  */
 
-import { openApp } from '../app.js';
+import { addBox, canvasRect, cubeFacing, forwardFace, openApp, screenPointOf } from '../app.js';
 import { expect, test } from '../fixtures.js';
-
-/** The label on the cube face currently pointing at the viewer. */
-async function forwardFace(page: import('@playwright/test').Page): Promise<string> {
-  return page.evaluate(() => {
-    const cube = document.querySelector('.viewcube__cube');
-    if (cube === null) return '';
-    const parent = new DOMMatrix(getComputedStyle(cube).transform);
-    let best = '';
-    let bestZ = -2;
-    for (const face of document.querySelectorAll('.viewcube__face')) {
-      const m = parent.multiply(new DOMMatrix(getComputedStyle(face).transform));
-      if (m.m33 > bestZ) {
-        bestZ = m.m33;
-        best = face.textContent ?? '';
-      }
-    }
-    return best;
-  });
-}
 
 test('shows all six faces', async ({ page }) => {
   await openApp(page);
@@ -54,23 +35,17 @@ test('the default view shows the three faces the reference shows', async ({ page
   await openApp(page);
   // The starting view looks down on the front-right corner, so Front, Right and Top are in view, as
   // in the reference.
-  const visible = await page.evaluate(() => {
-    const cube = document.querySelector('.viewcube__cube');
-    const parent = new DOMMatrix(getComputedStyle(cube as Element).transform);
-    const facing: string[] = [];
-    for (const face of document.querySelectorAll('.viewcube__face')) {
-      const m = parent.multiply(new DOMMatrix(getComputedStyle(face).transform));
-      if (m.m33 > 0.05) facing.push(face.textContent ?? '');
-    }
-    return facing.sort();
-  });
+  const faces = await cubeFacing(page);
+  const visible = Object.keys(faces)
+    .filter((label) => (faces[label] ?? 0) > 0.05)
+    .sort();
   expect(visible).toEqual(['Front', 'Right', 'Top']);
 });
 
 test('an axis view opens Sketch directly on its matching plane', async ({ page }) => {
   await openApp(page);
   await page.getByRole('button', { name: 'Sketch', exact: true }).click();
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
 
   const exit = page.getByRole('button', { name: 'Finish Sketch', exact: true });
@@ -86,10 +61,32 @@ test('an axis view opens Sketch directly on its matching plane', async ({ page }
 
   await page.getByRole('button', { name: 'Rectangle', exact: true }).click();
   await page.getByRole('button', { name: 'Diagonal', exact: true }).click();
-  const canvas = page.locator('canvas');
+  const canvas = page.locator('canvas.viewport');
   const box = await canvas.boundingBox();
   if (box === null) throw new Error('viewport canvas missing');
   await page.mouse.click(box.x + box.width * 0.4, box.y + box.height * 0.4);
   await page.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.6);
   await expect(page.getByRole('button', { name: 'Finish Sketch', exact: true })).toBeEnabled();
+});
+
+test('Space over a flat face squares up to it and starts a sketch there', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  const rect = await canvasRect(page);
+  // The top face of the starter box, seen from the opening view.
+  const top = screenPointOf(rect, { x: 20, y: 10, z: 15 });
+  await page.mouse.move(top.x, top.y);
+  await page.keyboard.press('Space');
+  await expect.poll(() => forwardFace(page)).toBe('Top');
+  await expect(page.getByRole('button', { name: 'Finish Sketch', exact: true })).toBeVisible();
+});
+
+test('Space over empty space only squares the view, with no sketch', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  const rect = await canvasRect(page);
+  await page.mouse.move(rect.x + 40, rect.y + rect.height - 40);
+  await page.keyboard.press('Space');
+  await expect.poll(() => forwardFace(page)).not.toBe('');
+  await expect(page.getByRole('button', { name: 'Finish Sketch', exact: true })).toHaveCount(0);
 });

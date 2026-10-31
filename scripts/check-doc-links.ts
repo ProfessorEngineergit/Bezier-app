@@ -8,9 +8,10 @@
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 /** Directories with third-party Markdown or generated output. */
 const SKIPPED = new Set(['node_modules', 'dist', 'target', 'playwright-report', 'test-results']);
@@ -29,6 +30,11 @@ const PRIVATE = (() => {
     return [];
   }
 })();
+
+/** A path relative to the root with `/` separators, so the prefixes above also match on Windows. */
+function fromRoot(path: string): string {
+  return relative(ROOT, path).split(sep).join('/');
+}
 
 /** Whether a root-relative path is private. */
 function isPrivate(rel: string): boolean {
@@ -130,7 +136,7 @@ function assetProblems(): string[] {
 function main(): number {
   const problems: string[] = assetProblems();
   for (const file of walk(ROOT)) {
-    const rel = relative(ROOT, file);
+    const rel = fromRoot(file);
     if (VENDORED.some((prefix) => rel.startsWith(prefix))) continue;
     // Links are relative to the main repository's root; promote-stable.sh checks them there.
     if (rel.startsWith('scripts/main-repo/')) continue;
@@ -146,7 +152,7 @@ function main(): number {
       const resolved = path.startsWith('/') ? join(ROOT, path) : resolve(dirname(file), path);
       if (!exists(resolved)) {
         problems.push(`${rel}:${line} links to ${target}, which does not exist`);
-      } else if (!here && isPrivate(relative(ROOT, resolved))) {
+      } else if (!here && isPrivate(fromRoot(resolved))) {
         problems.push(
           `${rel}:${line} links to ${target}, which the public repositories do not contain`,
         );
@@ -159,6 +165,7 @@ function main(): number {
   return problems.length > 0 ? 1 : 0;
 }
 
-if (process.argv[1] !== undefined && import.meta.url.endsWith(process.argv[1])) {
+// Compared as URLs: on Windows argv[1] is `C:\…` and the module URL `file:///C:/…`.
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(main());
 }

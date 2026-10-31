@@ -470,16 +470,16 @@ export class ViewportImpl implements Viewport {
     return this.#picker.ready ? this.#picker.facesAlong(this.#scene.camera, ndcX, ndcY) : [];
   }
 
-  squareAt(screenX: number, screenY: number, animate = false): boolean {
+  squareAt(screenX: number, screenY: number, animate = false): StableRef | null {
     const hit = this.pick(screenX, screenY, 'face');
     const index = hit?.ref.kind === 'face' ? this.#indexByName.get(formatRef(hit.ref)) : undefined;
-    if (hit === null || index === undefined) return false;
+    if (hit === null || index === undefined) return null;
     // At the hit point, not averaged over the face, so curved faces square up where the pointer is.
     const frames = this.#meshFrames();
     const normal = faceNormalAt(frames, index, hit.point);
-    if (normal === null) return false;
+    if (normal === null) return null;
     this.#scene.squareOn(normal, hit.point, animate, faceBoundsByIndex(frames, index));
-    return true;
+    return hit.ref;
   }
 
   project(x: number, y: number, z: number): { x: number; y: number } | null {

@@ -8,7 +8,7 @@ import { canvasRect, commitExtrude, openApp, openItems, railButton } from '../ap
 import { expect, test } from '../fixtures.js';
 
 async function squareTop(page: Page) {
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
 }
 

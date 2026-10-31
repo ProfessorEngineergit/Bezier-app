@@ -37,6 +37,8 @@ Everything written down about Bezier, sorted by who is reading.
 | | |
 | --- | --- |
 | [`contributing/ci.md`](contributing/ci.md) | What runs on a change, on which system, what it can and cannot say; Crosscheck |
+| [`contributing/windows-signing.md`](contributing/windows-signing.md) | Why browsers warn about the Windows installer, and how the release workflow signs it |
+| [`contributing/signpath-application.md`](contributing/signpath-application.md) | What the free signing programme asks for, what the repository shows, what is still open |
 | [`../SECURITY.md`](../SECURITY.md) | Vulnerability reporting |
 
 ## Decisions and the kernel

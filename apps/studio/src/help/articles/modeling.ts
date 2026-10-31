@@ -135,7 +135,7 @@ Without a closed shape, Bezier says to draw one first.`,
     area: 'Modeling',
     summary: 'Join bodies into one, cut one from another, or keep only where they overlap.',
     keywords: 'combine boolean union subtract intersect join cut merge bodies overlap difference',
-    body: `1. Pick two bodies: the one to keep first, then Shift-click the other. In Items, click one body row and Shift-click the second.
+    body: `1. Pick two bodies: the one to keep first, then Shift-click the other. In Items, click one body row and Cmd-click or Ctrl-click the second.
 2. Choose Combine under Tools, or press {{key:union}}. The step starts as a join.
 3. In Items, click the step. **Operation** is Join, Cut or Intersect, and **Keep tools** keeps the second body.
 

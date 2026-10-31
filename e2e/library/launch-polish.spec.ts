@@ -42,7 +42,7 @@ test('a rectangle accepts length then Tab width without moving the pointer again
 }) => {
   await openApp(page);
   await railButton(page, 'Sketch').click();
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await railButton(page, 'Rectangle').click();
   const rect = await canvasRect(page);
   await page.mouse.click(rect.x + rect.width * 0.4, rect.y + rect.height * 0.4);

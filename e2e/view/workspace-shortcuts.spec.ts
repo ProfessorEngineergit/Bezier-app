@@ -3,7 +3,7 @@
  * its hover colour in both themes.
  */
 
-import { canvasRect, openApp } from '../app.js';
+import { canvasRect, forwardFace, openApp } from '../app.js';
 import { expect, test } from '../fixtures.js';
 
 async function mode(page: import('@playwright/test').Page, name: string) {
@@ -34,21 +34,30 @@ test('R enters a live rectangle sketch from another workspace', async ({ page })
 test('orientation cube restores blue hover in dark and light mode', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await openApp(page);
-  await page.locator('.viewcube__face[data-face="top"]').hover();
-  await expect
-    .poll(() =>
-      page
-        .locator('.viewcube__face[data-face="top"]')
-        .evaluate((element) => getComputedStyle(element).backgroundColor),
-    )
-    .toBe('rgb(64, 156, 255)');
+  // Squared onto the top, the middle of the cube is the top face, below its label.
+  await page.locator('.viewcube__face[data-face="top"]').dispatchEvent('click');
+  await expect.poll(() => forwardFace(page)).toBe('Top');
+  const box = await page.locator('.viewcube__canvas').boundingBox();
+  if (box === null) throw new Error('the cube has no box');
+  const near = { x: box.x + box.width / 2, y: box.y + box.height / 2 + 12 };
+  const pixel = () =>
+    page.evaluate(() => {
+      const board = document.querySelector('canvas.viewcube__canvas') as HTMLCanvasElement;
+      const scale = board.width / board.clientWidth;
+      const at = board
+        .getContext('2d')
+        ?.getImageData(
+          Math.round(board.width / 2),
+          Math.round(board.height / 2 + 12 * scale),
+          1,
+          1,
+        );
+      return at === undefined ? '' : `rgb(${at.data[0]}, ${at.data[1]}, ${at.data[2]})`;
+    });
+  await page.mouse.move(near.x, near.y);
+  await expect.poll(pixel).toBe('rgb(64, 156, 255)');
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.locator('.viewcube__face[data-face="top"]').hover();
-  await expect
-    .poll(() =>
-      page
-        .locator('.viewcube__face[data-face="top"]')
-        .evaluate((element) => getComputedStyle(element).backgroundColor),
-    )
-    .toBe('rgb(0, 122, 255)');
+  await page.mouse.move(near.x - 80, near.y - 80);
+  await page.mouse.move(near.x, near.y);
+  await expect.poll(pixel).toBe('rgb(0, 122, 255)');
 });

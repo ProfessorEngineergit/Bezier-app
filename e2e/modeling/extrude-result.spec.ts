@@ -20,7 +20,7 @@ async function finish(page: Page) {
 /** A block seen from above, with a circle drawn on its top face. */
 async function circleOnBlock(page: Page) {
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   await page.keyboard.press('r');
@@ -97,7 +97,7 @@ test('a circle sketched on the ground plane under a block cuts right through it'
   page,
 }) => {
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   await page.keyboard.press('r');

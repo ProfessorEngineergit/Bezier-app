@@ -61,7 +61,7 @@ const STATES: Record<string, State> = {
   'standard-views-cube': async (page) => {
     await addBox(page);
     await railButton(page, 'Tools').click();
-    await page.getByRole('button', { name: 'Top', exact: true }).click();
+    await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
     const spin = page.getByRole('button', { name: 'Rotate left' });
     await expect(spin).toBeVisible();
     return {

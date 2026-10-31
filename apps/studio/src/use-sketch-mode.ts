@@ -185,6 +185,22 @@ export function useSketchMode({
     setSurface(facing === null ? null : originSurface(facing.plane, facing.lean));
   }, [sketch, setCategory, selectedRefs, faceSurface, drawOn, viewportRef]);
 
+  /**
+   * Starts a new sketch on a flat face the view was just squared to (Space). A curved face is left
+   * alone: the view is already square, and there is nothing to say about a key that only looks.
+   */
+  const sketchOn = useCallback(
+    async (face: StableRef) => {
+      const basis = (await sessionRef.current?.sketchBasisOn(face)) ?? null;
+      if (basis === null) return;
+      sketch.clear();
+      setEditing(null);
+      setCategory('sketch');
+      drawOn(leaningSurface({ plane: nearestPlane(basis.normal), face, rest: basis }));
+    },
+    [sessionRef, sketch, setCategory, drawOn],
+  );
+
   /** Reopens a committed sketch so Finish writes back to it. */
   const edit = useCallback(
     (id: FeatureId) => {
@@ -429,6 +445,7 @@ export function useSketchMode({
     setSurface,
     editing,
     enter,
+    sketchOn,
     edit,
     exit,
     pickTool,

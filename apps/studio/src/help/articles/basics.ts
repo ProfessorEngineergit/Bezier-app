@@ -217,7 +217,7 @@ Press Alt and Cmd (or Ctrl) with 1, 2, 3 or 4 for Modeling, Simulation, Visualiz
     body: `Items is the list of what is in the project: its bodies, its sketches, and any reference meshes and imported files. Use it to pick something that is hard to click, to hide what is in the way, and to get back into a sketch.
 
 1. Press the layer button at the top left, or {{key:items}}. The list slides in beside the rail. Press it again to put it away.
-2. Click a row to select it. A body is picked in the model too; a sketch opens its numbers on the right. Shift-click or Cmd-click adds to the selection.
+2. Click a row to select it. A body is picked in the model too; a sketch opens its numbers on the right. Shift-click picks every row between the last one you clicked and this one; Cmd-click or Ctrl-click adds or removes one row.
 3. Double-click a body's name to rename it. Enter keeps the name, Escape leaves it. Renaming can be undone.
 4. The **eye** hides a body. It shows on the row under the pointer and on the selected row, and stays on anything hidden. Alt-click the eye to show that body alone.
 5. The filter at the top, All Items to begin with, narrows the list to Sketches or to Bodies.

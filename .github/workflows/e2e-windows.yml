@@ -84,7 +84,7 @@ jobs:
             # Diagnostic run: one worker, per-test timings.
             pnpm exec playwright test --project=chromium --workers=1 --reporter=list $SPECS
           elif [ "${{ matrix.shard }}" = 0 ]; then
-            pnpm exec playwright test --project=chromium --workers=1 view/shortcuts view/workspace-shortcuts library/library files/document files/undo-reopen files/storage-fallback view/rail view/navigation-input view/viewcube view/native-feel view/viewport view/brand-controls
+            pnpm exec playwright test --project=chromium --workers=1 view/shortcuts view/workspace-shortcuts library/library files/document files/undo-reopen files/storage-fallback view/rail view/navigation-input view/viewcube view/native-feel view/viewport view/brand-controls modeling/items-tree
           else
             pnpm exec playwright test --project=chromium --workers=1 --shard=${{ matrix.shard }}/4
           fi

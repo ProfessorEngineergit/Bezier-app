@@ -12,7 +12,7 @@ export async function at(page: Page, fx: number, fy: number): Promise<void> {
 }
 
 export async function squareTop(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
 }
 
 /** Enters a sketch on the plane facing the camera, looking straight down. */

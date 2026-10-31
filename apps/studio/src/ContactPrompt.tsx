@@ -1,6 +1,7 @@
 /**
  * Asks, at the part itself, what to do after a part was made or moved into another: join, cut, or
- * keep separate (ADR 0012). Cut is offered only when the parts share volume.
+ * keep separate (ADR 0012). Cut is offered only when the parts share volume. It stays until it is
+ * answered, or until a click lands anywhere else, which keeps the parts apart.
  *
  * Follows the part while the view turns. The position is written to the element every frame, so
  * camera motion does not re-render React (ADR 0007).
@@ -56,10 +57,20 @@ export function ContactPrompt({
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onAnswer('keep');
     };
+    // Capturing, so a handler further in cannot hide the click. The click itself goes on to what it
+    // landed on.
+    const onPointer = (event: PointerEvent) => {
+      // Only a plain click: turning or panning the view with the other buttons is not an answer.
+      if (event.button !== 0) return;
+      if (event.target instanceof Node && root.current?.contains(event.target)) return;
+      onAnswer('keep');
+    };
     window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', onPointer, true);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', onPointer, true);
     };
   }, [open, face, handleRef, onAnswer]);
   const [first] = contacts;

@@ -12,7 +12,10 @@
  *
  * On a Mac with both Apple targets installed the app is built universal; otherwise for the host
  * architecture only. Output goes to `release/<version>/` with SHA-256 sums. Signing and
- * notarisation run only when their credentials are in the environment.
+ * notarisation run only when their credentials are in the environment: on a Mac the APPLE_* ones,
+ * on Windows a certificate already in the store, named by WINDOWS_CERTIFICATE_THUMBPRINT (the
+ * release workflow imports it from its secrets), or a signing tool in WINDOWS_SIGN_COMMAND. See
+ * docs/contributing/windows-signing.md.
  */
 
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -188,6 +191,24 @@ if (process.platform === 'darwin') {
   }
 } else if (process.platform === 'win32') {
   bundleArgs.push('--bundles', 'msi,nsis');
+  const thumbprint = process.env.WINDOWS_CERTIFICATE_THUMBPRINT;
+  const signCommand = process.env.WINDOWS_SIGN_COMMAND;
+  if (thumbprint || signCommand) {
+    // Tauri then signs the app, the MSI and the installer: with the certificate in the store, and
+    // timestamped so the signature outlives it, or with the tool, which gets each file as %1. A file,
+    // not a JSON argument: the shell would eat the quotes.
+    const conf = join(desktop, 'src-tauri/target/signing.conf.json');
+    mkdirSync(join(desktop, 'src-tauri/target'), { recursive: true });
+    const windows = signCommand
+      ? { signCommand }
+      : {
+          certificateThumbprint: thumbprint,
+          digestAlgorithm: 'sha256',
+          timestampUrl: process.env.WINDOWS_TIMESTAMP_URL || 'http://timestamp.digicert.com',
+        };
+    writeFileSync(conf, JSON.stringify({ bundle: { windows } }));
+    bundleArgs.push('--config', 'src-tauri/target/signing.conf.json');
+  }
 } else {
   bundleArgs.push('--bundles', 'deb,rpm,appimage');
 }
@@ -230,9 +251,15 @@ function changes() {
     .toString()
     .trim();
 }
-const unsigned = process.env.APPLE_CERTIFICATE
-  ? ''
-  : '\n> Not signed yet: the first start asks for confirmation on macOS and Windows.\n';
+// What this runner could not sign. Linux has no signing step.
+const signed = {
+  darwin: Boolean(process.env.APPLE_CERTIFICATE),
+  win32: Boolean(process.env.WINDOWS_CERTIFICATE_THUMBPRINT || process.env.WINDOWS_SIGN_COMMAND),
+}[process.platform];
+const unsigned =
+  signed === false
+    ? `\n> Not signed yet: the first start asks for confirmation on ${process.platform === 'win32' ? 'Windows' : 'macOS'}.\n`
+    : '';
 writeFileSync(
   join(out, 'RELEASE_NOTES.md'),
   `# Bezier ${version}\n${unsigned}\n## Changes\n\n${changes()}\n\n## Downloads\n\n${sums.map((line) => `- \`${line.split('  ')[1]}\` SHA-256 \`${line.split('  ')[0]}\``).join('\n')}\n`,

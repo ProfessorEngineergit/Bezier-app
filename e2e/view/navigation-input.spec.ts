@@ -5,23 +5,12 @@
  */
 
 import type { Page } from '@playwright/test';
-import { addBox, canvasRect, openApp, screenPointOf, selectionCount } from '../app.js';
+import { addBox, canvasRect, cubeFacing, openApp, screenPointOf, selectionCount } from '../app.js';
 import { expect, test } from '../fixtures.js';
 
 /** Each cube face with how squarely it points at the viewer, 1 being head on. */
 async function facing(page: Page): Promise<Record<string, number>> {
-  return page.evaluate(() => {
-    const cube = document.querySelector('.viewcube__cube');
-    if (cube === null) return {};
-    const parent = new DOMMatrix(getComputedStyle(cube).transform);
-    const out: Record<string, number> = {};
-    for (const face of document.querySelectorAll('.viewcube__face')) {
-      const m = parent.multiply(new DOMMatrix(getComputedStyle(face).transform));
-      const label = face.querySelector('.viewcube__label')?.textContent ?? face.textContent ?? '';
-      out[label.trim()] = Math.round(m.m33 * 100) / 100;
-    }
-    return out;
-  });
+  return cubeFacing(page);
 }
 
 async function headOn(page: Page): Promise<string> {

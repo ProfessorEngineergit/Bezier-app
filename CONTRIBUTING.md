@@ -38,7 +38,7 @@ The project cannot be closed later. That is deliberate.
 
 ## How we use AI
 
-Bezier is written with the help of AI coding assistants, and that is fine for contributions too.
+Bezier is written partially with the help of AI coding assistants, and that is fine for contributions too.
 What matters is that you understand what you send: say in the pull request which tool you used
 and for what, and be ready to explain every line without it. The tests and the review are the
 same either way.
@@ -195,3 +195,5 @@ and it would be a shame for you to build something good that does not fit yet.
 
 Open a discussion or an issue. "I do not understand how X works" is a perfectly
 good issue, and usually means the documentation has a hole in it.
+
+# Thanks for contributing!

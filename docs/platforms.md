@@ -39,6 +39,6 @@ the browser suite is split into slices and why some tests are given minutes
 | **Windows** | Large imports (hundreds of megabytes of STEP) need a lot of memory; on a machine with little, Bezier asks before it starts. The background blur of panels is not drawn on some graphics setups, and a plainer surface is used instead. Simulation was not finished on a hosted Windows runner within its time limit. |
 | **Linux** | The desktop web view has no OPFS, so projects live in IndexedDB; that works, and projects survive restarts. Lesson recording needs a video encoder the web view may not have; the Record sheet checks and says so. Without a graphics card the view is slow for a moment after an edit. |
 | **macOS** | Builds are not notarised yet. |
-| **All** | The desktop apps are not signed yet, so the system warns on first start. |
+| **All** | The desktop apps are not signed yet, so the system warns on first start. On Windows, Chrome and Edge may call the installer a virus; [why, and what signing needs](contributing/windows-signing.md). |
 
 Measurements are in [`benchmarks.md`](benchmarks.md) and [`performance.md`](performance.md).

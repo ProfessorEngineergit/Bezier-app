@@ -9,7 +9,7 @@ import { expect, test } from '../fixtures.js';
 
 async function fromTop(page: Page) {
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   // Wait for the view to finish turning, or the click lands elsewhere.
   await page.waitForTimeout(700);
   await railButton(page, 'Sketch').click();

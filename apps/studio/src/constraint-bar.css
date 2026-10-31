@@ -166,7 +166,7 @@
   padding: 1px 6px;
   border-radius: var(--radius-control);
   background: var(--accent);
-  color: var(--on-accent, #fff);
+  color: var(--text-on-accent);
   font-size: 11px;
   pointer-events: none;
 }

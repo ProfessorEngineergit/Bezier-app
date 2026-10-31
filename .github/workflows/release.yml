@@ -5,7 +5,9 @@ name: Release build
 # tab). Installers are kept as artifacts and published only with `publish`:
 #
 #   beta    in the beta repository (bezier), as a pre-release v1.3.0-beta.1
-#   stable  in the main repository (bezier-app), as the release v1.3.0
+#   stable  in the app repository (bezier-app), as the release v1.3.0, and mirrored to the
+#           releases page of the beta repository (bezier), so the files are not only
+#           reachable through the website
 #
 # The website (website.yml) offers the newest of each.
 
@@ -33,6 +35,11 @@ jobs:
   build:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    # id-token and attestations: for the attestation of where the files came from, below.
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -107,6 +114,28 @@ jobs:
           security delete-keychain "$keychain" || true
           rm -f "$RUNNER_TEMP/cert.p12"
 
+      # The same for Windows: a certificate that does not import must not fail the build at its end.
+      # Imported into the runner's store, Tauri finds it by its thumbprint (scripts/release.mjs).
+      - name: Check the Windows signing certificate
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if (-not $env:WINDOWS_CERTIFICATE) { Write-Host "No WINDOWS_CERTIFICATE: building unsigned."; exit 0 }
+          $path = Join-Path $env:RUNNER_TEMP 'certificate.pfx'
+          try {
+            [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+            $password = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+            $imported = Import-PfxCertificate -FilePath $path -CertStoreLocation Cert:\CurrentUser\My -Password $password -ErrorAction Stop
+            "WINDOWS_CERTIFICATE_THUMBPRINT=$($imported.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } catch {
+            Write-Host "::warning::WINDOWS_CERTIFICATE does not import (it must be a base64-encoded .pfx and WINDOWS_CERTIFICATE_PASSWORD its password). Building unsigned."
+          } finally {
+            Remove-Item $path -ErrorAction SilentlyContinue
+          }
+
       # Checks run on every push in CI; this workflow only builds.
       - name: Build
         shell: bash
@@ -134,6 +163,21 @@ jobs:
             "$(git rev-parse HEAD)" "${{ github.ref }}" "${{ inputs.channel }}" \
             "${{ github.server_url }}" "${{ github.repository }}" "${{ github.run_id }}" "${{ runner.os }}" \
             > "release/${{ inputs.version }}/BUILD-INFO.txt"
+
+      # Says, signed by GitHub, that these files were built by this workflow from this commit; anyone
+      # can check one with `gh attestation verify <file> --repo <owner>/<repository>`. Only in a
+      # public repository: a private one needs a GitHub plan this project does not have.
+      - name: Attest where the files come from
+        if: github.event.repository.private == false
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            release/${{ inputs.version }}/*.exe
+            release/${{ inputs.version }}/*.msi
+            release/${{ inputs.version }}/*.dmg
+            release/${{ inputs.version }}/*.deb
+            release/${{ inputs.version }}/*.rpm
+            release/${{ inputs.version }}/*.AppImage
 
       - uses: actions/upload-artifact@v4
         with:
@@ -192,7 +236,23 @@ jobs:
             --generate-notes \
             ${{ inputs.publish == 'beta' && '--prerelease' || '--latest' }}
 
-      # Notify the website (in the main repository) of the new beta. Without the token
+      # The same release and files on the releases page of `bezier`, where the issues and the
+      # source live. Needs RELEASES_MIRROR_TOKEN (fine-grained, Contents: read and write on
+      # bezier); without it the step says so and the release stays in bezier-app only.
+      - name: Mirror to the beta repository
+        if: inputs.publish == 'stable'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_MIRROR_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "::warning::No RELEASES_MIRROR_TOKEN; v${{ inputs.version }} is only in bezier-app."; exit 0; fi
+          gh release create "v${{ inputs.version }}" release/* \
+            --repo ProfessorEngineergit/bezier \
+            --target beta \
+            --title "Bezier ${{ inputs.version }}" \
+            --notes "Stable release. Same files as in [bezier-app](https://github.com/${{ github.repository }}/releases/tag/v${{ inputs.version }})." \
+            --latest
+
+      # Notify the website (in the app repository) of the new beta. Without the token
       # it picks the beta up on its next scheduled run.
       - name: Tell the website
         if: inputs.publish == 'beta'

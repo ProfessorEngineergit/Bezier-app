@@ -13,7 +13,7 @@
     "dev": "pnpm --filter @bezier/studio dev",
     "build": "pnpm --filter @bezier/studio build",
     "preview": "pnpm --filter @bezier/studio preview",
-    "typecheck": "pnpm -r --no-bail --filter '!@bezier/desktop' exec tsc --noEmit",
+    "typecheck": "pnpm -r --no-bail --filter \"!@bezier/desktop\" exec tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",

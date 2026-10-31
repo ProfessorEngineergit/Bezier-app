@@ -181,18 +181,21 @@ test('re-frames only when asked', async ({ page }) => {
 });
 
 test('a rotate stops when the hand stops, rather than coasting past it', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('bezier.e2e', '1'));
   await openApp(page);
   await addBox(page);
   const rect = await canvasRect(page);
 
-  // The cube's transform mirrors the camera orientation every frame, a cheap check for movement.
-  const orientation = () => page.locator('.viewcube__cube').evaluate((el) => el.style.transform);
   /**
    * The pose's sixteen numbers, compared numerically. The same pose can be re-derived with a
    * different last bit (2.8e-17 vs −9.7e-17); coasting shows up in the third decimal.
    */
-  const pose = async (): Promise<number[]> =>
-    (/matrix3d\(([^)]+)\)/.exec(await orientation())?.[1] ?? '').split(',').map(Number);
+  const pose = (): Promise<number[]> =>
+    page.evaluate(() => [
+      ...(
+        window as unknown as { __bezierViewport: { viewCubeMatrix(): readonly number[] } }
+      ).__bezierViewport.viewCubeMatrix(),
+    ]);
 
   await page.mouse.move(rect.x + rect.width * 0.6, rect.y + rect.height * 0.5);
   await page.mouse.down({ button: 'right' });
@@ -251,12 +254,19 @@ test('wireframe is a mode you pick in the Display panel, and the choice sticks',
 test('a view is saved by name and gone back to, and undoes like an edit (audit F-034)', async ({
   page,
 }) => {
+  await page.addInitScript(() => localStorage.setItem('bezier.e2e', '1'));
   await openApp(page);
   await addBox(page);
   const box = await canvasRect(page);
-  // Camera direction, read from the orientation cube's transform.
+  // Camera direction, as the orientation cube is given it.
   const facing = () =>
-    page.locator('.viewcube__cube').evaluate((cube) => (cube as HTMLElement).style.transform);
+    page.evaluate(() =>
+      (
+        window as unknown as { __bezierViewport: { viewCubeMatrix(): readonly number[] } }
+      ).__bezierViewport
+        .viewCubeMatrix()
+        .join(','),
+    );
   const turn = async (dx: number) => {
     await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.5);
     await page.mouse.down({ button: 'right' });
@@ -308,4 +318,45 @@ test('zebra and curvature show how the surface flows (audit F-027)', async ({ pa
   await expect(
     page.getByRole('group', { name: 'Shading' }).getByRole('radio', { name: 'Shaded' }),
   ).toBeChecked();
+});
+
+test('a named view is taken where the view is, not at a model off to the side', async ({
+  page,
+}) => {
+  await page.addInitScript(() => localStorage.setItem('bezier.e2e', '1'));
+  await openApp(page);
+  await addBox(page);
+  type Hook = {
+    setView(view: string): void;
+    cameraView(): { position: number[]; target: number[]; parallel: boolean; zoom: number };
+    showCameraView(view: {
+      position: number[];
+      target: number[];
+      parallel: boolean;
+      zoom: number;
+    }): void;
+  };
+  const targetAfter = async (aside: number) =>
+    page.evaluate((away) => {
+      const v = (window as unknown as { __bezierViewport: Hook }).__bezierViewport;
+      v.setView('default');
+      const now = v.cameraView();
+      // The same pose, moved sideways on the ground so the box is far out of shot.
+      v.showCameraView({
+        ...now,
+        position: [now.position[0] + away, now.position[1], now.position[2]],
+        target: [now.target[0] + away, now.target[1], now.target[2]],
+      });
+      v.setView('top');
+      return v.cameraView().target;
+    }, aside);
+
+  // Looking at the box: the top view frames it, so the target stays at the box.
+  const over = await targetAfter(0);
+  expect(over[0]).toBeGreaterThan(0);
+  expect(over[0]).toBeLessThan(BOX.max.x);
+
+  // Looking at empty ground 2000 away: the top view stays there.
+  const beside = await targetAfter(2000);
+  expect(beside[0]).toBeGreaterThan(1000);
 });

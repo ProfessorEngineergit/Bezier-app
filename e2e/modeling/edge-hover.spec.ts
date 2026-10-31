@@ -30,7 +30,7 @@ async function finish(page: Page) {
 
 /** A block with a round boss, seen from above. */
 async function bossOnBlock(page: Page) {
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   await page.keyboard.press('r');

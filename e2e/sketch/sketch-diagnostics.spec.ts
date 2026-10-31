@@ -12,7 +12,7 @@ const bar = (page: Page) => page.getByRole('region', { name: 'Constraints' });
 
 test('a rectangle from the origin with both sizes typed is fully defined', async ({ page }) => {
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await railButton(page, 'Sketch').click();
   const rect = await canvasRect(page);
   const plane = page.getByRole('complementary', { name: 'Sketch plane' });

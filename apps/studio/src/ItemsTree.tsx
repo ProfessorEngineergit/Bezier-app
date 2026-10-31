@@ -14,10 +14,11 @@
 
 import type { BodySummary, FeatureId, FeatureRecord } from '@bezier/core';
 import { EyeIcon, EyeOffIcon, FolderIcon, MeshIcon } from '@bezier/ui';
-import { type MouseEvent as ReactMouseEvent, type ReactNode, useState } from 'react';
+import { type MouseEvent as ReactMouseEvent, type ReactNode, useRef, useState } from 'react';
 import { BodyItemIcon, PictureItemIcon, SketchItemIcon } from './ItemIcons.js';
 import type { ItemsFilter } from './ItemsPanel.js';
 import { sketchBodyLabels } from './item-relations.js';
+import { rangeBetween } from './items-range.js';
 import './items-tree.css';
 
 export interface ItemsTreeProps {
@@ -189,6 +190,8 @@ export function ItemsTree({
 }: ItemsTreeProps) {
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [renaming, setRenaming] = useState<string | null>(null);
+  /** The last body clicked without Shift, where a Shift range starts. */
+  const anchor = useRef<string | null>(null);
   const showBodies = filter !== 'sketches';
   const showSketches = filter !== 'bodies';
   const { folders, loose } = foldersOf(bodies, features, userFolders);
@@ -196,6 +199,10 @@ export function ItemsTree({
   const pictures = features.filter((feature) => feature.type === 'reference-image');
   const sketches = features.filter((feature) => feature.type === 'sketch');
   const additive = (event: ReactMouseEvent) => event.shiftKey || event.metaKey || event.ctrlKey;
+  /** Cmd or Ctrl: one row in or out of the selection. Shift is the range between two rows. */
+  const toggles = (event: ReactMouseEvent) => event.metaKey || event.ctrlKey;
+  /** The body rows in the order shown, filled as they are rendered, for Shift ranges. */
+  const order: string[] = [];
 
   const bodyRow = (body: BodySummary, depth: number) =>
     renaming === body.key ? (
@@ -242,7 +249,15 @@ export function ItemsTree({
         kind="body"
         label={body.label}
         onClick={(event) => {
-          if (!body.hidden) onSelectBody(body.key, additive(event));
+          if (body.hidden) return;
+          const range = event.shiftKey ? rangeBetween(order, anchor.current, body.key) : null;
+          if (range !== null) {
+            // With Cmd or Ctrl too, the range joins the selection instead of replacing it.
+            onSelectBodies(range, toggles(event));
+            return;
+          }
+          anchor.current = body.key;
+          onSelectBody(body.key, toggles(event));
         }}
         onDoubleClick={() => setRenaming(body.key)}
       />
@@ -342,9 +357,17 @@ export function ItemsTree({
           }
         />,
       );
-      if (expanded) for (const body of folder.bodies) rows.push(bodyRow(body, 1));
+      if (expanded) {
+        for (const body of folder.bodies) {
+          order.push(body.key);
+          rows.push(bodyRow(body, 1));
+        }
+      }
     }
-    for (const body of loose) rows.push(bodyRow(body, 0));
+    for (const body of loose) {
+      order.push(body.key);
+      rows.push(bodyRow(body, 0));
+    }
     for (const mesh of meshes) rows.push(featureRow(mesh, 'mesh'));
     for (const picture of pictures) rows.push(featureRow(picture, 'image'));
   }

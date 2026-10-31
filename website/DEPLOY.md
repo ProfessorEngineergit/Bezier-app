@@ -123,6 +123,14 @@ Im Repository **`bezier`** (Beta), optional:
 | --- | --- | --- |
 | Secret | `WEBSITE_DISPATCH_TOKEN` | Fine-grained Token für `bezier-app`, *Contents: Read and write*. Damit erscheint eine neue Beta sofort; ohne ihn beim nächsten Lauf (zweimal täglich). |
 
+Im Repository **`bezier-app`** außerdem, damit stabile Releases auch in `bezier` erscheinen:
+
+| Art | Name | Wert |
+| --- | --- | --- |
+| Secret | `RELEASES_MIRROR_TOKEN` | Fine-grained Token, Zugriff auf `bezier`, Berechtigung *Contents: Read and write* |
+
+Ohne ihn warnt der Workflow und das Release bleibt nur in `bezier-app`.
+
 Den Token für `RELEASES_TOKEN` gibt es unter GitHub → *Settings* → *Developer settings* →
 *Fine-grained tokens*: Ablaufdatum setzen und im Kalender vermerken.
 
@@ -136,7 +144,9 @@ Der Workflow muss auf `main` von `bezier-app` liegen. Er kommt mit dem nächsten
 Pre-Release `v0.3.0-beta.1` mit allen Installern und Prüfsummen an und meldet es der Website.
 
 **Stabil** (im Repository `bezier-app`, nach `pnpm promote:stable`): dasselbe mit Version `0.3.0` und
-publish `stable`. Das Release wird *Latest*, und die Website zieht es sofort.
+publish `stable`. Das Release wird *Latest*, und die Website zieht es sofort. Dieselben Dateien
+legt der Workflow zusätzlich als Release in `bezier` an, damit die Installer auch auf der normalen
+Releases-Seite des Hauptrepositories liegen.
 
 Der Workflow lehnt eine Beta in `bezier-app` und eine stabile Version in `bezier` ab. Eine Version
 landet nur auf der Linie, die sie getestet hat.

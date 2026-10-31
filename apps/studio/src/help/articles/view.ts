@@ -50,13 +50,13 @@ The three sections are the tabs across the top of the panel: View, Display and U
     body: `Use this to look straight at a face before you sketch on it, measure it or check a hole.
 
 1. Move the pointer over the face you want to look at.
-2. Press {{key:view-square}}. The view turns to face it and centres it.
+2. Press {{key:view-square}}. The view turns to face it and centres it. On a flat face a sketch starts there too, unless one is open already.
 
 ![](image:before)
 
 ![](image:after)
 
-On a curved face the view squares up to the surface at the pointer.
+On a curved face the view squares up to the surface at the pointer, and no sketch starts.
 
 With the pointer over no face, the same key squares up to the last side picked on the cube, and to Top if none has been picked yet.
 

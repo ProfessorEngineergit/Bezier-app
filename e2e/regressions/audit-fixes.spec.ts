@@ -10,6 +10,7 @@ import {
   addBox,
   canvasRect,
   expectSaid,
+  forwardFace,
   openApp,
   openItems,
   pickAt,
@@ -20,25 +21,6 @@ import {
 } from '../app.js';
 import { expect, test } from '../fixtures.js';
 import { twoColourPng } from '../png.js';
-
-/** The label on the cube face currently pointing at the viewer. */
-async function forwardFace(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const cube = document.querySelector('.viewcube__cube');
-    if (cube === null) return '';
-    const parent = new DOMMatrix(getComputedStyle(cube).transform);
-    let best = '';
-    let bestZ = -2;
-    for (const face of document.querySelectorAll('.viewcube__face')) {
-      const m = parent.multiply(new DOMMatrix(getComputedStyle(face).transform));
-      if (m.m33 > bestZ) {
-        bestZ = m.m33;
-        best = face.textContent ?? '';
-      }
-    }
-    return best;
-  });
-}
 
 /** Sets a preference before the app starts, after the fixture has set its own. */
 async function prefer(page: Page, key: string, value: unknown) {
@@ -65,52 +47,6 @@ async function importFile(page: Page, name: string, mimeType: string, buffer: Bu
   await railButton(page, 'File').click();
   await (await chooser).setFiles({ name, mimeType, buffer });
 }
-
-test("B3: the cube's axis arms start at its corner, not a few pixels to one side of it", async ({
-  page,
-}) => {
-  await openApp(page);
-  // From below, the arms leave from the near corner, so nothing is foreshortened.
-  await page.getByRole('button', { name: 'Bottom', exact: true }).first().dispatchEvent('click');
-  await expect.poll(() => forwardFace(page)).toBe('Bottom');
-  await page.waitForTimeout(600);
-  const measured = await page.evaluate(() => {
-    // The whole drawn cube, bevels included; a single side is inset from the edge.
-    const parts = [...document.querySelectorAll('.viewcube__cube > *')]
-      .filter((element) => !/viewcube__axis/.test(element.className))
-      .map((element) => element.getBoundingClientRect())
-      .filter((rect) => rect.width > 0 && rect.height > 0);
-    const box =
-      parts.length === 0
-        ? undefined
-        : {
-            left: Math.min(...parts.map((rect) => rect.left)),
-            bottom: Math.max(...parts.map((rect) => rect.bottom)),
-          };
-    const arms = [...document.querySelectorAll('.viewcube__axis')].map((element) =>
-      element.getBoundingClientRect(),
-    );
-    // Seen square on, the Y arm is the tall one and the X arm the wide one.
-    const tall = arms
-      .filter((arm) => arm.height > arm.width * 4)
-      .sort((a, b) => b.height - a.height)[0];
-    const wide = arms
-      .filter((arm) => arm.width > arm.height * 4)
-      .sort((a, b) => b.width - a.width)[0];
-    return box === undefined || tall === undefined || wide === undefined
-      ? null
-      : {
-          left: box.left,
-          bottom: box.bottom,
-          tallX: tall.left + tall.width / 2,
-          wideY: wide.top + wide.height / 2,
-        };
-  });
-  expect(measured).not.toBeNull();
-  // The arms start at the cube's own corner: its left and bottom edges.
-  expect(Math.abs((measured?.tallX ?? 0) - (measured?.left ?? 0))).toBeLessThan(3);
-  expect(Math.abs((measured?.wideY ?? 0) - (measured?.bottom ?? 0))).toBeLessThan(3);
-});
 
 test('B2: a project opens looking from above, whatever view the last one was left in', async ({
   page,
@@ -359,13 +295,14 @@ test('B1: squaring up to a face that looks straight up arrives turning, and does
   page,
 }) => {
   const { canvasRect } = await import('../app.js');
+  await page.addInitScript(() => localStorage.setItem('bezier.e2e', '1'));
   await openApp(page);
   await addBox(page);
   // Square on the top, turn the view away a little by hand, then press Space over the top face.
   await page.getByRole('button', { name: 'Top', exact: true }).first().dispatchEvent('click');
   await expect.poll(() => forwardFace(page)).toBe('Top');
   await page.waitForTimeout(500);
-  const cube = await page.locator('.viewcube__cube').boundingBox();
+  const cube = await page.locator('.viewcube__canvas').boundingBox();
   const grab = {
     x: (cube?.x ?? 0) + (cube?.width ?? 0) / 2,
     y: (cube?.y ?? 0) + (cube?.height ?? 0) / 2,
@@ -377,25 +314,22 @@ test('B1: squaring up to a face that looks straight up arrives turning, and does
   await page.waitForTimeout(400);
   const rect = await canvasRect(page);
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2);
-  // The on-screen angle of the cube's Top face, per frame, from the key press on.
+  // The view's turn about its own axis, per frame, from the key press on.
   const turns = await page.evaluate(
     () =>
       new Promise<number[]>((resolve) => {
-        const cube = document.querySelector('.viewcube__cube');
-        const top = [...document.querySelectorAll('.viewcube__face')].find(
-          (face) => face.textContent === 'Top',
-        );
-        if (cube === null || top === undefined) {
+        const view = (
+          window as unknown as { __bezierViewport?: { viewCubeMatrix(): readonly number[] } }
+        ).__bezierViewport;
+        if (view === undefined) {
           resolve([]);
           return;
         }
         const seen: number[] = [];
         const started = performance.now();
         const read = () => {
-          const m = new DOMMatrix(getComputedStyle(cube).transform).multiply(
-            new DOMMatrix(getComputedStyle(top).transform),
-          );
-          seen.push((Math.atan2(m.m12, m.m11) * 180) / Math.PI);
+          const m = view.viewCubeMatrix();
+          seen.push((Math.atan2(m[1] ?? 0, m[0] ?? 1) * 180) / Math.PI);
           if (performance.now() - started < 900) requestAnimationFrame(read);
           else resolve(seen);
         };
@@ -737,7 +671,7 @@ test('B4: looking straight from the front there is a grid, on the plane facing t
 }) => {
   await openApp(page);
   await addBox(page);
-  await page.locator('.viewcube__face[data-face="front"]').click();
+  await page.locator('.viewcube__face[data-face="front"]').dispatchEvent('click');
   await page.waitForTimeout(1200);
   const rect = await canvasRect(page);
   // A pixel row above the model, clear of the rail and cube. Grid lines show as brightness steps;

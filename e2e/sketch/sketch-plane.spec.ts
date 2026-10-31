@@ -10,7 +10,7 @@ test('a sketch tilted to 45° while drawing keeps the tilt and builds from it', 
   await openApp(page);
   // Squared to Top, Sketch opens on XY, which still faces the camera after a 45° tilt. Clicking a
   // plane in the middle could pick one the tilt turns edge-on.
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await railButton(page, 'Sketch').click();
   const rect = await canvasRect(page);
 
@@ -55,7 +55,7 @@ test('Intersection brings in where the part meets the sketch plane', async ({ pa
   await addBox(page);
   await page.keyboard.press('Escape');
   // Front squares the view to XZ, the plane of the box's 40 × 15 side.
-  await page.getByRole('button', { name: 'Front', exact: true }).click();
+  await page.getByRole('button', { name: 'Front', exact: true }).dispatchEvent('click');
   await railButton(page, 'Sketch').click();
   const panel = page.getByRole('complementary', { name: 'Sketch plane' });
   await expect(panel).toContainText('XZ plane');
@@ -77,8 +77,10 @@ test('the view between top and front sketches on the plane leaning 45° to face 
 }) => {
   await openApp(page);
   // Start from a square view, so a leftover plane would show.
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
-  await page.getByRole('button', { name: /^View from (top, front|front, top)$/ }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
+  await page
+    .getByRole('button', { name: /^View from (top, front|front, top)$/ })
+    .dispatchEvent('click');
   await page.waitForTimeout(700);
   await railButton(page, 'Sketch').click();
   const panel = page.getByRole('complementary', { name: 'Sketch plane' });

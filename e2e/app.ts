@@ -142,6 +142,21 @@ export async function afterFrames(page: Page): Promise<void> {
   );
 }
 
+/**
+ * How squarely each side of the orientation cube points at the viewer, 1 being head on. The cube
+ * is a canvas, so the view is read from what it reports (`ViewCube.tsx`), not from its faces.
+ */
+export async function cubeFacing(page: Page): Promise<Record<string, number>> {
+  const raw = await page.locator('.viewcube').getAttribute('data-facing');
+  return raw === null ? {} : (JSON.parse(raw) as Record<string, number>);
+}
+
+/** The label of the cube side pointing most nearly at the viewer. */
+export async function forwardFace(page: Page): Promise<string> {
+  const faces = Object.entries(await cubeFacing(page));
+  return faces.sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+}
+
 /** Clicks a world position in the viewport and returns the selection readout, or null on a miss. */
 export async function pickAt(
   page: Page,

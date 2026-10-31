@@ -221,7 +221,7 @@ test('a sketch picked by its area in the view moves with the arrow, and one pane
   page,
 }) => {
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   const rect = await canvasRect(page);
@@ -428,7 +428,7 @@ test('a sketch with a body on it is dragged as a picture, and the model is rebui
 }) => {
   // Rebuilding on every step would make the body lag behind the pointer.
   await openApp(page);
-  await page.getByRole('button', { name: 'Top', exact: true }).click();
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
   await page.waitForTimeout(600);
   await railButton(page, 'Sketch').click();
   const rect = await canvasRect(page);

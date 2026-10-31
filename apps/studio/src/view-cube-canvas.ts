@@ -1,10 +1,10 @@
 /**
- * The view cube drawn on a single canvas, for windows without GPU acceleration. The DOM cube is
- * dozens of 3D layers that unaccelerated WebKit recomposites every frame (4 fps instead of 50 in a
- * Linux VM); one canvas is one flat layer.
+ * The view cube drawn on a single canvas. It was dozens of 3D layers in the DOM, which a window
+ * without a GPU recomposited every frame (4 fps instead of 50 in a Linux VM) and which the browser
+ * cut into pieces where the axis arms crossed them; one canvas is one flat layer and one solid.
  *
- * Uses the same solid, light and axes as the DOM cube (`view-cube-model.ts`), projected as CSS
- * places them: the cube matrix, pushed back by half its size, seen through the stage perspective.
+ * Uses the solid, light and axes of `view-cube-model.ts`, projected the way CSS 3D would: the cube
+ * matrix, pushed back by half its size, seen through the cube perspective.
  * The solid is convex, so front faces never overlap and need no sorting.
  */
 

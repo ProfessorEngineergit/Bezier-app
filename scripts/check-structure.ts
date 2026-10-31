@@ -6,9 +6,10 @@
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { basename, extname, join, relative } from 'node:path';
+import { basename, extname, join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 /**
  * Line limits: warn above SOFT_LIMIT, fail above HARD_LIMIT. They exist to catch a file that holds
@@ -94,7 +95,8 @@ const sourceFiles = allDirs
   .filter((f) => ['.ts', '.tsx'].includes(extname(f)));
 
 for (const file of sourceFiles) {
-  const rel = relative(ROOT, file);
+  // `/` separators so KEEPS_OWN_NAMES also matches on Windows.
+  const rel = relative(ROOT, file).split(sep).join('/');
   const name = basename(file, extname(file));
   // Generated files are exempt.
   if (name.endsWith('.generated')) continue;

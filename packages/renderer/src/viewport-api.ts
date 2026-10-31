@@ -123,9 +123,9 @@ export interface Viewport {
   hitsImportPreview(x: number, y: number): boolean;
   setView(view: ViewName, animate?: boolean): void;
   /**
-   * Squares the view up to the face at a canvas point and frames it. False when no face is there.
+   * Squares the view up to the face at a canvas point and frames it. Returns that face, or null when none is there.
    */
-  squareAt(screenX: number, screenY: number, animate?: boolean): boolean;
+  squareAt(screenX: number, screenY: number, animate?: boolean): StableRef | null;
   /** The camera orientation as a 16-number matrix for a CSS `matrix3d`: drives the view cube. */
   viewCubeMatrix(): readonly number[];
   /** Orbit the camera by hand, in radians, for dragging the view cube. */

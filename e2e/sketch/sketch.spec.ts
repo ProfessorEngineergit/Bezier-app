@@ -348,7 +348,13 @@ test('Trim closes an overdrawn profile by removing both outside remainders', asy
     await page.mouse.click(point[0], point[1]);
   }
   await page.keyboard.press('Escape');
-  await page.keyboard.press('l');
+  // Escape either drops the open shape and keeps the Line tool, or, once the last click has been
+  // solved, drops the tool as well. `l` switches the tool on or off, so it is pressed only when the
+  // tool is off.
+  if ((await railButton(page, 'Line').getAttribute('aria-current')) !== 'true') {
+    await page.keyboard.press('l');
+  }
+  await expect(railButton(page, 'Line')).toHaveAttribute('aria-current', 'true');
   await page.mouse.click(outsideLeft, top);
   await page.mouse.click(outsideRight, top);
   await page.keyboard.press('Escape');

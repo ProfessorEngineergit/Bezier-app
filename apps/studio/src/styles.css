@@ -310,98 +310,23 @@ body {
 .viewcube__stage {
   width: 100%;
   height: 100%;
-  perspective: var(--cube-perspective);
 }
 
-.viewcube__cube {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  /* Written every frame from the camera; this value only shows before the sync loop starts. */
-  transform: translateZ(calc(var(--cube-half) * -1));
-  pointer-events: auto;
-}
-
-/* A slightly smaller solid behind the faces, so nothing shows through the hairline seams where they
-   meet (ViewCube.tsx, CORE). */
-.viewcube__core {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  /* Mid-tone, not the darkest: the core shows as a hairline where bevelled faces meet, and black
-     read as a crack. */
-  background: color-mix(in srgb, var(--cube-light) 34%, var(--cube-dark));
-  pointer-events: none;
-}
-
-.viewcube__face {
-  position: absolute;
-  inset: 0;
-  /* Centred on the cube; size and placement come from the bevelled solid (`view-cube-geometry.ts`),
-     set inline per face. */
-  margin: auto;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  padding: 0;
-  border: none;
-  color: #f2f2f4;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 1px rgb(0 0 0 / 45%);
-  /* Hide the back faces' mirrored text. */
-  backface-visibility: hidden;
-  transition: background var(--fast) var(--ease);
-}
-
-/* Shaded per face by the light it catches, with a faint sheen so it reads as a surface. */
+/* The cube's faces, edges and corners as buttons for the keyboard and assistive technology: out of
+   sight and out of the pointer's way, since the canvas takes the clicks (ViewCube.tsx). */
 .viewcube__face,
 .viewcube__zone {
-  background: var(--face-fill, var(--cube-core));
-}
-
-.viewcube__face:hover,
-.viewcube__face:focus-visible {
-  background: var(--cube-hover);
-  border-color: var(--cube-hover);
-  color: #fff;
-}
-
-/* The axes are part of the cube (ViewCube.tsx): arms along three edges and letters past their
-   ends, in the cube's 3D space so the body occludes them. Only the faces take clicks. */
-.viewcube__axis,
-.viewcube__axis-label {
   position: absolute;
-  inset: 0;
-  margin: auto;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  clip-path: inset(50%);
+  background: none;
+  color: inherit;
+  white-space: nowrap;
   pointer-events: none;
-}
-
-/*
- * Centred by its own half size, not `margin: auto`: an arm is wider than the cube, and auto
- * margins do not centre an element wider than its box (it is laid against the left).
- */
-.viewcube__axis {
-  inset: auto;
-  top: 50%;
-  left: 50%;
-  border-radius: 1px;
-}
-
-.viewcube__axis-label {
-  display: grid;
-  width: 14px;
-  height: 14px;
-  place-items: center;
-  font-size: var(--text-size-badge);
-  font-weight: 700;
-  line-height: 1;
-  /* Over the canvas rather than the cube, so they need their own outline. */
-  text-shadow:
-    0 0 2px rgb(0 0 0 / 70%),
-    0 1px 1px rgb(0 0 0 / 55%);
 }
 
 /*

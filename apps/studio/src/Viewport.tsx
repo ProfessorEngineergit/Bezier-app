@@ -113,8 +113,8 @@ export interface ViewportHandle {
   setSection(at: number | null): void;
   /** Squares up to a named view. `animate` glides instead of jumping. */
   setView(view: ViewName, animate?: boolean): void;
-  /** Squares the view to the face at a canvas point; false when there is none. */
-  squareAt(screenX: number, screenY: number, animate?: boolean): boolean;
+  /** Squares the view to the face at a canvas point and returns it; null when there is none. */
+  squareAt(screenX: number, screenY: number, animate?: boolean): StableRef | null;
   /** Views from between cube sides: two for an edge view, three for a corner. */
   setViewBetween(sides: readonly CubeSide[], animate?: boolean): void;
   setSketchPlanesVisible(visible: boolean): void;

@@ -77,6 +77,54 @@ test('an imported STEP file is a folder of its own, named after the file', async
   await expect(page.locator('.tree-row[data-kind="body"]')).not.toHaveAttribute('data-hidden', '');
 });
 
+test('Shift-click selects the rows between, Cmd or Ctrl-click one row', async ({ page }) => {
+  await openApp(page);
+  for (const name of ['a', 'b', 'c']) {
+    const chooser = page.waitForEvent('filechooser');
+    await railButton(page, 'File').click();
+    await (await chooser).setFiles({
+      name: `${name}.step`,
+      mimeType: 'application/step',
+      buffer: BOX_STEP,
+    });
+    await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  }
+  await openItems(page);
+  for (const name of ['a', 'b', 'c'])
+    await page.getByRole('button', { name: `Open ${name}` }).click();
+  const bodies = page.locator('.tree-row[data-kind="body"]');
+  await expect(bodies).toHaveCount(3);
+
+  await bodies.nth(0).locator('.tree-row__main').click();
+  await bodies
+    .nth(2)
+    .locator('.tree-row__main')
+    .click({ modifiers: ['Shift'] });
+
+  // From the last row clicked to this one, and everything between.
+  for (const index of [0, 1, 2])
+    await expect(bodies.nth(index)).toHaveAttribute('aria-current', 'true');
+
+  // Cmd or Ctrl takes one row out again, and puts it back.
+  const middle = bodies.nth(1).locator('.tree-row__main');
+  await middle.click({ modifiers: ['ControlOrMeta'] });
+  await expect(bodies.nth(1)).toHaveAttribute('aria-current', 'false');
+  await expect(bodies.nth(0)).toHaveAttribute('aria-current', 'true');
+  await expect(bodies.nth(2)).toHaveAttribute('aria-current', 'true');
+  await middle.click({ modifiers: ['ControlOrMeta'] });
+  await expect(bodies.nth(1)).toHaveAttribute('aria-current', 'true');
+
+  // A plain click starts over, and a Shift-click from there runs the other way.
+  await bodies.nth(2).locator('.tree-row__main').click();
+  await expect(bodies.nth(0)).toHaveAttribute('aria-current', 'false');
+  await bodies
+    .nth(0)
+    .locator('.tree-row__main')
+    .click({ modifiers: ['Shift'] });
+  for (const index of [0, 1, 2])
+    await expect(bodies.nth(index)).toHaveAttribute('aria-current', 'true');
+});
+
 test('a consumed sketch can be selected and moved with its dependent body', async ({ page }) => {
   await openApp(page);
   await addBox(page);
