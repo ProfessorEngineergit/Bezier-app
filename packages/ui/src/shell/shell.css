@@ -80,8 +80,8 @@
 .library .library-dialog {
   border: 1px solid var(--glass-border);
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -133,8 +133,8 @@
   content: "";
   background: var(--glass-bg);
   border-bottom: 1px solid var(--glass-border);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -435,8 +435,8 @@
   border: 1px solid var(--glass-border);
   border-radius: inherit;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   content: "";
   pointer-events: none;
 }

@@ -7,8 +7,8 @@
   place-items: center;
   padding: var(--pad-lg);
   background: var(--modal-scrim);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 .confirm-dialog,

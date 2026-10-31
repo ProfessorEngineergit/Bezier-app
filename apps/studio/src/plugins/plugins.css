@@ -64,8 +64,8 @@
   border-radius: var(--radius-panel);
   background: var(--glass-bg);
   box-shadow: var(--shadow-popover);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   pointer-events: auto;
 }
 
@@ -116,8 +116,8 @@
   border-radius: var(--radius-panel);
   background: var(--glass-bg);
   box-shadow: var(--shadow-popover);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
 }
 
 .plugin-ask__who {

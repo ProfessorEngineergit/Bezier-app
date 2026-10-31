@@ -109,8 +109,8 @@
   border-radius: 999px;
   background: rgb(0 0 0 / 40%);
   font-size: var(--text-size-sm);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .landing__film-play:focus-visible {

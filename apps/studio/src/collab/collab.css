@@ -311,8 +311,8 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--text);
   font: var(--text-size-sm) / 1.3 var(--font);
   cursor: pointer;
