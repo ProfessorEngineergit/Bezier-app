@@ -53,7 +53,7 @@ jobs:
           want windows && add '{"name":"Windows","os":"windows-latest","binary":"apps/desktop/src-tauri/target/release/bezier-desktop.exe"}'
           want linux && add '{"name":"Linux","os":"ubuntu-22.04","binary":"apps/desktop/src-tauri/target/release/bezier-desktop"}'
           if [ "$SYSTEMS" = macos ] || { [ "$SYSTEMS" = all ] && [ "$MACOS" = true ]; }; then
-            add '{"name":"macOS","os":"macos-14","binary":"apps/desktop/src-tauri/target/release/bezier-desktop"}'
+            add '{"name":"macOS","os":"macos-15","binary":"apps/desktop/src-tauri/target/release/bezier-desktop"}'
           fi
           echo "matrix=[$matrix]" >> "$GITHUB_OUTPUT"
 

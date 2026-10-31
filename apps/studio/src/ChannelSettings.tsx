@@ -20,7 +20,7 @@ import { CHANNEL_FEATURES } from './channel-features.js';
 import { openExternal } from './open-external.js';
 import { Group, Row, Segmented, Switch } from './PrefsControls.js';
 import type { AppPrefs } from './preferences.js';
-import { checkForUpdate, useUpdateState } from './use-update-check.js';
+import { checkForUpdate, installUpdate, useUpdateState } from './use-update-check.js';
 
 const NOTES: Record<Channel, string> = {
   stable: 'Stable is what is finished. The new parts below are not shown.',
@@ -39,7 +39,10 @@ const NEWEST: Record<string, string> = {
   failed: 'Could not reach GitHub. Try again later.',
 };
 
-/** Looking for a newer version. The desktop app only: the browser always loads the newest. */
+const percent = (progress: number | null) =>
+  progress === null ? 'Downloading…' : `Downloading… ${Math.round(progress * 100)}%`;
+
+/** Looking for a newer version, and installing it. The desktop app only: the browser always loads the newest. */
 function UpdateCheck({
   version,
   prefs,
@@ -60,18 +63,19 @@ function UpdateCheck({
     );
   }
   const release = update.release;
+  const installing = update.status === 'installing';
   return (
     <>
       <Group
         label="Updates"
-        note="Looking asks api.github.com for the newest release. GitHub sees your address and the name of the app; nothing about you or your projects is sent."
+        note="Looking reads one file from github.com. GitHub sees your address and the name of the app; nothing about you or your projects is sent."
       >
         <Row label="Installed version">
           <span className="prefs-value">Bezier {version}</span>
         </Row>
         <Row
           label="Look at start"
-          note="Once, when the app opens. A newer version is mentioned, not installed."
+          note="Once, when the app opens. A newer version is mentioned, never installed without you."
         >
           <Switch
             checked={prefs.checkForUpdates}
@@ -82,36 +86,53 @@ function UpdateCheck({
         <Row
           label="Newest version"
           note={
-            update.status === 'available' && release !== null
+            release !== null && update.status !== 'current'
               ? `Bezier ${release.version} is out.`
               : (NEWEST[update.status] ?? '')
           }
         >
           <button
             className="prefs-button"
-            disabled={update.status === 'checking'}
-            onClick={() => void checkForUpdate(version)}
+            disabled={update.status === 'checking' || installing}
+            onClick={() => void checkForUpdate()}
             type="button"
           >
             Look now
           </button>
         </Row>
-        {update.status === 'available' && release !== null && (
+        {release !== null && update.status !== 'current' && (
           <Row
-            label={release.name}
-            note="Opens the release page. Download the installer for your system and run it over this one."
+            label={`Bezier ${release.version}`}
+            note={
+              update.status === 'installing'
+                ? `${percent(update.progress)} Bezier restarts when it is done. Save your work first.`
+                : update.status === 'not-installed'
+                  ? 'This install cannot update itself. Download the installer from the release page and run it over this one.'
+                  : 'Downloads the new version, installs it and restarts Bezier. Save your work first.'
+            }
           >
-            <button
-              className="prefs-button"
-              onClick={() => openExternal(release.url)}
-              type="button"
-            >
-              Download
-            </button>
+            {update.status === 'not-installed' ? (
+              <button
+                className="prefs-button"
+                onClick={() => openExternal(release.url)}
+                type="button"
+              >
+                Release page
+              </button>
+            ) : (
+              <button
+                className="prefs-button"
+                disabled={installing}
+                onClick={() => void installUpdate()}
+                type="button"
+              >
+                {installing ? 'Installing…' : 'Update now'}
+              </button>
+            )}
           </Row>
         )}
       </Group>
-      {update.status === 'available' && release !== null && release.notes !== '' && (
+      {release !== null && update.status !== 'current' && release.notes !== '' && (
         <Group label="What changed">
           <pre className="prefs-notes">{release.notes}</pre>
         </Group>

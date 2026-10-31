@@ -177,6 +177,8 @@ if (!flag('skip-checks')) {
 }
 
 const bundleArgs = ['--filter', '@bezier/desktop', 'exec', 'tauri', 'build'];
+// Settings for this build only, on top of tauri.conf.json.
+const extraConfig = {};
 let targetDir = join(desktop, 'src-tauri/target/release/bundle');
 if (process.platform === 'darwin') {
   const installed = execFileSync('rustup', ['target', 'list', '--installed']).toString();
@@ -195,28 +197,39 @@ if (process.platform === 'darwin') {
   const signCommand = process.env.WINDOWS_SIGN_COMMAND;
   if (thumbprint || signCommand) {
     // Tauri then signs the app, the MSI and the installer: with the certificate in the store, and
-    // timestamped so the signature outlives it, or with the tool, which gets each file as %1. A file,
-    // not a JSON argument: the shell would eat the quotes.
-    const conf = join(desktop, 'src-tauri/target/signing.conf.json');
-    mkdirSync(join(desktop, 'src-tauri/target'), { recursive: true });
-    const windows = signCommand
-      ? { signCommand }
-      : {
-          certificateThumbprint: thumbprint,
-          digestAlgorithm: 'sha256',
-          timestampUrl: process.env.WINDOWS_TIMESTAMP_URL || 'http://timestamp.digicert.com',
-        };
-    writeFileSync(conf, JSON.stringify({ bundle: { windows } }));
-    bundleArgs.push('--config', 'src-tauri/target/signing.conf.json');
+    // timestamped so the signature outlives it, or with the tool, which gets each file as %1.
+    extraConfig.bundle = {
+      ...extraConfig.bundle,
+      windows: signCommand
+        ? { signCommand }
+        : {
+            certificateThumbprint: thumbprint,
+            digestAlgorithm: 'sha256',
+            timestampUrl: process.env.WINDOWS_TIMESTAMP_URL || 'http://timestamp.digicert.com',
+          },
+    };
   }
 } else {
   bundleArgs.push('--bundles', 'deb,rpm,appimage');
+}
+// With the updater's private key in the environment (the release workflow), the build also makes the
+// signed packages the app's own updater installs. Without it, `tauri build` would refuse to.
+if (process.env.TAURI_SIGNING_PRIVATE_KEY) {
+  extraConfig.bundle = { ...extraConfig.bundle, createUpdaterArtifacts: true };
+}
+if (Object.keys(extraConfig).length > 0) {
+  // A file, not a JSON argument: the shell would eat the quotes.
+  const conf = join(desktop, 'src-tauri/target/build.conf.json');
+  mkdirSync(join(desktop, 'src-tauri/target'), { recursive: true });
+  writeFileSync(conf, JSON.stringify(extraConfig));
+  bundleArgs.push('--config', 'src-tauri/target/build.conf.json');
 }
 run('pnpm', bundleArgs);
 
 const out = join(root, 'release', version);
 mkdirSync(out, { recursive: true });
-const wanted = /\.(dmg|msi|exe|deb|rpm|AppImage)$/;
+// The installers, and what the updater installs: the signed packages and their signatures.
+const wanted = /\.(dmg|msi|exe|deb|rpm|AppImage|sig)$|\.app\.tar\.gz$/;
 const built = files(targetDir).filter((path) => wanted.test(path));
 if (built.length === 0) {
   console.error(`The build finished but left no installer under ${targetDir}.`);

@@ -291,11 +291,12 @@ A code that has run out or was withdrawn stops opening alpha, and the app comes 
 
 ## Looking for a newer version
 
-In the desktop app, Settings, Updates asks GitHub once when Bezier opens whether a newer stable release is out, and says so in a notice. **Look now** asks again. When there is one, the page shows what changed and a **Download** button that opens the release page; run the installer over the version you have. Bezier does not install anything by itself.
+In the desktop app, Settings, Updates reads one file from github.com when Bezier opens to see whether a newer stable release is out, and says so in a notice. **Look now** reads it again. When there is a newer version, the page shows what changed and an **Update now** button: Bezier downloads the new version, checks its signature against the key built into the app, installs it and restarts. Save your work first. Nothing is installed without you pressing it.
 
-**Look at start** turns the check off. Asking sends only what any web request carries, your address and the name of the app, to api.github.com; nothing about you or your projects. The browser version has no check: it is always the newest, so reload the page.
+A Linux install from a .deb or .rpm cannot replace itself; there the page offers the release page instead, to download the installer from.
 
-When you report a problem, the version is filled in for you, see [Contribute](doc:settings-contribute).`,
+**Look at start** turns the look off. Looking sends only what any web request carries, your address and the name of the app, to GitHub; nothing about you or your projects. The browser version has no check: it is always the newest, so reload the page.
+`,
     shots: { page: 'Settings, Updates, with the channel' },
     settings: ['updates'],
   }),

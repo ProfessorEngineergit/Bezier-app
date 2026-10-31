@@ -45,7 +45,7 @@ jobs:
       matrix:
         include:
           - name: macOS (Intel and Apple silicon)
-            os: macos-14
+            os: macos-15
             rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
           - name: Windows
             os: windows-latest
@@ -142,12 +142,16 @@ jobs:
         # An empty APPLE_CERTIFICATE still counts as set to tauri, which then tries to import
         # it; so the unused ones are removed from the environment, not left empty.
         run: |
-          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD; do
             [ -n "${!name}" ] || unset "$name"
           done
           node scripts/release.mjs --skip-checks --version ${{ inputs.version }}
         env:
           VITE_CHANNEL: ${{ inputs.channel == 'alpha' && 'alpha' || '' }}
+          # The key the app's own updater checks packages against (not a code signing certificate).
+          # With it the build also makes the signed update packages (scripts/release.mjs).
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           # Signing and notarisation, used only when these secrets are set and the certificate imports.
           APPLE_CERTIFICATE: ${{ env.SIGNING == 'yes' && secrets.APPLE_CERTIFICATE || '' }}
           APPLE_CERTIFICATE_PASSWORD: ${{ env.SIGNING == 'yes' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
@@ -178,6 +182,7 @@ jobs:
             release/${{ inputs.version }}/*.deb
             release/${{ inputs.version }}/*.rpm
             release/${{ inputs.version }}/*.AppImage
+            release/${{ inputs.version }}/*.app.tar.gz
 
       - uses: actions/upload-artifact@v4
         with:
@@ -193,6 +198,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      # For docs/releases/<version>.md, the notes of the release.
+      - uses: actions/checkout@v5
+
       # Betas publish only to the beta repository, stable releases only to the main one.
       - name: The right repository for the channel
         run: |
@@ -225,6 +233,13 @@ jobs:
           done
           ls -l release
 
+      # What the installed apps read to find the new version: for each system the package and its
+      # signature. It stops the run when a system lacks one, so a release nobody could update to is
+      # never published. Without a release note file the app shows no "What changed".
+      - name: The updater's latest.json
+        if: inputs.publish == 'stable'
+        run: node scripts/updater-manifest.mjs release "${{ inputs.version }}" "docs/releases/${{ inputs.version }}.md"
+
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -233,7 +248,7 @@ jobs:
             --repo "${{ github.repository }}" \
             --target "${{ github.sha }}" \
             --title "Bezier ${{ inputs.version }}" \
-            --generate-notes \
+            $( [ -f "docs/releases/${{ inputs.version }}.md" ] && echo "--notes-file docs/releases/${{ inputs.version }}.md" || echo "--generate-notes" ) \
             ${{ inputs.publish == 'beta' && '--prerelease' || '--latest' }}
 
       # The same release and files on the releases page of `bezier`, where the issues and the

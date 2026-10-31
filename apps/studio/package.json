@@ -22,6 +22,8 @@
     "@bezier/sync": "workspace:*",
     "@bezier/ui": "workspace:*",
     "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.14.1",
     "fflate": "^0.8.3",
     "jspdf": "^4.2.1",
     "react": "19.2.8",
