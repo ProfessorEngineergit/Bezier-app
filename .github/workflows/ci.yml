@@ -2,8 +2,10 @@ name: CI
 
 on:
   push:
-    # `main` is the beta line; `dev` holds work in progress and may be red.
-    branches: [main, dev]
+    # Only `dev`, the working line. `main` of the public repositories holds the same files that already
+    # passed here, and a push there would run (and mail about) the same checks a second and third time.
+    # Pull requests, also from strangers, are checked in every repository.
+    branches: [dev]
   pull_request:
 
 # Cancel superseded runs on the same branch.

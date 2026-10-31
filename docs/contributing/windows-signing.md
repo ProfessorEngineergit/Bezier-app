@@ -66,3 +66,12 @@ Even signed, a new publisher starts without reputation. Two things help: reporti
 to the vendor that flagged it (Google's Safe Browsing and Microsoft's security intelligence team
 both take submissions, as do the scanner makers), and keeping the publisher name the same from
 build to build.
+
+## What the scanners say
+
+Each release sends the Windows installers to VirusTotal, and the result is added to the release notes
+(`scripts/virustotal.mjs`, the last job of the release workflow). The reports by hand, before that:
+
+| Version | Installer | Report |
+| --- | --- | --- |
+| 0.2.1 | `Bezier_0.2.1_x64-setup.exe` | [0 of 67 scanners](https://www.virustotal.com/gui/file/2fe9be5fbb26383dc561d5fdd237960ffcee0bfda4e2da6d3c208cb6bc4ad04b) |
