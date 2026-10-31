@@ -197,6 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       # For docs/releases/<version>.md, the notes of the release.
       - uses: actions/checkout@v5
@@ -250,6 +251,15 @@ jobs:
             --title "Bezier ${{ inputs.version }}" \
             $( [ -f "docs/releases/${{ inputs.version }}.md" ] && echo "--notes-file docs/releases/${{ inputs.version }}.md" || echo "--generate-notes" ) \
             ${{ inputs.publish == 'beta' && '--prerelease' || '--latest' }}
+
+      # A release made with the workflow's own token does not start the website's `release` trigger
+      # (GitHub does not chain workflows that way), but starting a workflow by hand is allowed. So the
+      # website rebuilds as soon as the files are here, before the slower mirror below.
+      - name: Rebuild the website
+        if: inputs.publish == 'stable'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run website.yml --repo "${{ github.repository }}" --ref main
 
       # The same release and files on the releases page of `bezier`, where the issues and the
       # source live. Needs RELEASES_MIRROR_TOKEN (fine-grained, Contents: read and write on
