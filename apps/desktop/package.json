@@ -1,6 +1,6 @@
 {
   "name": "@bezier/desktop",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "The same application, in a native window",
   "license": "GPL-3.0-or-later",

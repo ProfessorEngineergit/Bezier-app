@@ -26,7 +26,7 @@ import {
   stretchAbout,
   vertexWhereFacesMeet,
 } from './occt-support.js';
-import { roundOrOverflow } from './overflow-round.js';
+import { onSharpEdges, roundOrOverflow } from './overflow-round.js';
 import { faceFromProfile } from './profile-face.js';
 import { type DrawingDirection, type DrawingProjection, projectBrep } from './projection.js';
 import { COMBINE_REFUSED, mergedOrAsMade } from './refine-history.js';
@@ -628,7 +628,10 @@ export class OcctGeometryKernel implements GeometryKernel {
     const target = this.#resolve(solid);
     const handles = edges.map((e) => this.#resolve(e));
     const once = (part: RawHandle, on: RawHandle[], hashes: FaceHash[]) =>
-      this.#withHistory(hashes, treat(part, on, hashes));
+      this.#withHistory(
+        hashes,
+        onSharpEdges(() => treat(part, on, hashes)),
+      );
     if (this.#occt.isSolid(target)) return once(target, handles, this.#faceHashes(target));
     const joined = joinByPart(
       this.#occt,

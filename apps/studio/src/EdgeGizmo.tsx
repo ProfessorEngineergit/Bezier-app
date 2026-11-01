@@ -260,8 +260,8 @@ export function EdgeGizmo({
       drag.current = null;
       setDragging(false);
       // Commit once on release, from the ref onMove kept current. Called here, not inside a state
-      // updater, so it never runs during a render.
-      if (lastSize.current > 0 || lockKind) onApply(kindRef.current, lastSize.current);
+      // updater, so it never runs during a render. Size 0 still reaches it: the preview must go.
+      onApply(kindRef.current, lastSize.current);
     };
 
     window.addEventListener('pointermove', onMove);

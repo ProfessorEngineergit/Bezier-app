@@ -4,7 +4,15 @@
  * different routes.
  */
 
-import { addBox, canvasRect, openApp, openItems, pickAt, screenPointOf } from '../app.js';
+import {
+  addBox,
+  afterFrames,
+  canvasRect,
+  openApp,
+  openItems,
+  pickAt,
+  screenPointOf,
+} from '../app.js';
 import { expect, test } from '../fixtures.js';
 
 /** The seam where the top face meets the +X side: a single edge. */
@@ -186,6 +194,34 @@ test('the shape changes while the handle is dragged, before it is released', asy
   await page.mouse.up();
   await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', /Fillet|Chamfer/]);
   await expect(page.locator('.items-row__status')).toHaveCount(0);
+});
+
+test('after a dragged round the preview is gone and the part can be picked again', async ({
+  page,
+}) => {
+  await openApp(page);
+  await addBox(page);
+  await selectEdge(page);
+
+  const handle = page.getByRole('button', { name: 'Drag to size' });
+  const box = await handle.boundingBox();
+  expect(box).not.toBeNull();
+  const from = {
+    x: (box?.x ?? 0) + (box?.width ?? 0) / 2,
+    y: (box?.y ?? 0) + (box?.height ?? 0) / 2,
+  };
+
+  // Released while the last step's preview is still on its way: it must not land on the result.
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(from.x - 12, from.y + 4, { steps: 8 });
+  await page.mouse.up();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await afterFrames(page);
+
+  await expect(page.locator('canvas.viewport[data-part-preview]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => pickAt(page, { x: 20, y: 10, z: 15 })).toMatch(/^F:/);
 });
 
 test('the edge arrow keeps its size on screen while the view zooms', async ({ page }) => {

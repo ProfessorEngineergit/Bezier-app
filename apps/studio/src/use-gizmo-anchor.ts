@@ -50,13 +50,16 @@ export function useGizmoAnchor(handleRef: RefObject<ViewportHandle | null>) {
       event.stopPropagation();
     },
     end(event: PointerEvent<HTMLButtonElement>) {
+      // Not this drag: a gizmo's handle released over the anchor ends on the window.
+      if (!drag.current) return;
       drag.current = null;
       if (event.currentTarget.hasPointerCapture(event.pointerId))
         event.currentTarget.releasePointerCapture(event.pointerId);
       event.stopPropagation();
     },
     cancel(event: PointerEvent<HTMLButtonElement>) {
-      if (drag.current) offset.current = { ...drag.current.from };
+      if (!drag.current) return;
+      offset.current = { ...drag.current.from };
       drag.current = null;
       event.stopPropagation();
     },

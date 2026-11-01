@@ -128,10 +128,11 @@ function PlanarFaceExtrusion({
   // Release whatever the drag held when the pull ends.
   useEffect(
     () => () => {
+      preview.cancel();
       handleRef.current?.showPartPreview(null);
       void sessionRef.current?.endPartPreview();
     },
-    [handleRef, sessionRef],
+    [handleRef, sessionRef, preview],
   );
   if (!frame.current.anchor || !frame.current.normal) return null;
   return (
@@ -153,6 +154,8 @@ function PlanarFaceExtrusion({
       }}
       onPreview={(value) => preview.request(value)}
       onCommit={(value) => {
+        // A step still on its way would land on the result.
+        preview.cancel();
         if (value === distance) {
           handleRef.current?.showPartPreview(null);
           return;

@@ -67,10 +67,11 @@ export function EdgeTreatmentEditor({
   );
   useEffect(
     () => () => {
+      sizePreview.cancel();
       handleRef.current?.showPartPreview(null);
       void sessionRef.current?.endPartPreview();
     },
-    [handleRef, sessionRef],
+    [handleRef, sessionRef, sizePreview],
   );
   if (!anchor || !normal) return null;
   return (
@@ -88,16 +89,18 @@ export function EdgeTreatmentEditor({
       initialSize={Number(feature.params[key])}
       lockKind
       handleRef={handleRef}
-      onApply={(_, size) =>
-        run(async (session) => {
+      onApply={(_, size) => {
+        // A step still on its way would land on the result.
+        sizePreview.cancel();
+        void run(async (session) => {
           if (size === 0) {
             const view = await session.apply({ op: 'removeFeature', id: feature.id });
             onRemoved();
             return view;
           }
           return session.apply(operation(size));
-        })
-      }
+        });
+      }}
       onPreview={(_, size) => sizePreview.request(size)}
     />
   );

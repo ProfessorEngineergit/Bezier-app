@@ -295,10 +295,36 @@ export function useGeometry({
    */
   const editing = useRef<{ edgeKey: string; featureId: FeatureId; kind: EdgeOp } | null>(null);
 
+  // Coalesced like `extrudePreview` above.
+  const [edgeGizmoPreview] = useState(() =>
+    coalescePreview<Operation, SessionView | null>(
+      (operation) => sessionRef.current?.previewApply(operation) ?? Promise.resolve(null),
+      (preview) => {
+        if (preview !== null) setViewRef.current(preview);
+      },
+    ),
+  );
+
+  // A round or bevel at the end of the document previews from its own solid
+  // (`session-part-edit.ts`), like a face pull.
+  const [edgePartPreview] = useState(() =>
+    coalescePreview<{ edit: PartEdit; replacing: FeatureId | undefined }, PartPreview | null>(
+      ({ edit, replacing }) =>
+        sessionRef.current?.partPreview(edit, replacing) ?? Promise.resolve(null),
+      (part) => showPartRef.current(part),
+    ),
+  );
+
   const applyEdgeGizmo = useCallback(
     (kind: EdgeOp, size: number) => {
+      // A step still on its way would land on the result and hide the part it replaced.
+      edgePartPreview.cancel();
+      edgeGizmoPreview.cancel();
       const edge = selectedRefs.find((ref) => ref.kind === 'edge');
-      if (edge === undefined || size <= 0) return;
+      if (edge === undefined || size <= 0) {
+        showPartRef.current(null);
+        return;
+      }
       const edgeKey = formatRef(edge);
       const params =
         kind === 'fillet'
@@ -345,27 +371,7 @@ export function useGeometry({
         return tried.view;
       });
     },
-    [run, selectedRefs, say],
-  );
-
-  // Coalesced like `extrudePreview` above.
-  const [edgeGizmoPreview] = useState(() =>
-    coalescePreview<Operation, SessionView | null>(
-      (operation) => sessionRef.current?.previewApply(operation) ?? Promise.resolve(null),
-      (preview) => {
-        if (preview !== null) setViewRef.current(preview);
-      },
-    ),
-  );
-
-  // A round or bevel at the end of the document previews from its own solid
-  // (`session-part-edit.ts`), like a face pull.
-  const [edgePartPreview] = useState(() =>
-    coalescePreview<{ edit: PartEdit; replacing: FeatureId | undefined }, PartPreview | null>(
-      ({ edit, replacing }) =>
-        sessionRef.current?.partPreview(edit, replacing) ?? Promise.resolve(null),
-      (part) => showPartRef.current(part),
-    ),
+    [run, selectedRefs, say, edgePartPreview, edgeGizmoPreview],
   );
 
   const previewEdgeGizmo = useCallback(

@@ -157,6 +157,44 @@ describe('cases other CAD systems are said to break on', () => {
     expect(before - after).toBeCloseTo((1 - Math.PI / 4) * length, 0);
   });
 
+  it('rounds a boss rim with a radius that ends exactly on the edge of the block', async () => {
+    const block = ok(await kernel.extrude(onXY(rectangle(0, 0, 40, 40)), 40));
+    const boss = ok(
+      await kernel.extrude(
+        onXY([{ kind: 'circle', center: { x: 20, y: 20 }, radius: 18 }], 40),
+        15,
+      ),
+    );
+    const part = ok(await kernel.fuse(block, boss, { merge: true })).shape;
+    const before = await volume(part);
+    const edges = ok(await kernel.subShapes(part, 'edge'));
+    let foot: ShapeId | undefined;
+    for (const edge of edges) {
+      const box = ok(await kernel.bounds(edge));
+      const round = box.max.x - box.min.x > 30 && box.max.y - box.min.y > 30;
+      if (round && Math.abs(box.max.z - 40) < 1e-6 && box.min.z > 39) foot = edge;
+    }
+    expect(foot).toBeDefined();
+    // 2 mm is the gap to the block's sides. The foot of the boss gains material.
+    const rounded = ok(await kernel.fillet(part, [foot as ShapeId], 2));
+    expect(await volume(rounded.shape)).toBeGreaterThan(before);
+  });
+
+  it('says a smooth edge has no corner to round or bevel', async () => {
+    const block = ok(await kernel.extrude(onXY(rectangle(0, 0, 40, 40)), 20));
+    const edges = ok(await kernel.subShapes(block, 'edge'));
+    const rounded = ok(await kernel.fillet(block, [edges[0] as ShapeId], 5)).shape;
+    const all = ok(await kernel.subShapes(rounded, 'edge'));
+    const said = new Set<string>();
+    for (const edge of all) {
+      const fillet = await kernel.fillet(rounded, [edge], 2);
+      const chamfer = await kernel.chamfer(rounded, [edge], 2);
+      if (!fillet.ok) said.add(fillet.error.message);
+      if (!chamfer.ok) said.add(chamfer.error.message);
+    }
+    expect([...said].some((message) => /already smooth/.test(message))).toBe(true);
+  });
+
   it('winds a square profile round an axis while it climbs: a thread (audit F-018)', async () => {
     const square: Profile = {
       loops: [rectangle(10, 0, 12, 2)],

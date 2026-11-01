@@ -5,6 +5,7 @@
  * cylinder is cut away (a triangular prism less the cylinder), running past faces that are too
  * small. Curved edges or faces stay refused with OCCT's reason.
  */
+import { Refused } from './occt-support.js';
 import type { Vec3 } from './types.js';
 import type { loadOcct } from './wasm.js';
 
@@ -108,8 +109,16 @@ export function overflowRoundTool(
 }
 
 /**
+ * How much smaller a refused round is tried, in millimetres. A round that ends exactly on a
+ * neighbouring edge (R2 at a boss 2 mm from the rim) is the one size OCCT cannot build, though the
+ * sizes either side of it work. Far below what a part can show.
+ */
+const TOUCHING = 1e-3;
+
+/**
  * OCCT's round of `radius` on `edges`, with history; where OCCT refuses one edge between flat
- * faces, the round that takes those faces over. Any other refusal is OCCT's, with its reason.
+ * faces, the round that takes those faces over; elsewhere a round just short of touching the next
+ * edge. Any other refusal is OCCT's, with its reason.
  */
 export function roundOrOverflow(
   occt: RawKernel,
@@ -127,7 +136,14 @@ export function roundOrOverflow(
       edges.length === 1 && edge !== undefined
         ? overflowRoundTool(occt, solid, edge, radius)
         : null;
-    if (tool === null) throw refused;
+    if (tool === null) {
+      if (radius <= 2 * TOUCHING) throw refused;
+      try {
+        return occt.filletWithHistory(solid, [...edges], radius - TOUCHING, hashes, bound);
+      } catch {
+        throw refused;
+      }
+    }
     let cut: ReturnType<RawKernel['cutWithHistory']>;
     try {
       cut = occt.cutWithHistory(solid, tool, hashes, bound);
@@ -138,5 +154,19 @@ export function roundOrOverflow(
     if (Math.abs(occt.getVolume(cut.result)) > 1e-6 * Math.abs(occt.getVolume(solid))) return cut;
     occt.release(cut.result);
     throw refused;
+  }
+}
+
+/**
+ * Runs a round or bevel, naming OCCT's refusal of a smooth edge: the seam where a round runs into a
+ * flat face looks like an edge but has no corner to work on, and no size would help.
+ */
+export function onSharpEdges<T>(treat: () => T): T {
+  try {
+    return treat();
+  } catch (error) {
+    const text = error instanceof Error ? error.message : String(error);
+    if (!text.includes('no suitable edges')) throw error;
+    throw new Refused('This edge is already smooth, so there is no corner to work on.', text);
   }
 }
