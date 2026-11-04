@@ -32,10 +32,18 @@ export interface DocumentMeta {
   /** Variables usable in parameter expressions (`expressions.ts`), in user order. */
   variables?: readonly Variable[];
   /** Named camera views in saved order (audit F-034). Absent when none. */
+  /** Sets of variable values to switch between (`Variant`). */
+  variants?: readonly Variant[];
   savedViews?: readonly SavedView[];
 }
 
 /** A saved camera: position, target and projection. */
+/** A named set of variable values: one model in several sizes. */
+export interface Variant {
+  name: string;
+  values: Readonly<Record<string, string>>;
+}
+
 export interface SavedView {
   name: string;
   position: readonly [number, number, number];

@@ -3,8 +3,8 @@
  * deterministic: no clock, randomness or reliance on key order.
  */
 
-import type { SavedView } from '../document.js';
-import type { FeatureId, SketchPlane } from '../features/types.js';
+import type { SavedView, Variant } from '../document.js';
+import type { FeatureId, SketchPlane, StepCamera } from '../features/types.js';
 
 export type Operation =
   | {
@@ -17,6 +17,8 @@ export type Operation =
       readonly params: Readonly<Record<string, unknown>>;
       /** Parameter expressions, present when restoring a deleted feature. */
       readonly expressions?: Readonly<Record<string, string>>;
+      /** Where the camera stood when the step was made. */
+      readonly view?: StepCamera;
     }
   /** Replaces all parameters. */
   | {
@@ -61,6 +63,8 @@ export type Operation =
       readonly index?: number;
     }
   /** Saves or replaces a named view; `view: null` removes it. */
+  /** Saves or (with null) removes a variant. */
+  | { readonly op: 'setVariant'; readonly name: string; readonly values: Variant['values'] | null }
   | { readonly op: 'setSavedView'; readonly name: string; readonly view: SavedView | null }
   /** Sets a parameter expression; an empty one reverts to the plain number. */
   | {
@@ -108,6 +112,10 @@ export function describeOperation(operation: Operation): string {
         : `Set ${operation.name} = ${operation.expression}`;
     case 'setExpression':
       return operation.expression === '' ? 'Remove expression' : `Set to ${operation.expression}`;
+    case 'setVariant':
+      return operation.values === null
+        ? `Remove variant ${operation.name}`
+        : `Save variant ${operation.name}`;
     case 'setSavedView':
       return operation.view === null
         ? `Remove view ${operation.name}`

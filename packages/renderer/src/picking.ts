@@ -17,6 +17,7 @@ import { type Corner, CornerPicker } from './corner-picking.js';
 import type { CornerTable } from './corner-table.js';
 import { EdgePicker } from './edge-picking.js';
 import { buildSeams, type SeamTable } from './seams.js';
+import { awaySign, pastCut, type SectionCut } from './section-cut.js';
 
 export type PickFilter = 'face' | 'edge' | 'vertex' | 'any';
 
@@ -39,6 +40,9 @@ const target = new Vec();
 const projectedPoint = new Vec();
 const ringFaces = new Int32Array(RING_SAMPLES + 1);
 
+/** How far under the surface a wall-thickness ray starts, in millimetres. */
+const WALL_START = 1e-3;
+
 export class Picker {
   #bvh: Bvh | null = null;
   #triangleFaces: Uint32Array | null = null;
@@ -50,11 +54,11 @@ export class Picker {
   readonly #seen = (x: number, y: number, z: number): boolean =>
     this.#camera !== null && this.pointVisible(this.#camera, x, y, z);
   readonly #hit = createRayHit();
-  #sectionZ: number | null = null;
+  #section: SectionCut | null = null;
 
   /** The GPU and CPU must agree on which half of a section is visible. */
-  setSection(at: number | null): void {
-    this.#sectionZ = at;
+  setSection(cut: SectionCut | null): void {
+    this.#section = cut;
   }
 
   /**
@@ -99,7 +103,7 @@ export class Picker {
 
   /** Surface annotations obey the same depth and section rules as the solid. */
   pointVisible(camera: ActiveCamera, x: number, y: number, z: number): boolean {
-    if (this.#sectionZ !== null && z > this.#sectionZ + 1e-6) return false;
+    if (this.#section !== null && pastCut(this.#section, { x, y, z }) > 1e-6) return false;
     projectedPoint.set(x, y, z).project(camera);
     if (projectedPoint.z < -1 || projectedPoint.z > 1) return false;
     rayThrough(camera, projectedPoint.x, projectedPoint.y, origin, target);
@@ -117,15 +121,17 @@ export class Picker {
 
     rayThrough(camera, ndcX, ndcY, origin, target);
     let skipped = 0;
-    if (this.#sectionZ !== null && origin.z > this.#sectionZ) {
-      if (target.z >= 0) return -1;
-      skipped = (this.#sectionZ - origin.z) / target.z;
+    const cut = this.#section;
+    if (cut !== null && pastCut(cut, origin) > 0) {
+      const toward = target[cut.axis];
+      if (awaySign(cut) * toward >= 0) return -1;
+      skipped = (cut.at - origin[cut.axis]) / toward;
       origin.addScaledVector(target, skipped);
     }
     if (!bvh.raycast(origin.x, origin.y, origin.z, target.x, target.y, target.z, this.#hit)) {
       return -1;
     }
-    if (this.#sectionZ !== null && this.#hit.z > this.#sectionZ + 1e-7) return -1;
+    if (cut !== null && pastCut(cut, this.#hit) > 1e-7) return -1;
     this.#hit.distance += skipped;
     return faces[this.#hit.triangle] ?? -1;
   }
@@ -157,6 +163,52 @@ export class Picker {
       );
     }
     return found;
+  }
+
+  /**
+   * How thick the part is at each vertex, in millimetres. Measured from the middle of each triangle:
+   * a ray from a vertex runs along the edges of whatever it meets and slips between triangles. A
+   * vertex takes the thinnest of the triangles around it.
+   */
+  wallThickness(mesh: {
+    positions: Float32Array;
+    normals: Float32Array;
+    indices: Uint32Array;
+  }): Float32Array | null {
+    const bvh = this.#bvh;
+    if (bvh === null) return null;
+    const { positions, normals, indices } = mesh;
+    const walls = new Float32Array(positions.length / 3).fill(Number.POSITIVE_INFINITY);
+    const hit = createRayHit();
+    const average = (from: Float32Array, a: number, b: number, c: number, axis: number) =>
+      ((from[a * 3 + axis] ?? 0) + (from[b * 3 + axis] ?? 0) + (from[c * 3 + axis] ?? 0)) / 3;
+    for (let corner = 0; corner + 2 < indices.length; corner += 3) {
+      const [a, b, c] = [indices[corner] ?? 0, indices[corner + 1] ?? 0, indices[corner + 2] ?? 0];
+      const [nx, ny, nz] = [0, 1, 2].map((axis) => average(normals, a, b, c, axis)) as [
+        number,
+        number,
+        number,
+      ];
+      const length = Math.hypot(nx, ny, nz);
+      if (length < 1e-9) continue;
+      const [x, y, z] = [nx / length, ny / length, nz / length];
+      // Just under the surface, so the ray does not meet the triangle it starts on.
+      const met = bvh.raycast(
+        average(positions, a, b, c, 0) - x * WALL_START,
+        average(positions, a, b, c, 1) - y * WALL_START,
+        average(positions, a, b, c, 2) - z * WALL_START,
+        -x,
+        -y,
+        -z,
+        hit,
+      );
+      if (!met) continue;
+      const wall = hit.distance + WALL_START;
+      for (const vertex of [a, b, c]) {
+        if (wall < (walls[vertex] ?? 0)) walls[vertex] = wall;
+      }
+    }
+    return walls;
   }
 
   /**

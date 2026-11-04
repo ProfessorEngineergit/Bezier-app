@@ -8,7 +8,9 @@ describe('nextVariant', () => {
     const first = nextVariant('rectangle', 'center-rectangle');
     expect(first).not.toBeNull();
     expect(first).not.toBe('center-rectangle');
-    expect(nextVariant('rectangle', first)).toBe('center-rectangle');
+    const second = nextVariant('rectangle', first);
+    expect(second).not.toBe(first);
+    expect(nextVariant('rectangle', second)).toBe('center-rectangle');
   });
 
   it('does not cycle from nothing, so the first press gets the default', () => {
@@ -19,7 +21,11 @@ describe('nextVariant', () => {
   });
 
   it('offers exactly the rectangles that can be drawn', () => {
-    expect(variantsOf('rectangle')).toEqual(['center-rectangle', 'diagonal-rectangle']);
+    expect(variantsOf('rectangle')).toEqual([
+      'diagonal-rectangle',
+      'center-rectangle',
+      'three-point-rectangle',
+    ]);
   });
 
   it('has nothing to offer for a command without variants', () => {

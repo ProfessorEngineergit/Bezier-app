@@ -68,6 +68,8 @@ export interface ExtrudeGizmoProps {
   onDirectionChange: (direction: 'forward' | 'backward' | 'symmetric') => void;
   onOperationChange: (operation: PullSense) => void;
   onPreview: (distance: number) => void;
+  /** The pointer reached the handle: a drag is likely, so what it needs can be made ready. */
+  onApproach?: () => void;
 }
 
 /** Initial value for the mm-per-pixel ref before the first frame measures the camera. */
@@ -104,6 +106,7 @@ export function ExtrudeGizmo({
   onDirectionChange,
   onOperationChange,
   onPreview,
+  onApproach,
 }: ExtrudeGizmoProps) {
   const placement = useGizmoAnchor(handleRef);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -333,6 +336,7 @@ export function ExtrudeGizmo({
       <button
         aria-label={`Drag to change ${valueLabel.toLowerCase()}`}
         className="extrude-gizmo__handle"
+        onPointerEnter={onApproach}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
           drag.current = {

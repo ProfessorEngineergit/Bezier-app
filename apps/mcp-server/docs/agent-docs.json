@@ -229,6 +229,21 @@
    ]
   },
   {
+   "id": "history",
+   "title": "History: every step, in order",
+   "area": "Getting around",
+   "summary": "The steps of the project down the right side, to play how it was built or go back to any of them.",
+   "keywords": "history timeline timelapse steps play pause rewind roll back rollback playhead order undo earlier state replay film",
+   "body": "History lists every step of the project from the top down, the first one at the top. Use it to see how a part was built, or to go back to an earlier state and work from there.\n\n1. Press the history button at the top right, or {{key:history}}. The panel opens on the right and the view cube moves beside it.\n2. Press **Play** to watch the part being built, step by step. The list follows along. Press **Pause** to stop where you are.\n3. The arrows move one step at a time, the outer ones go to the start and the end.\n4. Drag the playhead, the line across the list, to any place between two steps. With the playhead selected, the up and down arrow keys move it too.\n\n## What the playhead does\n\nSteps below the playhead are paused, not removed, and the model shows the part as it was at that point. Nothing is changed until you edit, and a new step goes in at the playhead. Move it back to the end to see the whole model again.\n\n## Timelapse\n\nThe small clock beside the count turns **Play** into a timelapse: the part is made again in front of you, quickly. Each step opens its tool in the rail, the view moves to where it stood when the step was made, and a sketch is drawn shape by shape. Press anywhere in the model or Escape to stop. Steps made before version 0.8 have no view of their own, so the model simply turns a little.\n\n## Change the steps\n\n- Click a step to open it, double-click to rename it.\n- Drag a step to another place, or right-click it to move it. A step cannot go above what it depends on.\n- The eye turns a step off, and the bin deletes it.\n\n> The steps are the model. Change one and everything after it is built again. See [change a sketch afterwards](doc:reopen-sketch).",
+   "images": {},
+   "actions": [
+    "history"
+   ],
+   "features": [],
+   "settings": [],
+   "places": []
+  },
+  {
    "id": "sketch",
    "title": "Sketching in five minutes",
    "area": "Sketch",
@@ -963,11 +978,11 @@
    "area": "Modeling",
    "summary": "Hollow a body out, leaving walls of an even thickness and the faces you chose open.",
    "keywords": "shell hollow wall thickness open face hollow out",
-   "body": "1. Click the face, or faces, to leave open. Hold Shift for more than one.\n2. Choose Shell under Tools, or press {{key:shell}}. The body is hollowed with walls of 2 mm.\n3. Open Items, click Shell, and change **Thickness**.\n\n![](image:inspector)\n\nIf nothing is selected, Bezier says to select at least one face.",
+   "body": "1. Click the face, or faces, to leave open. Hold Shift for more than one.\n2. Choose Shell under Tools, or press {{key:shell}}. The body is hollowed with walls of 2 mm.\n3. Change **Thickness** in the bar. To come back later, click Shell in History.\n\n![](image:inspector)\n\nIf nothing is selected, Bezier says to select at least one face.",
    "images": {
     "inspector": {
      "file": "/help/shell-inspector.webp",
-     "alt": "The Shell step in Items, with its Thickness",
+     "alt": "The Shell step in History, with its Thickness",
      "arrows": [
       {
        "x1": 0.826,
@@ -993,11 +1008,11 @@
    "area": "Modeling",
    "summary": "Drill a hole into a face: plain, counterbored or countersunk.",
    "keywords": "hole drill bore counterbore countersink diameter depth through screw",
-   "body": "1. Choose Hole under Tools, then click the face to drill. The hole is made where you click.\n2. Open Items, click Hole, and set what it is:\n\n- **Diameter** and **Depth**, or **Through all**.\n- **Style**: Simple, Counterbore or Countersink. A counterbore adds a head diameter and depth; a countersink adds an angle.\n- **X** and **Y** move it on the face.\n\n![](image:inspector)\n\nWithout a face, Bezier says what to click.\n\n## An existing hole\n\nClick the wall of a hole that is already there, for instance in an imported part, and type another radius. It stays editable afterwards.",
+   "body": "1. Click the face to drill, then choose Hole under Tools. The hole is made where you clicked.\n2. Set what it is in the bar:\n\n- **Size**: a metric screw from M2 to M12 sets the diameter and the head for you. **For** picks a hole the screw passes through, or a drill to cut a thread in. Custom lets you type the diameter.\n- **Diameter** and **Depth**, or **Through all**.\n- **Style**: Simple, Counterbore or Countersink. A counterbore adds a head diameter and depth; a countersink adds an angle.\n- **X** and **Y** move it on the face.\n\n![](image:inspector)\n\nWithout a face, Bezier says what to click.\n\n## An existing hole\n\nClick the wall of a hole that is already there, for instance in an imported part, and type another radius. It stays editable afterwards.",
    "images": {
     "inspector": {
      "file": "/help/hole-inspector.webp",
-     "alt": "The Hole step in Items, with its style and diameter",
+     "alt": "The Hole step in History, with its style and diameter",
      "arrows": [
       {
        "x1": 0.822,
@@ -1019,16 +1034,250 @@
    "places": []
   },
   {
+   "id": "thread",
+   "title": "Thread",
+   "area": "Modeling",
+   "summary": "Cut a real metric thread into a shaft or a hole.",
+   "keywords": "thread screw bolt nut metric iso pitch tap helix m3 m4 m5 m6 m8",
+   "body": "1. Click the round wall of a shaft or a hole.\n2. Choose Thread under Tools. The pitch of the nearest metric size is set for you.\n3. Change **Pitch** in the step if you want a finer or a coarser thread.\n\nFor a threaded hole, make a [hole](doc:hole) with **For** set to Tap first: it is drilled to the size the thread needs.\n\nThe thread stays one pitch short of each end, so it never cuts into what the wall stands on.\n\n> A fine thread on a small part is the hard case: below about M5 it may be refused rather than come out wrong. For a printed part a thread that small rarely holds anyway; a heat-set insert or a plain hole for a self-tapping screw does.",
+   "images": {},
+   "actions": [
+    "thread"
+   ],
+   "features": [
+    "thread"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "boss",
+   "title": "Boss",
+   "area": "Modeling",
+   "summary": "Stand a round post with a bore on a flat face, to take a screw.",
+   "keywords": "boss screw post standoff dome insert mount tower",
+   "body": "Click a flat face where the post goes, and choose Boss under Tools. Set its **Diameter**, the **Bore** for the screw, and its **Height**. A bore of 0 leaves it solid.\n",
+   "images": {},
+   "actions": [
+    "boss"
+   ],
+   "features": [
+    "boss"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "rib",
+   "title": "Rib",
+   "area": "Modeling",
+   "summary": "Stiffen a part with a thin wall along a sketched line.",
+   "keywords": "rib web stiffener gusset wall support",
+   "body": "Draw the rib as a line in a sketch, on a plane through the part. Choose Rib under Tools, and set its **Thickness** and **Height**. A negative height grows it the other way.\n\nA rib follows straight lines; corners are fine, curves are not.\n",
+   "images": {},
+   "actions": [
+    "rib"
+   ],
+   "features": [
+    "rib"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "lip",
+   "title": "Lip and groove",
+   "area": "Modeling",
+   "summary": "Make two halves of a case locate on each other.",
+   "keywords": "lip groove rim case enclosure lid box fit tongue",
+   "body": "Shell the part first, so its rim is a flat ring. Click the rim and choose Lip under Tools. A lip stands up along the inside of the wall.\n\nOn the other half, set **Type** to groove with the same **Width** and **Height**. The groove is cut wider and deeper by the **Clearance**, so the two slide together. 0.2 mm suits most printers.\n",
+   "images": {},
+   "actions": [
+    "lip"
+   ],
+   "features": [
+    "lip"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "draft",
+   "title": "Draft",
+   "area": "Modeling",
+   "summary": "Tilt walls so a part comes out of a mould.",
+   "keywords": "draft taper mould mold casting angle release wall",
+   "body": "Click the walls, shift-clicking for more than one, and choose Draft under Tools. **Pull along** is the plane the mould opens from; **Angle** is the tilt. 1° to 3° is usual.\n\nTo draft while extruding, use the **Taper** of the extrude instead.\n",
+   "images": {},
+   "actions": [
+    "draft"
+   ],
+   "features": [
+    "draft"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "snap-fit",
+   "title": "Snap fit",
+   "area": "Modeling",
+   "summary": "Add a flexing hook that clicks two parts together.",
+   "keywords": "snap fit clip hook cantilever latch",
+   "body": "Choose Snap fit under Parts. It is built at the origin; move it into place. Set the arm's **Length**, **Thickness** and **Width**, and the **Overhang** of its hook.\n\nAn arm that would bend too far at its root is refused, with the strain it would reach. Longer or thinner arms bend less.\n",
+   "images": {},
+   "actions": [
+    "snap-fit"
+   ],
+   "features": [
+    "snap-fit"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "fit-test",
+   "title": "Fit test",
+   "area": "Modeling",
+   "summary": "Print a plate that shows what clearance your printer needs.",
+   "keywords": "fit test tolerance clearance calibration printer hole peg coupon",
+   "body": "Choose Fit test under Parts and set the **Diameter** you care about. Print it, break off the peg and try it in the row of holes. Each hole is one **Step** larger; the first that fits is the clearance to design with.\n",
+   "images": {},
+   "actions": [
+    "fit-test"
+   ],
+   "features": [
+    "fit-test"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "exploded",
+   "title": "Exploded view",
+   "area": "Modeling",
+   "summary": "Pull the bodies apart to see how a part goes together.",
+   "keywords": "exploded view assembly apart separate bodies",
+   "body": "Choose Exploded view in the rail and drag **Apart**. Each body moves out from the middle of the model. It only looks: closing the panel puts everything back, and nothing in the part changes.\n",
+   "images": {},
+   "actions": [],
+   "features": [],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "wall-thickness",
+   "title": "Wall thickness",
+   "area": "Modeling",
+   "summary": "See where a part is too thin to print or mould.",
+   "keywords": "wall thickness thin analysis check print minimum heatmap",
+   "body": "Choose Wall thickness in the rail. The model is coloured by how thick it is at every point: red under the limit, green from twice it. **Thinnest allowed** sets the limit; the panel names the thinnest wall.\n\nFor a printed part, 0.8 mm is two lines of a 0.4 mm nozzle. It only looks: nothing in the part changes.\n",
+   "images": {},
+   "actions": [],
+   "features": [],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "solids",
+   "title": "Box, cylinder, sphere, cone and torus",
+   "area": "Modeling",
+   "summary": "Start from a plain solid, without a sketch.",
+   "keywords": "box cube block cylinder sphere ball cone torus ring primitive solid",
+   "body": "Choose one under Parts. It is built at the origin, and its sizes open below. **More** chooses the plane it stands on and whether it becomes a new body, joins the part or cuts it.\n\nA cone with a **Top radius** is cut off flat.\n",
+   "images": {},
+   "actions": [
+    "box",
+    "cylinder",
+    "sphere",
+    "cone",
+    "torus"
+   ],
+   "features": [
+    "primitive"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "gear",
+   "title": "Gear",
+   "area": "Modeling",
+   "summary": "Make a spur gear from its teeth and module.",
+   "keywords": "gear spur cog tooth teeth module involute pressure angle pinion transmission",
+   "body": "1. Choose Gear under Parts. A gear is built at the origin and its numbers open below.\n2. Set **Teeth** and **Module**, the **Width**, and the **Bore** for the shaft. A bore of 0 leaves it solid.\n\nTwo gears mesh when they have the same module and pressure angle. Place them module × (teeth of one + teeth of the other) / 2 apart, centre to centre.\n\nThe teeth are true involutes on the standard 20° rack. Below 17 teeth a real gear is usually undercut; this one is not, so check it against its partner in Section.\n",
+   "images": {},
+   "actions": [
+    "gear"
+   ],
+   "features": [
+    "gear"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "fastener",
+   "title": "Screws, nuts and washers",
+   "area": "Modeling",
+   "summary": "Add a standard metric screw, nut or washer.",
+   "keywords": "screw bolt nut washer fastener socket hex countersunk iso din metric library parts",
+   "body": "Choose Library under Parts, pick a part, its size and length, and press Add.\n\nWith a flat face selected, the part goes where you clicked it. **With its hole** drills the hole first: a clearance hole to ISO 273, with a counterbore for a socket head and a countersink for a countersunk screw, and the screw sits down in it.\n\nEvery part follows its standard, and offers only the sizes and lengths that standard has:\n\n- Socket head screw, ISO 4762\n- Hex bolt, ISO 4017\n- Countersunk screw, ISO 10642, from M3\n- Hex nut, ISO 4032\n- Washer, ISO 7089\n\nThreads are drawn plain, as they usually are in an assembly. Click the part in History and open More for **Modelled thread** when you want it real, for a print or a close look.\n\n**Your parts** keeps your own: a STEP file and a picture. **From a server** shows the parts of a folder someone hosts; see Servers.\n",
+   "images": {},
+   "actions": [
+    "library"
+   ],
+   "features": [
+    "fastener"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "spring",
+   "title": "Spring",
+   "area": "Modeling",
+   "summary": "Make a coil spring from its diameters, pitch and turns.",
+   "keywords": "spring coil helix wire compression pitch turns",
+   "body": "1. Choose Spring under Parts. It is built at the origin and its numbers open below.\n2. Set the **Coil diameter**, measured to the middle of the wire, the **Wire diameter**, the **Pitch** from one coil to the next, and the **Turns**.\n\nThe pitch must be larger than the wire, or the coils would run into each other. The ends are left open, not ground flat.\n",
+   "images": {},
+   "actions": [
+    "spring"
+   ],
+   "features": [
+    "spring"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
+   "id": "pipe",
+   "title": "Pipe",
+   "area": "Modeling",
+   "summary": "Run a round tube along a sketched path.",
+   "keywords": "pipe tube hose cable duct path route wall hollow sweep",
+   "body": "1. Draw the route in a sketch: open lines, arcs or a spline, end to end.\n2. Choose Pipe under Parts. It follows the latest open sketch; **Path sketch** picks another.\n3. Set the **Outer diameter** and the **Wall**. A wall of 0 makes a solid rod.\n\nRound the corners of the route with arcs: a sharp corner in the path gives a sharp corner in the pipe.\n",
+   "images": {},
+   "actions": [
+    "pipe"
+   ],
+   "features": [
+    "pipe"
+   ],
+   "settings": [],
+   "places": []
+  },
+  {
    "id": "revolve",
    "title": "Revolve",
    "area": "Modeling",
    "summary": "Turn a sketch around an axis to make a round part.",
    "keywords": "revolve spin lathe turn axis round rotate profile angle bottle",
-   "body": "1. Draw a closed shape in a [sketch](doc:start-a-sketch) and finish it.\n2. Choose Revolve under Tools, or press {{key:revolve}}. The shape is turned through a full circle.\n3. In Items, click Revolve to change the **Axis** (the sketch's own horizontal or vertical), the **Angle**, and the **Result**: a new body, added to one, or cut from one.\n\n![](image:inspector)\n\nWithout a closed shape, Bezier says to draw one first.",
+   "body": "1. Draw a closed shape in a [sketch](doc:start-a-sketch) and finish it.\n2. Choose Revolve under Tools, or press {{key:revolve}}. The shape is turned through a full circle.\n3. The bar holds the **Axis** (the sketch's own horizontal or vertical, starting on the one the shape stands against), the **Angle**, and the **Result**: a new body, added to one, or cut from one.\n\n![](image:inspector)\n\nWithout a closed shape, Bezier says to draw one first.",
    "images": {
     "inspector": {
      "file": "/help/revolve-inspector.webp",
-     "alt": "The Revolve step in Items, with Axis, Angle and Result",
+     "alt": "The Revolve step in History, with Axis, Angle and Result",
      "arrows": [
       {
        "x1": 0.81,
@@ -1054,11 +1303,11 @@
    "area": "Modeling",
    "summary": "Join bodies into one, cut one from another, or keep only where they overlap.",
    "keywords": "combine boolean union subtract intersect join cut merge bodies overlap difference",
-   "body": "1. Pick two bodies: the one to keep first, then Shift-click the other. In Items, click one body row and Cmd-click or Ctrl-click the second.\n2. Choose Combine under Tools, or press {{key:union}}. The step starts as a join.\n3. In Items, click the step. **Operation** is Join, Cut or Intersect, and **Keep tools** keeps the second body.\n\nThe keys for the three: Union {{key:union}}, Subtract {{key:subtract}}, Intersect {{key:intersect}}.\n\n![](image:inspector)\n\nWith fewer than two bodies picked, Bezier says: Select two bodies.",
+   "body": "1. Pick two bodies: the one to keep first, then Shift-click the other. In Items, click one body row and Cmd-click or Ctrl-click the second.\n2. Choose Combine under Tools, or press {{key:union}}. The step starts as a join.\n3. In History, click the step. **Operation** is Join, Cut or Intersect, and **Keep tools** keeps the second body.\n\nThe keys for the three: Union {{key:union}}, Subtract {{key:subtract}}, Intersect {{key:intersect}}.\n\n![](image:inspector)\n\nWith fewer than two bodies picked, Bezier says: Select two bodies.",
    "images": {
     "inspector": {
      "file": "/help/combine-inspector.webp",
-     "alt": "The Combine step in Items, with its Operation",
+     "alt": "The Combine step in History, with its Operation",
      "arrows": [
       {
        "x1": 0.84,
@@ -1086,7 +1335,7 @@
    "area": "Modeling",
    "summary": "Cut a body in two with a plane, or along one of its own faces.",
    "keywords": "split cut divide plane two halves lid separate section body",
-   "body": "1. Pick the body.\n2. Press {{key:split}}. The body is cut in two along the XY plane, and the two halves are bodies of their own.\n3. In Items, click Split. Choose the **Plane** (XY, XZ or YZ), the **Offset** from it, and a **Tilt** about X or Y.\n\n![](image:inspector)\n\n## Along a face\n\nPick the body, then Shift-click the face to split along, and press the key. This takes a lid off a part.",
+   "body": "1. Pick the body.\n2. Press {{key:split}}. The body is cut in two along the XY plane, and the two halves are bodies of their own.\n3. In History, click Split. Choose the **Plane** (XY, XZ or YZ), the **Offset** from it, and a **Tilt** about X or Y.\n\n![](image:inspector)\n\n## Along a face\n\nPick the body, then Shift-click the face to split along, and press the key. This takes a lid off a part.",
    "images": {
     "inspector": {
      "file": "/help/split-inspector.webp",
@@ -1116,7 +1365,7 @@
    "area": "Modeling",
    "summary": "Move a body along an axis or turn it about one, by dragging or by typing exact numbers.",
    "keywords": "move rotate translate turn position gizmo copy offset pivot arrow axis distance angle",
-   "body": "1. Double-click a body to pick all of it, or pick it in Items. Press {{key:move-rotate}}.\n2. A gizmo appears on it. Drag an arrow to move along that axis; drag a ring to turn about it. Or click an arrow, and type the distance or angle.\n3. **Copy** leaves the original in place and moves a copy.\n4. Press Done.\n\n![](image:gizmo)\n\n- The centre handle moves the pivot the rotation turns about, without changing the model.\n- Escape while dragging cancels, and nothing is written.\n- With several bodies and nothing picked, Bezier asks which one to move.\n\n**One face or one edge.** Click a face or an edge on its own and press {{key:move-rotate}}: only that face or edge moves, and the faces beside it follow. Raising one top edge tilts the top and the sides that meet it. A move that would bend a face, or a curved face next to it, is refused with the reason, and nothing is written. To move the whole body, double-click it.\n\nEach move, copy or turn is a step in the history and can be undone.",
+   "body": "1. Double-click a body to pick all of it, which also opens Move and Rotate. Or pick it in Items and press {{key:move-rotate}}.\n2. A gizmo appears on it. Drag an arrow to move along that axis; drag a ring to turn about it. Or click an arrow, and type the distance or angle.\n3. **Copy** leaves the original in place and moves a copy.\n4. Press Done.\n\n![](image:gizmo)\n\n- The centre handle moves the pivot the rotation turns about, without changing the model.\n- Escape while dragging cancels, and nothing is written.\n- With several bodies and nothing picked, Bezier asks which one to move.\n\n**One face or one edge.** Click a face or an edge on its own and press {{key:move-rotate}}: only that face or edge moves, and the faces beside it follow. Raising one top edge tilts the top and the sides that meet it. A move that would bend a face, or a curved face next to it, is refused with the reason, and nothing is written. To move the whole body, double-click it.\n\nEach move, copy or turn is a step in the history and can be undone.",
    "images": {
     "gizmo": {
      "file": "/help/move-rotate-gizmo.webp",
@@ -1149,7 +1398,7 @@
    "area": "Modeling",
    "summary": "Make a body larger or smaller by a factor.",
    "keywords": "scale resize grow shrink factor size enlarge reduce",
-   "body": "1. Pick the body.\n2. Choose Scale under Transform, or press {{key:scale}}.\n3. In Items, click Scale and type a **Factor**: 2 doubles it, 0.5 halves it.\n\n![](image:inspector)",
+   "body": "1. Pick the body.\n2. Choose Scale under Transform, or press {{key:scale}}.\n3. In History, click Scale and type a **Factor**: 2 doubles it, 0.5 halves it.\n\n![](image:inspector)",
    "images": {
     "inspector": {
      "file": "/help/scale-inspector.webp",
@@ -1179,7 +1428,7 @@
    "area": "Modeling",
    "summary": "Add a mirrored copy of a body across a plane.",
    "keywords": "mirror reflect symmetric copy flip plane",
-   "body": "1. Pick the body.\n2. Choose Mirror under Transform. A mirrored body is added beside it.\n3. In Items, click Mirror to choose the **Plane** (YZ, XZ or XY), an **Offset**, and whether to **Keep original**.\n\n![](image:inspector)",
+   "body": "1. Pick the body.\n2. Choose Mirror under Transform. A mirrored body is added beside it.\n3. In History, click Mirror to choose the **Plane** (YZ, XZ or XY), an **Offset**, and whether to **Keep original**.\n\n![](image:inspector)",
    "images": {
     "inspector": {
      "file": "/help/mirror-inspector.webp",
@@ -1209,7 +1458,7 @@
    "area": "Modeling",
    "summary": "Set one body against another, face to face.",
    "keywords": "align mate place against contact face to face snap position flush",
-   "body": "1. Click a flat face of the body to move.\n2. Shift-click the flat face of the other body to set it against.\n3. Choose Align under Transform. The body turns until its face looks at the other and slides until their middles meet.\n4. In Items, click Align for a **Gap** between the faces, or **Same direction** to have both faces look the same way.\n\nThe step keeps both faces, so when the other body moves or grows, the aligned one follows.",
+   "body": "1. Click a flat face of the body to move.\n2. Shift-click the flat face of the other body to set it against.\n3. Choose Align under Transform. The body turns until its face looks at the other and slides until their middles meet.\n4. In History, click Align for a **Gap** between the faces, or **Same direction** to have both faces look the same way.\n\nThe step keeps both faces, so when the other body moves or grows, the aligned one follows.",
    "images": {},
    "actions": [
     "align"
@@ -1226,7 +1475,7 @@
    "area": "Modeling",
    "summary": "A solid that runs from one sketched shape to another.",
    "keywords": "loft blend transition skin sections round to square taper",
-   "body": "1. Draw a closed shape in one sketch, and another in a second sketch on a parallel plane (use the plane's **Offset**), or a leaning one.\n2. Choose Loft under Tools. The two latest sketches with one closed shape each are joined; a sketch picked in Items is used first.\n3. In Items, click Loft to choose **From sketch** and **To sketch**, **Straight sides** for flat faces between the sections, and the **Result**: a new body, added to one, or cut from it.",
+   "body": "1. Draw a closed shape in one sketch, and another in a second sketch on a parallel plane (use the plane's **Offset**), or a leaning one.\n2. Choose Loft under Tools. The two latest sketches with one closed shape each are joined; a sketch picked in Items is used first.\n3. In History, click Loft to choose **From sketch** and **To sketch**, **Straight sides** for flat faces between the sections, and the **Result**: a new body, added to one, or cut from it.",
    "images": {},
    "actions": [
     "loft"
@@ -1243,7 +1492,7 @@
    "area": "Modeling",
    "summary": "Carry a sketched shape along a path: a pipe, a handle, a rail.",
    "keywords": "sweep path pipe tube handle rail along follow",
-   "body": "1. Draw the path as lines, arcs or a spline joined end to end, in a sketch of its own. Leave it open, or close it into a loop.\n2. Draw the shape to carry in another sketch, standing across the start of the path.\n3. Choose Sweep under Tools. The latest closed shape is carried along the latest open path.\n4. In Items, click Sweep to change the **Profile sketch**, the **Path sketch** or the **Result**.\n\nA path that branches, or whose pieces do not join, is refused and says so.",
+   "body": "1. Draw the path as lines, arcs or a spline joined end to end, in a sketch of its own. Leave it open, or close it into a loop.\n2. Draw the shape to carry in another sketch, standing across the start of the path.\n3. Choose Sweep under Tools. The latest closed shape is carried along the latest open path.\n4. In History, click Sweep to change the **Profile sketch**, the **Path sketch** or the **Result**.\n\nA path that branches, or whose pieces do not join, is refused and says so.",
    "images": {},
    "actions": [
     "sweep"
@@ -1260,7 +1509,7 @@
    "area": "Modeling",
    "summary": "Lay text or a shape round a cylinder, raised from it or cut into it.",
    "keywords": "wrap emboss engrave text logo cylinder round label deboss raised",
-   "body": "1. Draw the text or shape in a sketch on a plane beside the round face, for example the XZ plane moved out with **Offset**.\n2. Pick the round face.\n3. Choose Wrap under Tools. The shapes are laid round the face as long as they were drawn, standing 1 mm proud.\n4. In Items, click Wrap to set the **Height**: positive raises it, negative cuts it in.\n\nA shape wider than a quarter of the way round is refused; make it smaller or the face larger.",
+   "body": "1. Draw the text or shape in a sketch on a plane beside the round face, for example the XZ plane moved out with **Offset**.\n2. Pick the round face.\n3. Choose Wrap under Tools. The shapes are laid round the face as long as they were drawn, standing 1 mm proud.\n4. In History, click Wrap to set the **Height**: positive raises it, negative cuts it in.\n\nA shape wider than a quarter of the way round is refused; make it smaller or the face larger.",
    "images": {},
    "actions": [
     "wrap"
@@ -1277,7 +1526,7 @@
    "area": "Modeling",
    "summary": "Let one part turn or slide on another, between limits.",
    "keywords": "joint hinge revolute slider assembly mate move limits rotate slide",
-   "body": "1. Click a face of the part that moves.\n2. Shift-click the face it moves on: a round face turns it about its axis, a flat face about the line through its middle, or slides it along that line.\n3. Choose Joint under Transform.\n4. In Items, click Joint for the **Kind** (revolute to turn, slider to slide), the **Angle** or **Distance**, and the least and most it may go. A value past a limit stops at the limit.\n\nThe joint holds on to the face: when the other part moves, the joined one goes with it.\n\nTo list the parts and how many of each there are, use Export > **Bill of materials**.",
+   "body": "1. Click a face of the part that moves.\n2. Shift-click the face it moves on: a round face turns it about its axis, a flat face about the line through its middle, or slides it along that line.\n3. Choose Joint under Transform.\n4. In History, click Joint for the **Kind** (revolute to turn, slider to slide), the **Angle** or **Distance**, and the least and most it may go. A value past a limit stops at the limit.\n\nThe joint holds on to the face: when the other part moves, the joined one goes with it.\n\nTo list the parts and how many of each there are, use Export > **Bill of materials**.",
    "images": {},
    "actions": [
     "joint"
@@ -1294,7 +1543,7 @@
    "area": "Modeling",
    "summary": "Repeat a body in a line or around an axis.",
    "keywords": "pattern array repeat linear circular copies count step spread",
-   "body": "1. Pick the body.\n2. Choose Pattern under Transform. Copies are made at once.\n3. In Items, click Pattern. Set the **Count**, choose **Linear** or **Circular** as the arrangement, and its **Step** in X, Y and Z, or the **Axis** and the **Spread** in degrees for a circle.\n\n![](image:inspector)\n\nChange the count and the bodies follow.",
+   "body": "1. Pick the body.\n2. Choose Pattern under Transform. Copies are made at once.\n3. In History, click Pattern. Set the **Count**, choose **Linear** or **Circular** as the arrangement, and its **Step** in X, Y and Z, or the **Axis** and the **Spread** in degrees for a circle.\n\n![](image:inspector)\n\nChange the count and the bodies follow.",
    "images": {
     "inspector": {
      "file": "/help/pattern-inspector.webp",
@@ -1341,6 +1590,8 @@
    },
    "actions": [
     "duplicate",
+    "copy",
+    "paste",
     "delete"
    ],
    "features": [
@@ -1541,7 +1792,7 @@
    "area": "Edit",
    "summary": "Name a number once, write a size in terms of it, and change the size everywhere by changing the number.",
    "keywords": "variables parameters expression formula equation named values user parameters calculate math units cm inches sin sqrt function",
-   "body": "A variable is a name for a number. Write a length or an angle as an expression that uses the name, and the part follows when the number changes.\n\n## Make a variable\n\n1. Press {{key:variables}}. The Variables panel opens. Press it again to close it.\n2. Type a name, for example `wall`.\n3. Type its value, for example `4 mm`.\n4. Press Add, or Enter.\n\n![](image:panel)\n\nA name starts with a letter and uses only letters, digits and `_`. A name cannot be a unit or a function, such as `mm` or `sin`, and two variables cannot share a name. Bezier says why when a name is refused.\n\nTo change a variable, edit its name or its value in the list and press Enter. A new name is carried into every expression that uses the old one, in one step. The cross at the end of a row removes the variable.\n\nBeside each variable is what it comes to. A mistake is written there in words instead.\n\n## Use a variable in a step\n\nOpen a step in Items, such as an Extrude. A number field, such as a length or an angle, takes an expression as well as a number.\n\n1. Click the field.\n2. Type an expression, for example `wall * 3`. A leading `=` is allowed.\n3. Press Enter.\n\nThe field keeps what you wrote, and the result is shown beside it: `= 12 mm`.\n\n![](image:field)\n\nWhile you type, a field that cannot be read is marked, and nothing is applied until the expression is whole. A name that does not exist is refused before it reaches the model.\n\nTo go back to a plain number, type a number in the field.\n\nChange `wall` in the panel, and only the steps that use it are rebuilt. Undo walks back the variable change and then the expression, one at a time. See [undo and redo](doc:undo-redo).\n\n## Units\n\nA bare number is in millimetres for lengths and degrees for angles. Put a unit after a value to say otherwise:\n\n- Length: `mm`, `cm`, `m`, `in`, `ft`\n- Angle: `deg` or `°`, `rad`\n\n`2 cm` is 20. `(a + b) in` works as well. A variable holds the converted number, so `w = 2 cm` shows as 20.\n\n## What an expression can contain\n\n- Numbers, with a point or a comma as the decimal mark: `12.5` or `12,5`.\n- Variables, by name.\n- `+`, `-`, `*`, `/`, `^` for a power, and brackets. `×` is read as `*`.\n- The constant `pi`.\n- Functions: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sqrt`, `abs`, `round`, `floor`, `ceil`, `min`, `max`.\n\nThe trigonometry functions take and give degrees, so `sin(30)` is 0.5. `min` and `max` take several values: `max(wall, 3)`. If you write decimals with a comma, separate the values with a semicolon: `max(1,5; 2)`.\n\nA variable may use another one, in any order. Two that lead back to each other are refused, and the loop is named.\n\n> Expressions are written in the number fields of a step's panel in Items.",
+   "body": "A variable is a name for a number. Write a length or an angle as an expression that uses the name, and the part follows when the number changes.\n\n## Make a variable\n\n1. Press {{key:variables}}. The Variables panel opens. Press it again to close it.\n2. Type a name, for example `wall`.\n3. Type its value, for example `4 mm`.\n4. Press Add, or Enter.\n\n![](image:panel)\n\nA name starts with a letter and uses only letters, digits and `_`. A name cannot be a unit or a function, such as `mm` or `sin`, and two variables cannot share a name. Bezier says why when a name is refused.\n\nTo change a variable, edit its name or its value in the list and press Enter. A new name is carried into every expression that uses the old one, in one step. The cross at the end of a row removes the variable.\n\nBeside each variable is what it comes to. A mistake is written there in words instead.\n\n## Use a variable in a step\n\nOpen a step in History, such as an Extrude. A number field, such as a length or an angle, takes an expression as well as a number.\n\n1. Click the field.\n2. Type an expression, for example `wall * 3`. A leading `=` is allowed.\n3. Press Enter.\n\nThe field keeps what you wrote, and the result is shown beside it: `= 12 mm`.\n\n![](image:field)\n\nWhile you type, a field that cannot be read is marked, and nothing is applied until the expression is whole. A name that does not exist is refused before it reaches the model.\n\nTo go back to a plain number, type a number in the field.\n\nChange `wall` in the panel, and only the steps that use it are rebuilt. Undo walks back the variable change and then the expression, one at a time. See [undo and redo](doc:undo-redo).\n\n## Units\n\nA bare number is in millimetres for lengths and degrees for angles. Put a unit after a value to say otherwise:\n\n- Length: `mm`, `cm`, `m`, `in`, `ft`\n- Angle: `deg` or `°`, `rad`\n\n`2 cm` is 20. `(a + b) in` works as well. A variable holds the converted number, so `w = 2 cm` shows as 20.\n\n## What an expression can contain\n\n- Numbers, with a point or a comma as the decimal mark: `12.5` or `12,5`.\n- Variables, by name.\n- `+`, `-`, `*`, `/`, `^` for a power, and brackets. `×` is read as `*`.\n- The constant `pi`.\n- Functions: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sqrt`, `abs`, `round`, `floor`, `ceil`, `min`, `max`.\n\nThe trigonometry functions take and give degrees, so `sin(30)` is 0.5. `min` and `max` take several values: `max(wall, 3)`. If you write decimals with a comma, separate the values with a semicolon: `max(1,5; 2)`.\n\nA variable may use another one, in any order. Two that lead back to each other are refused, and the loop is named.\n\n> Expressions are written in the number fields of a step's bar.",
    "images": {
     "panel": {
      "file": "/help/variables-panel.webp",
@@ -1654,7 +1905,7 @@
    "area": "Files",
    "summary": "A scan or a bought part, shown as a grey ghost to model against and never part of the solid.",
    "keywords": "reference mesh scan stl obj triangles ghost underlay trace fit around measure against canvas",
-   "body": "A reference mesh is for modelling around something that already exists: a scan to fit a bracket to, a bought part to leave room for. It is not a solid, so you cannot fillet it or cut with it.\n\n## Bring one in\n\nImport an STL or an OBJ file. See [import a file](doc:import). A notice says As a reference mesh to model against, and a row appears in Items, under History, with the name of the file.\n\n## How it looks\n\n![](image:view)\n\n- Grey and half see-through, so a part inside it still shows.\n- Never picked. A click goes through it to the model, so it does not get in the way of selecting anything.\n- Not in the bodies list, and not exported. It changes nothing in what you build.\n\n## Where it lands\n\nThe mesh keeps the position it has in the file. Its numbers are read as millimetres. It is then moved straight down or up so its lowest point rests on the floor, and it is not moved sideways. If the scan has to line up with your part, model your part around where the scan is.\n\nThere is no scale control for it. If the file is in other units, correct it in the program that made it.\n\n## Hide it\n\nMove the pointer over its row in Items and click the eye. The mesh is hidden. Click the eye again to show it. The data stays in the project either way. The bin beside the eye removes the mesh from the project.\n\n![](image:items)\n\n## Size\n\nThe mesh is stored inside the project, as text. A detailed scan makes the project bigger and slower to open. The limit is 400,000 triangles; a mesh over it is refused.",
+   "body": "A reference mesh is for modelling around something that already exists: a scan to fit a bracket to, a bought part to leave room for. It is not a solid, so you cannot fillet it or cut with it.\n\n## Bring one in\n\nImport an STL or an OBJ file. See [import a file](doc:import). A notice says As a reference mesh to model against, and a row appears in Items with the name of the file.\n\n## How it looks\n\n![](image:view)\n\n- Grey and half see-through, so a part inside it still shows.\n- Never picked. A click goes through it to the model, so it does not get in the way of selecting anything.\n- Not in the bodies list, and not exported. It changes nothing in what you build.\n\n## Where it lands\n\nThe mesh keeps the position it has in the file. Its numbers are read as millimetres. It is then moved straight down or up so its lowest point rests on the floor, and it is not moved sideways. If the scan has to line up with your part, model your part around where the scan is.\n\nThere is no scale control for it. If the file is in other units, correct it in the program that made it.\n\n## Hide it\n\nMove the pointer over its row in Items and click the eye. The mesh is hidden. Click the eye again to show it. The data stays in the project either way. The bin beside the eye removes the mesh from the project.\n\n![](image:items)\n\n## Size\n\nThe mesh is stored inside the project, as text. A detailed scan makes the project bigger and slower to open. The limit is 400,000 triangles; a mesh over it is refused.",
    "images": {
     "view": {
      "file": "/help/reference-mesh-view.webp",
@@ -2562,9 +2813,9 @@
    "id": "section-view",
    "title": "Section View: look inside the model",
    "area": "View",
-   "summary": "Cut the view with a horizontal plane to see what is inside, without changing the model.",
+   "summary": "Cut the view with a plane across any axis to see what is inside, without changing the model.",
    "keywords": "section view cut clip plane slice inside cross section inspect hide above z height cutaway",
-   "body": "Section View hides the part of the model above a horizontal plane, so you can see inside. It is for looking only: the geometry is not cut. The cut is closed over with a hatched face, as a section is drawn on paper, so you can tell material from air.\n\n## Use it\n\n1. Press **Section View** in the left rail, at the bottom, in Modeling. The rail button then reads **On**, and a panel opens. The plane starts through the middle of the model.\n2. Set its height in the **Z position** field. Type a number and press Enter, or drag the number up and down.\n3. Press **Center on model** to put the plane through the middle again, or **Reset to origin** to put it at zero.\n4. Press the rail button again, or close the panel, to leave.\n\n![](image:panel)\n\n## The field\n\n- Dragging moves the plane half a millimetre for each pixel. A click without moving lets you type.\n- A value that is not a number is marked and not applied. Esc puts the old value back.\n- The unit is the one set for the project.\n- Only horizontal cuts exist: the plane is always parallel to the XY plane. To look from the side instead, use the [standard views](doc:standard-views).\n\n> The model is unchanged and so are your exports. While you measure, the section's panel is hidden and the cut stays; leave Measure to bring the panel back. Section View exists only on screen. For a cut in a technical drawing, see [section A–A](doc:drawings-views).",
+   "body": "Section View hides the part of the model on one side of a plane, so you can see inside. Cut across Z, Y or X, and **Flip side** shows the other half. It is for looking only: the geometry is not cut. The cut is closed over with a hatched face, as a section is drawn on paper, so you can tell material from air.\n\n## Use it\n\n1. Press **Section View** in the left rail, at the bottom, in Modeling. The rail button then reads **On**, and a panel opens. The plane starts through the middle of the model.\n2. Set its height in the **Z position** field. Type a number and press Enter, or drag the number up and down.\n3. Press **Center on model** to put the plane through the middle again, or **Reset to origin** to put it at zero.\n4. Press the rail button again, or close the panel, to leave.\n\n![](image:panel)\n\n## The field\n\n- Dragging moves the plane half a millimetre for each pixel. A click without moving lets you type.\n- A value that is not a number is marked and not applied. Esc puts the old value back.\n- The unit is the one set for the project.\n- Only horizontal cuts exist: the plane is always parallel to the XY plane. To look from the side instead, use the [standard views](doc:standard-views).\n\n> The model is unchanged and so are your exports. While you measure, the section's panel is hidden and the cut stays; leave Measure to bring the panel back. Section View exists only on screen. For a cut in a technical drawing, see [section A–A](doc:drawings-views).",
    "images": {
     "panel": {
      "file": "/help/section-view-panel.webp",
@@ -3020,7 +3271,7 @@
    "area": "Settings",
    "summary": "See where your projects are kept and how much room they take, and put the settings back.",
    "keywords": "data privacy storage local telemetry tracking cloud sync reset defaults restore settings clear disk space",
-   "body": "Settings, Data & Privacy says where your work is and lets you reset the settings.\n\n![](image:page)\n\n## Local-first storage\n\nProjects stay in this app's private storage on this device. They are never sent anywhere. The one thing the desktop app asks for by itself is whether a newer version is out ([Updates](doc:settings-updates)), and that can be turned off.\n\n- **Telemetry** says None. Bezier does not measure what you do.\n- **Storage used** is how much of the browser's storage for Bezier is in use, as the browser reports it. It reads Unavailable if the browser will not say.\n- **Cloud sync** says In development. It is not built. To share a project with other people, see [collaboration](doc:collaboration).\n\n## Reset settings\n\n**Restore Bezier defaults** puts every setting back: theme, shortcuts, mouse bindings and the rest. Your projects and modeling data are kept.\n\n1. Click **Reset settings**.\n2. Two buttons replace it. Click **Reset all settings** to go ahead, or **Cancel**.\n3. The row says Settings reset for a moment.\n\n![](image:reset)\n\nThe reset covers the mouse and key bindings as well as the look of the interface.",
+   "body": "Settings, Data & Privacy says where your work is and lets you reset the settings.\n\n![](image:page)\n\n## Local-first storage\n\nProjects stay in this app's private storage on this device. They are never sent anywhere. The one thing the desktop app asks for by itself is whether a newer version is out ([Updates](doc:settings-updates)), and that can be turned off.\n\n- **Telemetry** says None. Bezier does not measure what you do.\n- **Storage used** is how much of the browser's storage for Bezier is in use, as the browser reports it. It reads Unavailable if the browser will not say.\n- **Cloud sync** says In development. It is not built. To share a project with other people, see [collaboration](doc:collaboration).\n\n## Back up all projects\n\n**Save backup** writes every project and its history into one file. Open that file with File in any project, or drop it on the window, and the projects come back as new ones next to what is there. Keep it somewhere other than this computer. To save one project, use the menu on its card.\n\n## Reset settings\n\n**Restore Bezier defaults** puts every setting back: theme, shortcuts, mouse bindings and the rest. Your projects and modeling data are kept.\n\n1. Click **Reset settings**.\n2. Two buttons replace it. Click **Reset all settings** to go ahead, or **Cancel**.\n3. The row says Settings reset for a moment.\n\n![](image:reset)\n\nThe reset covers the mouse and key bindings as well as the look of the interface.",
    "images": {
     "page": {
      "file": "/help/settings-data-page.webp",
@@ -3549,6 +3800,102 @@
     }
    },
    {
+    "id": "thread",
+    "label": "Thread",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "library",
+    "label": "Parts library",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "box",
+    "label": "Box",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "cylinder",
+    "label": "Cylinder",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "sphere",
+    "label": "Sphere",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "cone",
+    "label": "Cone",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "torus",
+    "label": "Torus",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "boss",
+    "label": "Boss",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "rib",
+    "label": "Rib",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "lip",
+    "label": "Lip",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "draft",
+    "label": "Draft",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "snap-fit",
+    "label": "Snap fit",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "fit-test",
+    "label": "Fit test",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "gear",
+    "label": "Gear",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "spring",
+    "label": "Spring",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
+    "id": "pipe",
+    "label": "Pipe",
+    "group": "Modeling",
+    "keys": {}
+   },
+   {
     "id": "move-rotate",
     "label": "Move/Rotate",
     "group": "Modeling",
@@ -3909,6 +4256,40 @@
     }
    },
    {
+    "id": "copy",
+    "label": "Copy",
+    "group": "Edit",
+    "keys": {
+     "native": "Cmd+C",
+     "fusion360": "Cmd+C",
+     "solidworks": "Cmd+C",
+     "onshape": "Cmd+C",
+     "inventor": "Cmd+C",
+     "freecad": "Cmd+C",
+     "nx": "Cmd+C",
+     "blender": "Cmd+C",
+     "sketchup": "Cmd+C",
+     "autocad": "Cmd+C"
+    }
+   },
+   {
+    "id": "paste",
+    "label": "Paste",
+    "group": "Edit",
+    "keys": {
+     "native": "Cmd+V",
+     "fusion360": "Cmd+V",
+     "solidworks": "Cmd+V",
+     "onshape": "Cmd+V",
+     "inventor": "Cmd+V",
+     "freecad": "Cmd+V",
+     "nx": "Cmd+V",
+     "blender": "Cmd+V",
+     "sketchup": "Cmd+V",
+     "autocad": "Cmd+V"
+    }
+   },
+   {
     "id": "select-all",
     "label": "Select all",
     "group": "Selection",
@@ -3974,6 +4355,23 @@
      "blender": "Alt+Cmd+S",
      "sketchup": "Alt+Cmd+S",
      "autocad": "Alt+Cmd+S"
+    }
+   },
+   {
+    "id": "history",
+    "label": "Show/hide History",
+    "group": "App",
+    "keys": {
+     "native": "Alt+Cmd+Y",
+     "fusion360": "Alt+Cmd+Y",
+     "solidworks": "Alt+Cmd+Y",
+     "onshape": "Alt+Cmd+Y",
+     "inventor": "Alt+Cmd+Y",
+     "freecad": "Alt+Cmd+Y",
+     "nx": "Alt+Cmd+Y",
+     "blender": "Alt+Cmd+Y",
+     "sketchup": "Alt+Cmd+Y",
+     "autocad": "Alt+Cmd+Y"
     }
    },
    {

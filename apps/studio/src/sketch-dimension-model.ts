@@ -15,7 +15,7 @@ export interface SketchDimension {
   id: string;
   sourceId?: SketchId;
   /** `constraint`: a standalone dimension constraint, edited by its id. */
-  sourceKind?: 'line' | 'circle' | 'constraint';
+  sourceKind?: 'line' | 'circle' | 'arc' | 'constraint';
   /** Reference (driven) dimension: shown in brackets, not editable. */
   isReference?: boolean;
   prefix?: 'R' | '⌀';
@@ -228,6 +228,8 @@ function arcDimension(
 ): SketchDimension {
   return {
     id: arc.id,
+    sourceId: arc.id,
+    sourceKind: 'arc',
     prefix: 'R',
     length: Math.hypot(start.x - center.x, start.y - center.y),
     start: planeToWorld(basis, center.x, center.y),

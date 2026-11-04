@@ -19,6 +19,7 @@ import {
   type ReferenceImage,
   type ReferenceMesh,
   type Viewport as Scene,
+  type SectionCut,
   type ShownSketch,
   type SketchAreaHit,
   type ViewName,
@@ -110,7 +111,7 @@ export interface ViewportHandle {
   setOrthographic(on: boolean): void;
   /** Whether the view is orthographic. */
   isOrthographic(): boolean;
-  setSection(at: number | null): void;
+  setSection(cut: SectionCut | null): void;
   /** Squares up to a named view. `animate` glides instead of jumping. */
   setView(view: ViewName, animate?: boolean): void;
   /** Squares the view to the face at a canvas point and returns it; null when there is none. */
@@ -126,7 +127,7 @@ export interface ViewportHandle {
   sketchPlaneForView(): ViewPlane | null;
   /** The camera as a saveable view, and back. */
   cameraView(): CameraView;
-  showCameraView(view: CameraView): void;
+  showCameraView(view: CameraView, animate?: boolean): void;
   /** Where a world point lands on the canvas, for anchoring an on-canvas gizmo. */
   project(x: number, y: number, z: number): { x: number; y: number } | null;
   pointVisible(x: number, y: number, z: number): boolean;
@@ -139,6 +140,8 @@ export interface ViewportHandle {
   /** The picked edge's tangent and outward directions, for orienting its gizmo. */
   edgeFrame(ref: StableRef, anchor?: { x: number; y: number; z: number }): EdgeFrame | null;
   /** A part drawn in place of `replaces` while it is dragged (a face pull). */
+  /** Lights the faces a history step made, or none. */
+  hoverStep(feature: string | null): void;
   showPartPreview(part: PartMesh | null, replaces?: readonly StableRef[]): void;
   /** Draws a shown sketch offset by `by` while it is dragged; null resets it. */
   moveShownSketch(id: string | null, by: { x: number; y: number; z: number } | null): void;
@@ -170,6 +173,8 @@ export interface ViewportHandle {
   snapAt(screenX: number, screenY: number): { x: number; y: number; z: number } | null;
   /** Draws simulation results over the part; null restores the part. */
   setResultField(field: Parameters<Scene['setResultField']>[0]): void;
+  showWallThickness(limit: number | null): { thinnest: number; thin: number } | null;
+  setExploded(bodies: readonly (readonly StableRef[])[], amount: number): void;
   /** Scales the displayed displacement: 0 is undeformed, 1 is true scale. */
   setResultDeform(scale: number): void;
   /** Scalar under the pointer, on the displayed (possibly deformed) result mesh. */
@@ -648,6 +653,12 @@ export function Viewport({
             return;
           }
 
+          // A held button is turning the view: picking under it would cost every step of the turn.
+          if (event.buttons !== 0) {
+            scene.setHighlighted([]);
+            return;
+          }
+
           const hit = scene.pick(x, y, measuring ? 'face' : pickingRef.current);
           // Straight into the scene; no state, no render.
           scene.setHighlighted(hit === null ? [] : [hit.ref]);
@@ -694,6 +705,8 @@ export function Viewport({
         }}
         onPointerLeave={() => {
           pointerOverCanvas.over = false;
+          // Over a panel the pointer is on nothing in the model.
+          sceneRef.current?.setHighlighted([]);
         }}
         onPointerCancel={(event) => {
           if (sketchHeld.current) sketchGripRef.current?.end();

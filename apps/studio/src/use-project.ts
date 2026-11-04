@@ -22,7 +22,7 @@ import { firstPlacement, placementParams } from './image/placement.js';
 import { importPreview } from './import-preview.js';
 import type { ModelLock } from './model-lock.js';
 import { besideShift, boundsOf, occupiedBy } from './occupied-space.js';
-import { openBackup } from './project-backup.js';
+import { openAllBackups, openBackup } from './project-backup.js';
 import type { Session, SessionDeps, SessionView } from './session.js';
 import { outlinesAsSketches } from './surface-sketches.js';
 import { cancelBuild } from './use-cancel-build.js';
@@ -299,6 +299,10 @@ export function useProject({ run, lock, depsRef, onImageAdded }: ProjectDeps): P
     (name: string, text: string) => openBackup(depsRef.current?.store, name, text),
     [depsRef],
   );
+  const importProjects = useCallback(
+    (bytes: Uint8Array) => openAllBackups(depsRef.current?.store, bytes),
+    [depsRef],
+  );
   const transfer = useTransfer({
     tasks,
     lock,
@@ -307,6 +311,7 @@ export function useProject({ run, lock, depsRef, onImageAdded }: ProjectDeps): P
     importDrawing,
     importImage,
     importProject,
+    importProjects,
   });
 
   /**

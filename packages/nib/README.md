@@ -36,16 +36,14 @@ out of the bar's lower edge only for news: a crash, a lesson step, a note, and o
 lesson, the first time a project and each workspace is opened (`apps/studio/src/island/first-offers.ts`),
 and goes back up when that is over. It is a 96 pixel round window with his real head and neck in it
 (`NibHead.tsx`, the model's `head` frame in `stage.ts`) in front of a black-to-grey gradient with a
-little grain; where he must stay a picture (no graphics chip, reduced motion) the flat face
-(`face.ts`, moods as transforms) is drawn instead. It grows into a card for what needs an answer and into
+little grain; until the head is drawn, and where he must stay still (no graphics chip, reduced
+motion), `nib-head.webp`, rendered from the same model, stands in. It grows into a card for what needs an answer and into
 a pill for a short note. In Friendly his figure also waits on the start page, in a round window of the same look in the
 window's lower right corner (`NibSpot frame="whole"`, all of him small).
 
 | File | What it does |
 | --- | --- |
 | `island/machine.ts` | What the circle shows, decided with no page and no clock: one thing at a time, crash first, nothing queued |
-| `island/face.ts` | Nine moods as lid, gaze and brow positions, and the transforms they become |
-| `island/NibFace.tsx` | The face drawn: visor, ringed eyes, brows, cheeks |
 | `island/NibIsland.tsx` | The circle, the card it grows into, the ring for running work, the dot for what a press opens |
 
 With the island on (`NibController.setIsland`), what he says where no page has a spot for him is

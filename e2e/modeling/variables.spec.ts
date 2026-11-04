@@ -67,3 +67,30 @@ test('a variable used by a dimension can be renamed without breaking it', async 
   await expect(field).toHaveValue('depth + 1');
   await expect(page.locator('.inspector .property-panel__value')).toHaveText('= 21 mm');
 });
+
+test('a variant keeps the values, and one click brings them back', async ({ page }) => {
+  await openApp(page);
+  await page.keyboard.press('e');
+  await page.keyboard.press('ControlOrMeta+Shift+v');
+  const panel = page.getByRole('complementary', { name: 'Variables' });
+  await panel.getByLabel('New variable name').fill('wall');
+  await panel.getByLabel('New variable value').fill('4 mm');
+  await panel.getByRole('button', { name: 'Add' }).click();
+
+  await panel.getByLabel('New variant name').fill('Small');
+  await panel.getByRole('button', { name: 'Keep these' }).click();
+  const small = panel.getByRole('button', { name: 'Small', exact: true });
+  await expect(small).toBeVisible();
+  await expect(small.locator('..')).toHaveAttribute('aria-current', 'true');
+
+  await panel.getByLabel('Value of wall').fill('9 mm');
+  await panel.getByLabel('Value of wall').press('Enter');
+  await expect(small.locator('..')).toHaveAttribute('aria-current', 'false');
+
+  await small.click();
+  await expect(panel.getByLabel('Value of wall')).toHaveValue('4 mm');
+  await expect(small.locator('..')).toHaveAttribute('aria-current', 'true');
+
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect(panel.getByLabel('Value of wall')).toHaveValue('9 mm');
+});

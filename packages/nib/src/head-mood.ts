@@ -1,6 +1,6 @@
 /**
  * Island moods (`island/machine.ts`) on the 3D head: channel offsets added on top of idle and
- * reactions, so blinks and glances continue. Same names as the flat face's moods.
+ * reactions, so blinks and glances continue. Same names as the island's moods.
  */
 
 import type { Channel } from './channels.js';

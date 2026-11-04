@@ -31,10 +31,10 @@ export const VISUALIZE_ENVIRONMENTS: readonly VisualizeEnvironment[] = [
     url: NEUTRAL_HDR,
     preview: { key: '#f4f4f1', fill: '#c7cbd0' },
     settings: {
-      background: '#d8d9d9',
+      background: '#b4b7bb',
       transparent: false,
       ground: true,
-      groundColor: '#d8d9d9',
+      groundColor: '#8f9297',
       environment: 1.15,
       light: 1.8,
       exposure: 0.1,

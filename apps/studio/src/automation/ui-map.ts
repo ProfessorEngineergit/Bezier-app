@@ -48,10 +48,11 @@ export function uiMap(filter: string) {
   const elements: UiElement[] = [];
   for (const node of document.querySelectorAll<HTMLElement>(CONTROLS)) {
     if (elements.length >= MAX) break;
-    if (!visible(node)) continue;
+    const shown = drawnBy(node);
+    if (!visible(shown)) continue;
     const name = nameOf(node);
     if (wanted !== '' && !name.toLowerCase().includes(wanted)) continue;
-    const box = node.getBoundingClientRect();
+    const box = shown.getBoundingClientRect();
     const element: UiElement = {
       i: elements.length + 1,
       role: node.getAttribute('role') ?? implicitRole(node),
@@ -95,6 +96,12 @@ export function uiMap(filter: string) {
     elements,
     truncated: elements.length >= MAX,
   };
+}
+
+/** A native radio or select can be hidden behind the label drawn for it: that label is the control. */
+function drawnBy(node: HTMLElement): HTMLElement {
+  const native = node instanceof HTMLInputElement || node instanceof HTMLSelectElement;
+  return (native && !visible(node) && node.closest('label')) || node;
 }
 
 function visible(node: HTMLElement): boolean {

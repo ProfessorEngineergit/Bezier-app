@@ -27,8 +27,11 @@ export interface ViewSettings {
   display: 'shaded' | 'wireframe' | 'xray' | 'zebra' | 'curvature';
   showEdges: boolean;
 
-  /** Height of the section plane along +Z, or null when not sectioning. */
+  /** Where the section plane stands along its axis, or null when not sectioning. */
   section: number | null;
+  sectionAxis: 'x' | 'y' | 'z';
+  /** Shows the other side of the plane. */
+  sectionFlip: boolean;
 
   /** Screenshot options. */
   shotGrid: boolean;
@@ -50,6 +53,8 @@ export const DEFAULT_VIEW_SETTINGS: ViewSettings = {
   display: 'shaded',
   showEdges: true,
   section: null,
+  sectionAxis: 'z',
+  sectionFlip: false,
   shotGrid: false,
   shotTransparent: false,
   shotEdges: true,

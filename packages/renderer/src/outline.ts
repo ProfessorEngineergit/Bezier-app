@@ -90,6 +90,11 @@ export class Outliner {
     this.#material.color.setHex(hex);
   }
 
+  /** Draws over everything, also where other parts stand in front. */
+  setInFront(inFront: boolean): void {
+    this.#material.depthTest = !inFront;
+  }
+
   /** Give the outliner a body to read seams from, or null to forget one. */
   setGeometry(mesh: Mesh | null): void {
     this.#table = mesh === null ? null : buildSeams(mesh);
@@ -173,20 +178,28 @@ export class Outliner {
     this.#draw(18);
   }
 
-  /** Outlines the seam between exactly these two faces, as an edge reference names it. */
-  showSeam(a: number, b: number): void {
+  /** Outlines the seams between these pairs of faces, as edge references name them. */
+  showSeams(pairs: readonly (readonly number[])[]): void {
     const table = this.#table;
     if (table === null) {
       this.#draw(0);
       return;
     }
-    const seeds: number[] = [];
-    for (let seam = 0; seam < table.count; seam++) if (between(table, seam, a, b)) seeds.push(seam);
-    // The whole smooth run (`seam-chain.ts`). Until the end index exists, the edge alone is drawn.
-    const run = this.#ends?.table === table ? extendRun(table, this.#ends.index, seeds) : seeds;
-    if (this.#positions.length < run.length * 6) this.#positions = new Float32Array(run.length * 6);
+    const drawn = new Set<number>();
+    for (const [a = -1, b = -1] of pairs) {
+      const seeds: number[] = [];
+      for (let seam = 0; seam < table.count; seam++) {
+        if (between(table, seam, a, b)) seeds.push(seam);
+      }
+      // The whole smooth run (`seam-chain.ts`). Until the end index exists, the edge alone is drawn.
+      const run = this.#ends?.table === table ? extendRun(table, this.#ends.index, seeds) : seeds;
+      for (const seam of run) drawn.add(seam);
+    }
+    if (this.#positions.length < drawn.size * 6) {
+      this.#positions = new Float32Array(drawn.size * 6);
+    }
     let at = 0;
-    for (const seam of run) {
+    for (const seam of drawn) {
       this.#positions.set(table.ends.subarray(seam * 6, seam * 6 + 6), at);
       at += 6;
     }

@@ -10,7 +10,7 @@ import type { DocumentInfo } from './boot.js';
 import { useSharedLibrary } from './collab/use-shared-library.js';
 import { Dashboard } from './Dashboard.js';
 import type { AppPrefs } from './preferences.js';
-import { saveBackup } from './project-backup.js';
+import { saveAllBackups, saveBackup } from './project-backup.js';
 import type { DashboardHandle } from './use-dashboard.js';
 import type { LibraryHandle } from './use-library.js';
 import type { TasksHandle } from './use-tasks.js';
@@ -76,6 +76,7 @@ export function LibraryPage({
       documents={dash.documents}
       index={library.index}
       loaded={library.loaded}
+      onBackupAll={() => void saveAllBackups(library, tasks, dash.documents)}
       onAction={(action, doc) => {
         if (action === 'delete')
           void dash.deleteDocument(doc.id).then((deleted) => {

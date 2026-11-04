@@ -14,7 +14,14 @@ import { useEffect, useMemo, useState } from 'react';
 export const MODEL_BUSY_MESSAGE = 'Still updating the model. Try again in a moment.';
 
 /** Rail commands that only inspect the model and stay usable while it builds. */
-const LOOK_ONLY: ReadonlySet<string> = new Set(['items', 'section', 'measure']);
+const LOOK_ONLY: ReadonlySet<string> = new Set([
+  'items',
+  'history',
+  'wall-thickness',
+  'exploded',
+  'section',
+  'measure',
+]);
 
 /** How long a change runs before the rail shows it is busy. */
 const SHOW_AFTER_MS = 250;

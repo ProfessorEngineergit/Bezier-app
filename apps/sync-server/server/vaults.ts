@@ -57,6 +57,7 @@ export interface VaultRecord {
 
 /** Invites stop working after this even if asked to last longer. Links leak. */
 const MAX_INVITE_DAYS = 30;
+const MAX_VAULTS_PER_USER = 256;
 
 /**
  * A sealed value the server keeps for a client. Bounded so a vault record stays small;
@@ -75,6 +76,10 @@ export class Vaults {
 
   async create(userId: string, wrappedKey: string, meta: string): Promise<string> {
     checkSealed(wrappedKey, meta);
+    // The quota is per vault, so without this one more vault would always get around it.
+    if ((await this.listFor(userId)).length >= MAX_VAULTS_PER_USER) {
+      throw new HttpError(429, 'You have as many vaults as this server allows.');
+    }
     const id = toHex(randomBytes(16));
     const now = new Date().toISOString();
     await this.#save({

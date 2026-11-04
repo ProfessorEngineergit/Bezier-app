@@ -39,6 +39,20 @@ export async function save(data: BlobPart, name: string, type: string): Promise<
   return invoke<string | null>('save_file', { name, data: base64(bytes) });
 }
 
+/**
+ * Hands a 3MF to the app the system opens such files with. In a browser there is no such thing, so
+ * it is a download, which the slicer can then open.
+ */
+export async function openInSlicer(
+  data: BlobPart,
+  name: string,
+  type: string,
+): Promise<string | null> {
+  if (!isTauri()) return save(data, name, type);
+  const bytes = new Uint8Array(await blobOf(data, type).arrayBuffer());
+  return invoke<string>('open_in_slicer', { name, data: base64(bytes) });
+}
+
 /** Saves a file without waiting, for callers with nowhere to report errors. */
 export function download(data: BlobPart, name: string, type: string): void {
   void save(data, name, type).catch((error: unknown) => {

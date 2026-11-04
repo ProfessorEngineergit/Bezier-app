@@ -113,17 +113,18 @@ export function wrapTool(
     return mul(add(a, b), 0.5);
   };
   const base = centre(uv.vMin);
-  const axis = unit(sub(centre(uv.vMax), base));
+  const tall = sub(centre(uv.vMax), base);
+  const axis = unit(tall);
   // Across the plane, square to the axis; and from the plane towards the axis.
   const across = cross(axis, profile.normal);
   if (length(across) < 1e-6)
     throw new Refused('Draw what is wrapped on a plane beside the round face, not across its end.');
   const side = unit(across);
-  const offAxis = sub(profile.origin, base);
-  const toAxis = mul(sub(offAxis, mul(axis, dot(offAxis, axis))), -1);
-  const reach = length(toAxis);
+  // Square to the plane: the sketch's origin need not stand opposite the face.
+  const above = dot(sub(profile.origin, base), unit(profile.normal));
+  const reach = Math.abs(above);
   if (reach <= radius) throw new Refused('Draw what is wrapped on a plane outside the round face.');
-  const inward = unit(toAxis);
+  const inward = mul(unit(profile.normal), above > 0 ? -1 : 1);
 
   const held: RawHandle[] = [];
   try {
@@ -142,6 +143,10 @@ export function wrapTool(
     const [outer, ...holes] = loops;
     if (outer === undefined || outer.length < 3)
       throw new Refused('There is no closed shape to wrap.');
+    // The tool runs the whole length of the rod, so a shape past the face would float beside it.
+    const along = outer.map((point) => dot(sub(point, base), axis));
+    if (Math.max(...along) <= 0 || Math.min(...along) >= length(tall))
+      throw new Refused('This lies past the end of the round face; move it onto the face.');
     let flat = occt.makeFace(polygon(occt, outer, held));
     held.push(flat);
     if (holes.length > 0) {

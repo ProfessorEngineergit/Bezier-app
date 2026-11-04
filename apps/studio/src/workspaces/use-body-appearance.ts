@@ -83,6 +83,23 @@ function read(key: string, initial: Appearance): Record<string, Appearance> {
   }
 }
 
+/** The colour each body wears in Visualize, for a file that can carry it. */
+export function bodyColours(id: string): Record<string, string> {
+  try {
+    const raw: unknown = JSON.parse(localStorage.getItem(`bezier.visualize.bodies.${id}`) ?? '{}');
+    const colours: Record<string, string> = {};
+    for (const [key, entry] of Object.entries(raw as Record<string, unknown>)) {
+      const color = (entry as { settings?: { color?: unknown } } | null)?.settings?.color;
+      if (typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color)) {
+        colours[key] = color.toUpperCase();
+      }
+    }
+    return colours;
+  } catch {
+    return {};
+  }
+}
+
 export function useBodyAppearance({
   id,
   bodies,

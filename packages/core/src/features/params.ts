@@ -14,57 +14,72 @@ import { formatRef, parseRef } from '../stable-ref.js';
  */
 export type ShownWhen = Readonly<Record<string, readonly (string | boolean)[]>>;
 
+/** Shown behind More, not in the tool's bar. Panel only; the value is the same. */
+interface Placed {
+  more?: true;
+}
+
 /** A single parameter. `kind` decides how it validates, renders, and hashes. */
-export type ParamSpec =
+export type ParamSpec = Placed &
   /** A distance in millimetres. Display units are handled by the UI. */
-  | {
-      kind: 'length';
-      label: string;
-      default: number;
-      min?: number;
-      max?: number;
-      when?: ShownWhen;
-    }
-  /**
-   * An angle in radians, or degrees with `degrees` (only Revolve's legacy `angleDegrees`, which
-   * saved documents store in degrees).
-   */
-  | {
-      kind: 'angle';
-      label: string;
-      default: number;
-      degrees?: true;
-      min?: number;
-      max?: number;
-      when?: ShownWhen;
-    }
-  /** A unitless multiplier. Positive, or non-negative when `min` is 0. */
-  | { kind: 'factor'; label: string; default: number; min?: number; max?: number }
-  /** Text stored with the document, such as an imported file. Not shown in the panel. */
-  | { kind: 'text'; label: string }
-  /** A whole number, for counts and repetitions. */
-  | { kind: 'count'; label: string; default: number; min?: number }
-  | { kind: 'boolean'; label: string; default: boolean; hidden?: true }
-  /**
-   * One of a fixed set of strings. `fixed` choices are set at creation and not editable, because
-   * changing them would rename the feature's faces.
-   */
-  | { kind: 'choice'; label: string; options: readonly string[]; default: string; fixed?: true }
-  /** Another feature in the document, by id, e.g. the sketch an extrude consumes. */
-  | { kind: 'featureRef'; label: string }
-  /** A constrained sketch. Only its shape is checked here; the solver validates the rest. */
-  | { kind: 'sketch'; label: string }
-  /** Sketch region keys (`rebuild/regions.ts`). Empty means all regions. */
-  | { kind: 'regions'; label: string; default: readonly string[] }
-  /** Picked geometry, always as stable references, never kernel ids (../stable-ref.ts). */
-  | {
-      kind: 'geometryRefs';
-      label: string;
-      of: 'face' | 'edge' | 'vertex';
-      default?: readonly StableRef[];
-      /** Saved but not shown in the panel. */
-      hidden?: true;
-    };
+  (
+    | {
+        kind: 'length';
+        label: string;
+        default: number;
+        min?: number;
+        max?: number;
+        when?: ShownWhen;
+      }
+    /**
+     * An angle in radians, or degrees with `degrees` (only Revolve's legacy `angleDegrees`, which
+     * saved documents store in degrees).
+     */
+    | {
+        kind: 'angle';
+        label: string;
+        default: number;
+        degrees?: true;
+        min?: number;
+        max?: number;
+        when?: ShownWhen;
+      }
+    /** A unitless multiplier. Positive, or non-negative when `min` is 0. */
+    | {
+        kind: 'factor';
+        label: string;
+        default: number;
+        min?: number;
+        max?: number;
+        /** A plain number of something, not a multiple: no × behind it. */
+        plain?: true;
+      }
+    /** Text stored with the document, such as an imported file. Not shown in the panel. */
+    | { kind: 'text'; label: string }
+    /** A whole number, for counts and repetitions. */
+    | { kind: 'count'; label: string; default: number; min?: number }
+    | { kind: 'boolean'; label: string; default: boolean; hidden?: true }
+    /**
+     * One of a fixed set of strings. `fixed` choices are set at creation and not editable, because
+     * changing them would rename the feature's faces.
+     */
+    | { kind: 'choice'; label: string; options: readonly string[]; default: string; fixed?: true }
+    /** Another feature in the document, by id, e.g. the sketch an extrude consumes. */
+    | { kind: 'featureRef'; label: string }
+    /** A constrained sketch. Only its shape is checked here; the solver validates the rest. */
+    | { kind: 'sketch'; label: string }
+    /** Sketch region keys (`rebuild/regions.ts`). Empty means all regions. */
+    | { kind: 'regions'; label: string; default: readonly string[] }
+    /** Picked geometry, always as stable references, never kernel ids (../stable-ref.ts). */
+    | {
+        kind: 'geometryRefs';
+        label: string;
+        of: 'face' | 'edge' | 'vertex';
+        default?: readonly StableRef[];
+        /** Saved but not shown in the panel. */
+        hidden?: true;
+      }
+  );
 
 export type ParamsSpec = Readonly<Record<string, ParamSpec>>;
 

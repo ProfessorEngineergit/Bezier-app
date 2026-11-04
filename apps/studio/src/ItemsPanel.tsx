@@ -8,11 +8,9 @@
 /// <reference lib="dom" />
 
 import type { BodySummary, FeatureId, FeatureRecord, FeatureStatus } from '@bezier/core';
-import { DeleteIcon, EyeIcon, EyeOffIcon, ModelingIcon, SketchIcon } from '@bezier/ui';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BodyList } from './BodyList.js';
-import { HistoryMarker } from './HistoryMarker.js';
-import { HistoryMenu } from './HistoryMenu.js';
+import { HistorySteps } from './HistorySteps.js';
 import './history.css';
 import { ItemsTree } from './ItemsTree.js';
 import { ResizeHandle } from './ResizeHandle.js';
@@ -79,25 +77,6 @@ export interface ItemsPanelProps {
   onWidthChange: (width: number) => void;
 }
 
-/**
- * The message for an item that is not fine, or null. Exhaustive over `FeatureStatus`, so a new
- * status must decide how to explain itself; a silent broken row is what ADR 0009 forbids.
- */
-function problemOf(status: FeatureStatus | undefined): string | null {
-  switch (status?.state) {
-    case undefined:
-    case 'ok':
-      return null;
-    case 'suppressed':
-      return 'Turned off';
-    case 'failed':
-    case 'blocked':
-    case 'dangling':
-    case 'unknown-type':
-      return status.message;
-  }
-}
-
 /** Whether a feature is a sketch; everything else builds or changes the solid. */
 function isSketch(feature: FeatureRecord): boolean {
   return feature.type === 'sketch';
@@ -136,11 +115,6 @@ export function ItemsPanel({
   const [chosenFilter, setFilter] = useState<ItemsFilter>('all');
   const filter: ItemsFilter = only ?? chosenFilter;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [renaming, setRenaming] = useState<FeatureId | null>(null);
-  const [stepMenu, setStepMenu] = useState<{ id: FeatureId; x: number; y: number } | null>(null);
-  const [dragging, setDragging] = useState<FeatureId | null>(null);
-  const [dropAt, setDropAt] = useState<{ id: FeatureId; below: boolean } | null>(null);
-  const indexOf = (id: FeatureId) => features.findIndex((feature) => feature.id === id);
   const filterRef = useRef<HTMLButtonElement | null>(null);
 
   const shown = features.filter((feature) =>
@@ -268,175 +242,20 @@ export function ItemsPanel({
               />
             )}
             {headed && <h3 className="items-section">History</h3>}
-            <ul className="items-list">
-              {shown.map((feature) => {
-                const status = statuses.get(feature.id);
-                const index = indexOf(feature.id);
-                // Below the marker a step is paused, not suppressed: rolling forward builds it.
-                const problem =
-                  rollback !== null && index >= rollback ? 'Paused' : problemOf(status);
-                return (
-                  <Fragment key={feature.id}>
-                    {rollback === index && onRollback !== undefined && (
-                      <HistoryMarker
-                        onResume={() => onRollback(null)}
-                        paused={features.length - index}
-                      />
-                    )}
-                    <li>
-                      {renaming === feature.id ? (
-                        <input
-                          aria-label={`Rename ${feature.name}`}
-                          className="items-row items-row--input"
-                          defaultValue={feature.name}
-                          onBlur={(event) => {
-                            const next = event.target.value.trim();
-                            setRenaming(null);
-                            if (next !== '' && next !== feature.name) onRename(feature.id, next);
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter') event.currentTarget.blur();
-                            // Restore the old name before blurring, or the commit on blur saves the
-                            // abandoned edit.
-                            if (event.key === 'Escape') {
-                              event.currentTarget.value = feature.name;
-                              event.currentTarget.blur();
-                            }
-                          }}
-                          // biome-ignore lint/a11y/noAutofocus: the field only exists once asked for
-                          autoFocus
-                          type="text"
-                        />
-                      ) : (
-                        // biome-ignore lint/a11y/noStaticElementInteractions: a drop target for dragging steps; the keyboard has Alt+arrows and the row's menu
-                        <div
-                          className="items-entry"
-                          data-drop={
-                            dropAt?.id === feature.id
-                              ? dropAt.below
-                                ? 'below'
-                                : 'above'
-                              : undefined
-                          }
-                          data-hidden={feature.suppressed === true ? '' : undefined}
-                          data-paused={rollback !== null && index >= rollback ? '' : undefined}
-                          draggable={onMove !== undefined}
-                          onDragEnd={() => {
-                            setDragging(null);
-                            setDropAt(null);
-                          }}
-                          onDragOver={(event) => {
-                            if (dragging === null || dragging === feature.id) return;
-                            event.preventDefault();
-                            const box = event.currentTarget.getBoundingClientRect();
-                            setDropAt({
-                              id: feature.id,
-                              below: event.clientY > box.y + box.height / 2,
-                            });
-                          }}
-                          onDragStart={(event) => {
-                            setDragging(feature.id);
-                            event.dataTransfer.effectAllowed = 'move';
-                          }}
-                          onDrop={(event) => {
-                            event.preventDefault();
-                            if (dragging !== null && dropAt !== null && onMove !== undefined) {
-                              // Index computed with the dragged step removed from the list.
-                              const from = indexOf(dragging);
-                              const target = indexOf(dropAt.id) + (dropAt.below ? 1 : 0);
-                              onMove(dragging, target > from ? target - 1 : target);
-                            }
-                            setDragging(null);
-                            setDropAt(null);
-                          }}
-                        >
-                          <button
-                            aria-current={feature.id === selectedId}
-                            aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-                            className="items-row"
-                            data-state={status?.state ?? 'ok'}
-                            onClick={() => onSelect(feature.id)}
-                            onContextMenu={(event) => {
-                              if (onMove === undefined && onRollback === undefined) return;
-                              event.preventDefault();
-                              setStepMenu({ id: feature.id, x: event.clientX, y: event.clientY });
-                            }}
-                            // Keyboard reordering, alongside dragging.
-                            onKeyDown={(event) => {
-                              if (!event.altKey || onMove === undefined) return;
-                              if (event.key === 'ArrowUp' && index > 0)
-                                onMove(feature.id, index - 1);
-                              else if (event.key === 'ArrowDown' && index < features.length - 1)
-                                onMove(feature.id, index + 1);
-                              else return;
-                              event.preventDefault();
-                            }}
-                            // Rename in place, like the project name in the title bar.
-                            onDoubleClick={() => setRenaming(feature.id)}
-                            type="button"
-                          >
-                            <span aria-hidden="true" className="items-row__icon">
-                              {isSketch(feature) ? <SketchIcon /> : <ModelingIcon />}
-                            </span>
-                            <span className="items-row__text">
-                              <span className="items-row__name">{feature.name}</span>
-                              {/* A broken step shows its error in the list (ADR 0009). */}
-                              {problem !== null && (
-                                <span className="items-row__problem" role="status">
-                                  {problem}
-                                </span>
-                              )}
-                            </span>
-                          </button>
-                          <span className="items-row__actions">
-                            {isSketch(feature) && (
-                              <button
-                                aria-label={`Edit ${feature.name}`}
-                                onClick={() => onEditSketch(feature.id)}
-                                title="Edit sketch"
-                                type="button"
-                              >
-                                <SketchIcon />
-                              </button>
-                            )}
-                            <button
-                              aria-label={`${feature.suppressed === true ? 'Show' : 'Hide'} ${feature.name}`}
-                              onClick={() =>
-                                onToggleSuppressed(feature.id, feature.suppressed !== true)
-                              }
-                              title={feature.suppressed === true ? 'Show' : 'Hide'}
-                              type="button"
-                            >
-                              {feature.suppressed === true ? <EyeOffIcon /> : <EyeIcon />}
-                            </button>
-                            <button
-                              aria-label={`Delete ${feature.name}`}
-                              onClick={() => onDelete(feature.id)}
-                              title="Delete"
-                              type="button"
-                            >
-                              <DeleteIcon />
-                            </button>
-                          </span>
-                        </div>
-                      )}
-                    </li>
-                  </Fragment>
-                );
-              })}
-            </ul>
-            {stepMenu !== null && (
-              <HistoryMenu
-                at={stepMenu}
-                canDown={onMove !== undefined && indexOf(stepMenu.id) < features.length - 1}
-                canUp={onMove !== undefined && indexOf(stepMenu.id) > 0}
-                name={features[indexOf(stepMenu.id)]?.name ?? 'Step'}
-                onClose={() => setStepMenu(null)}
-                onDown={() => onMove?.(stepMenu.id, indexOf(stepMenu.id) + 1)}
-                onRollBack={() => onRollback?.(indexOf(stepMenu.id) + 1)}
-                onUp={() => onMove?.(stepMenu.id, indexOf(stepMenu.id) - 1)}
-              />
-            )}
+            <HistorySteps
+              features={features}
+              onDelete={onDelete}
+              onEditSketch={onEditSketch}
+              onRename={onRename}
+              onSelect={onSelect}
+              onToggleSuppressed={onToggleSuppressed}
+              {...(onMove !== undefined ? { onMove } : {})}
+              {...(onRollback !== undefined ? { onRollback } : {})}
+              rollback={rollback}
+              selectedId={selectedId}
+              shown={shown}
+              statuses={statuses}
+            />
           </>
         )}
       </div>

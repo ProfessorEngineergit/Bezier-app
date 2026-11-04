@@ -42,6 +42,10 @@ export interface ServerOptions {
   mirrorToken?: string;
 }
 
+const HEADERS_MS = 20_000;
+/** Far above what a household or a team opens, each device holding one long poll per project. */
+const MAX_CONNECTIONS = 4096;
+
 export function createSyncServer(options: ServerOptions) {
   const { store } = options;
   const auth = new Auth(store);
@@ -62,7 +66,7 @@ export function createSyncServer(options: ServerOptions) {
   });
   const limiter = new RateLimiter(options.publicRateLimit ?? 60);
 
-  return createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     cors(req, res, options.allowedOrigins ?? []);
@@ -106,6 +110,10 @@ export function createSyncServer(options: ServerOptions) {
       return send(res, 500, { message: 'The server ran into a problem. Your data is unchanged.' });
     }
   });
+  // A connection that dawdles over its headers, or too many at once, must not hold the server.
+  server.headersTimeout = HEADERS_MS;
+  server.maxConnections = MAX_CONNECTIONS;
+  return server;
 }
 
 /** A fixed one-minute window per address. Crude, and enough to make guessing slow. */
@@ -132,7 +140,10 @@ class RateLimiter {
 
 function address(req: IncomingMessage, trustProxy: boolean): string {
   const forwarded = req.headers['x-forwarded-for'];
-  if (trustProxy && typeof forwarded === 'string') return forwarded.split(',')[0]?.trim() ?? '';
+  // The last entry is the one the trusted proxy wrote; anything before it the caller could send.
+  if (trustProxy && typeof forwarded === 'string') {
+    return forwarded.split(',').at(-1)?.trim() ?? '';
+  }
   return req.socket.remoteAddress ?? '';
 }
 

@@ -7,7 +7,7 @@
 
 import type { Shortcut } from './shortcut.js';
 
-export type CategoryId = 'sketch' | 'insert' | 'construct' | 'transform' | 'tools';
+export type CategoryId = 'sketch' | 'insert' | 'construct' | 'transform' | 'tools' | 'parts';
 
 export interface Command {
   id: string;
@@ -55,9 +55,9 @@ export const CATEGORIES: Record<CategoryId, { label: string; commands: readonly 
         variant: 'Diagonal',
         hasVariants: true,
         variants: [
-          { id: 'center-rectangle', label: 'Center' },
           { id: 'diagonal-rectangle', label: 'Diagonal' },
-          // A rotated rectangle will be added once its geometry exists.
+          { id: 'center-rectangle', label: 'Center' },
+          { id: 'three-point-rectangle', label: '3-point' },
         ],
       },
       {
@@ -156,12 +156,34 @@ export const CATEGORIES: Record<CategoryId, { label: string; commands: readonly 
       { id: 'extrude', label: 'Extrude', shortcut: 'E' },
       { id: 'shell', label: 'Shell', shortcut: 'H' },
       { id: 'hole', label: 'Hole' },
+      { id: 'thread', label: 'Thread' },
+      { id: 'boss', label: 'Boss' },
+      { id: 'rib', label: 'Rib' },
+      { id: 'lip', label: 'Lip' },
+      { id: 'draft', label: 'Draft' },
       { id: 'revolve', label: 'Revolve', shortcut: 'V' },
       { id: 'loft', label: 'Loft' },
       { id: 'sweep', label: 'Sweep' },
       { id: 'wrap', label: 'Wrap' },
       { id: 'combine', label: 'Combine', shortcut: 'Cmd+U' },
       { id: 'split', label: 'Split', shortcut: 'K' },
+    ],
+  },
+
+  parts: {
+    label: 'Parts',
+    commands: [
+      { id: 'library', label: 'Library' },
+      { id: 'box', label: 'Box' },
+      { id: 'cylinder', label: 'Cylinder' },
+      { id: 'sphere', label: 'Sphere' },
+      { id: 'cone', label: 'Cone' },
+      { id: 'torus', label: 'Torus' },
+      { id: 'gear', label: 'Gear' },
+      { id: 'spring', label: 'Spring' },
+      { id: 'pipe', label: 'Pipe' },
+      { id: 'snap-fit', label: 'Snap fit' },
+      { id: 'fit-test', label: 'Fit test' },
     ],
   },
 };

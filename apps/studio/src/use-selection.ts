@@ -97,9 +97,9 @@ export function useSelection({
           : [...current, ref];
       });
 
-      // Gizmo anchor: a plain click on one edge anchors it at the hit point along the edge
-      // direction; anything else clears it.
-      if (!additive && ref?.kind === 'edge' && point !== null) {
+      // Gizmo anchor: a click on an edge anchors it at the hit point along the edge direction, so
+      // it follows the edge added last; a plain click on anything else clears it.
+      if (ref?.kind === 'edge' && point !== null) {
         const frame = viewportRef.current?.edgeFrame(ref, point) ?? null;
         setGizmoFrame(frame);
         setGizmoAnchor(frame?.snap ?? point);

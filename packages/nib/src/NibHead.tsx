@@ -1,14 +1,14 @@
 /**
  * Nib's live head and neck (the real model) in its own box. Creates its own stage (one WebGL
- * context, only while needed) and draws only when the stage asks. Where he must stay static (no
- * GPU, reduced motion) it draws nothing and notifies the parent, which shows its fallback.
+ * context, only while needed) and draws only when the stage asks. Until he is drawn, and where he
+ * must stay static (no GPU, reduced motion), a rendered picture of the same head stands in.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { HeadMood } from './head-mood.js';
 import { type NibLook, NibStage } from './stage.js';
 
-export type HeadState = 'loading' | 'live' | 'picture';
+type HeadState = 'loading' | 'live' | 'picture';
 
 export interface NibHeadProps {
   /** Model URL. */
@@ -18,7 +18,6 @@ export interface NibHeadProps {
   active: boolean;
   /** Reduced motion: stays static. */
   still: boolean;
-  onState: (state: HeadState) => void;
   /**
    * Element he looks at instead of the pointer (e.g. a button in a lesson). A function, read a few
    * times a second, so it follows the element.
@@ -28,31 +27,41 @@ export interface NibHeadProps {
   look?: NibLook;
 }
 
+/** The head rendered from the model, beside the model file. */
+const PICTURE = 'nib-head.webp';
+
 /** Pointer distance from his head, in pixels, within which he follows the pointer. */
 const NEAR = 260;
 
-export function NibHead({ model, mood, active, still, onState, lookAt, look }: NibHeadProps) {
+export function NibHead({ model, mood, active, still, lookAt, look }: NibHeadProps) {
   const host = useRef<HTMLDivElement>(null);
   const stage = useRef<NibStage | null>(null);
-  const latest = useRef({ mood, onState, lookAt, look });
-  latest.current = { mood, onState, lookAt, look };
+  const [state, setState] = useState<HeadState>('loading');
+  const latest = useRef({ mood, lookAt, look });
+  latest.current = { mood, lookAt, look };
 
   // The stage: created once the box exists, disposed with it.
   useEffect(() => {
     const element = host.current;
     if (element === null || still) {
-      latest.current.onState('picture');
+      setState('picture');
       return;
     }
     let cancelled = false;
     const canvas = document.createElement('canvas');
+    // A canvas without a working context draws the browser's broken-picture mark over the picture.
+    const givenUp = () => {
+      canvas.remove();
+      setState('picture');
+    };
+    canvas.addEventListener('webglcontextlost', givenUp, { once: true });
     element.append(canvas);
-    latest.current.onState('loading');
+    setState('loading');
     NibStage.create(canvas, model, 'head')
       .then((made) => {
         if (made === null || cancelled) {
           made?.dispose();
-          if (!cancelled) latest.current.onState('picture');
+          if (!cancelled) givenUp();
           return;
         }
         stage.current = made;
@@ -61,10 +70,10 @@ export function NibHead({ model, mood, active, still, onState, lookAt, look }: N
         made.resize(element.clientWidth, element.clientHeight, Math.min(devicePixelRatio, 2));
         made.setMood(latest.current.mood);
         made.setLook(latest.current.look ?? {});
-        latest.current.onState('live');
+        setState('live');
       })
       .catch(() => {
-        if (!cancelled) latest.current.onState('picture');
+        if (!cancelled) givenUp();
       });
     const observer = new ResizeObserver(() => {
       stage.current?.resize(
@@ -153,5 +162,9 @@ export function NibHead({ model, mood, active, still, onState, lookAt, look }: N
     };
   }, [active, still]);
 
-  return <div aria-hidden="true" className="nib-head" ref={host} />;
+  return (
+    <div aria-hidden="true" className="nib-head" data-head={state} ref={host}>
+      <img alt="" draggable={false} src={model.replace(/[^/]+$/, PICTURE)} />
+    </div>
+  );
 }

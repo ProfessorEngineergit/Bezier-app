@@ -1,5 +1,5 @@
 /** A face pull as one reversible feature, across repeated preview/commit cycles. */
-import { formatRef, type StableRef } from '@bezier/core';
+import { type FeatureId, formatRef, type StableRef } from '@bezier/core';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { CylinderEditor } from './CylinderEditor.js';
 import { coalescePreview } from './coalesce-preview.js';
@@ -85,6 +85,15 @@ function PlanarFaceExtrusion({
           params,
         };
   };
+  /** A pull that previews from its own solid; `id` is the step it replaces, if it exists yet. */
+  const heldPull = (session: Session): { id: FeatureId | undefined } | null => {
+    const features = session.document.features;
+    const at = features.findIndex((f) => f.id === id);
+    // The part-only preview supports only add and cut by distance.
+    const plain = sense.current === 'add' || sense.current === 'cut';
+    if (!plain || (at !== -1 && at !== features.length - 1)) return null;
+    return { id: at === -1 ? undefined : id };
+  };
   // Read `setView` through a ref: the coalescer is built once and must call the current one.
   const setViewRef = useRef(setView);
   setViewRef.current = setView;
@@ -99,15 +108,11 @@ function PlanarFaceExtrusion({
       async (signed) => {
         const session = sessionRef.current;
         if (!session) return null;
-        const features = session.document.features;
-        const at = features.findIndex((f) => f.id === id);
-        // The part-only preview supports only add and cut by distance.
-        const plain = sense.current === 'add' || sense.current === 'cut';
-        if (plain && (at === -1 || at === features.length - 1)) {
+        const held = heldPull(session);
+        if (held) {
           if (signed === 0) return { part: null };
-          const replacing = at === -1 ? undefined : id;
           const edit = { kind: 'pull' as const, face, distance: signed };
-          return { part: await session.partPreview(edit, replacing) };
+          return { part: await session.partPreview(edit, held.id) };
         }
         const view =
           signed === 0
@@ -151,6 +156,11 @@ function PlanarFaceExtrusion({
       onOperationChange={() => {}}
       onSenseChange={(next) => {
         sense.current = next;
+      }}
+      onApproach={() => {
+        const session = sessionRef.current;
+        const held = session ? heldPull(session) : null;
+        if (session && held) void session.preparePart({ kind: 'pull', face, distance: 0 }, held.id);
       }}
       onPreview={(value) => preview.request(value)}
       onCommit={(value) => {

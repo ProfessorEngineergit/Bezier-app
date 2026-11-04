@@ -217,6 +217,9 @@ test('all four corners resize about the opposite corner, and the video accepts s
       { steps: 8 },
     );
     await page.mouse.up();
+    // It may glide back inside the window after a resize near the edge; measured once it stands.
+    await expect(panel).not.toHaveAttribute('data-settling', '');
+    await page.waitForTimeout(250);
     const after = await panel.boundingBox();
     if (!after) throw new Error('Missing resized panel');
     expect(after.width).toBeGreaterThan(before.width + 12);

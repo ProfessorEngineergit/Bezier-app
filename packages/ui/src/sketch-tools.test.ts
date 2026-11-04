@@ -1,5 +1,5 @@
 import { sketchProfiles } from '@bezier/core';
-import type { SolveResult } from '@bezier/solver';
+import type { Sketch, SolveResult } from '@bezier/solver';
 import { describe, expect, it } from 'vitest';
 import { arcThrough, circleFromCenter } from './sketch-curves.js';
 import { deleteSketchPrimitives } from './sketch-delete.js';
@@ -14,6 +14,7 @@ import {
   rectangleAt,
   snapSketchPoint,
   snapToGrid,
+  threePointRectangleAt,
 } from './sketch-tools.js';
 
 /** What the placeholder solver does: every point stays where it was drawn. */
@@ -371,5 +372,32 @@ describe('drawn sketches reach the kernel', () => {
 
     const result = sketchProfiles(sketch, solveAsDrawn(sketch), 'XY');
     expect(result.ok && result.profiles).toEqual([]);
+  });
+});
+
+describe('a rectangle from three points', () => {
+  const empty: Sketch = { primitives: [], constraints: [] };
+  const a = { u: 0, v: 0 };
+  const b = { u: 30, v: 40 };
+  it('stands on its first side, as far out as the third point', () => {
+    const made = threePointRectangleAt(empty, a, b, { u: -8, v: 6 });
+    const points = made.primitives.filter((p) => p.kind === 'point');
+    expect(points).toHaveLength(4);
+    const [, , c, d] = points;
+    expect(Math.hypot((c?.x ?? 0) - 30, (c?.y ?? 0) - 40)).toBeCloseTo(10);
+    expect(Math.hypot(d?.x ?? 0, d?.y ?? 0)).toBeCloseTo(10);
+    expect(made.primitives.filter((p) => p.kind === 'line')).toHaveLength(4);
+  });
+  it('holds its corners square and its sides parallel', () => {
+    const made = threePointRectangleAt(empty, a, b, { u: -8, v: 6 });
+    expect(made.constraints.map((c) => c.kind).sort()).toEqual([
+      'parallel',
+      'parallel',
+      'perpendicular',
+    ]);
+  });
+  it('makes nothing from a side of no length, or no height', () => {
+    expect(threePointRectangleAt(empty, a, a, b)).toBe(empty);
+    expect(threePointRectangleAt(empty, a, b, { u: 15, v: 20 })).toBe(empty);
   });
 });

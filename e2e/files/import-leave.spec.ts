@@ -8,11 +8,15 @@ import { loadOcct } from '../../packages/kernel/src/wasm.js';
 import { openApp, openItems, railButton } from '../app.js';
 import { expect, test } from '../fixtures.js';
 
-/** A STEP file (many boxes, about 3 MB) large enough to be read in a dedicated worker. */
-async function bigStep(): Promise<Buffer> {
+/**
+ * A STEP file (many boxes, 3 MB and up) large enough to be read in a dedicated worker. WebKit reads
+ * the smaller one before the question about leaving is answered, so it gets more boxes.
+ */
+async function bigStep(browserName: string): Promise<Buffer> {
   const occt = await loadOcct();
   const boxes = [];
-  for (let i = 0; i < 700; i++) {
+  const count = browserName === 'webkit' ? 2800 : 700;
+  for (let i = 0; i < count; i++) {
     boxes.push(occt.translate(occt.makeBox(5, 5, 5), (i % 28) * 8, Math.floor(i / 28) * 8, 0));
   }
   return Buffer.from(occt.exportStep(occt.makeCompound(boxes)));
@@ -32,9 +36,12 @@ async function startImport(page: import('@playwright/test').Page, buffer: Buffer
 const question = (page: import('@playwright/test').Page) =>
   page.locator('.nib-island').getByRole('alertdialog');
 
-test('leaving while a model loads: kept loading, it is in, and Nib opens it', async ({ page }) => {
+test('leaving while a model loads: kept loading, it is in, and Nib opens it', async ({
+  page,
+  browserName,
+}) => {
   test.setTimeout(240_000);
-  const buffer = await bigStep();
+  const buffer = await bigStep(browserName);
   expect(buffer.length).toBeGreaterThan(2_000_000);
   await openApp(page);
   await startImport(page, buffer);
@@ -52,9 +59,12 @@ test('leaving while a model loads: kept loading, it is in, and Nib opens it', as
   await expect(page.locator('.body-row').first()).toBeVisible({ timeout: 30_000 });
 });
 
-test('leaving while a model loads: stopping it leaves no import behind', async ({ page }) => {
+test('leaving while a model loads: stopping it leaves no import behind', async ({
+  page,
+  browserName,
+}) => {
   test.setTimeout(240_000);
-  const buffer = await bigStep();
+  const buffer = await bigStep(browserName);
   await openApp(page);
   await startImport(page, buffer);
   await page.getByRole('button', { name: 'Projects', exact: true }).click();

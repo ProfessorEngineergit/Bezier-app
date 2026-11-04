@@ -41,6 +41,7 @@ export function diffOperations(from: CadDocument, to: CadDocument): Operation[] 
         index,
         params: target.params,
         ...(target.expressions !== undefined ? { expressions: target.expressions } : {}),
+        ...(target.view !== undefined ? { view: target.view } : {}),
       });
     } else if (at !== index) {
       push({ op: 'moveFeature', id: target.id, toIndex: index });
@@ -121,7 +122,14 @@ function metaChanges(doc: CadDocument, to: CadDocument): Operation[] {
     list = [...list.slice(0, index), variable, ...list.slice(index)];
   });
 
-  // Saved views are few and small: rewrite the whole list if it differs.
+  // Saved views and variants are few and small: rewrite the whole list if it differs.
+  const variants = b.variants ?? [];
+  if (JSON.stringify(a.variants ?? []) !== JSON.stringify(variants)) {
+    for (const variant of a.variants ?? [])
+      ops.push({ op: 'setVariant', name: variant.name, values: null });
+    for (const variant of variants)
+      ops.push({ op: 'setVariant', name: variant.name, values: variant.values });
+  }
   const views = b.savedViews ?? [];
   if (JSON.stringify(a.savedViews ?? []) !== JSON.stringify(views)) {
     for (const view of a.savedViews ?? [])

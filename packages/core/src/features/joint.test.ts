@@ -1,10 +1,11 @@
 import type { GeometryKernel, KernelResult } from '@bezier/kernel';
 import { createOcctKernel } from '@bezier/kernel/occt';
-import { beforeAll, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createEmptyDocument } from '../document.js';
 import { RebuildCache } from '../rebuild/cache.js';
 import { rebuild } from '../rebuild/rebuild.js';
 import { stubSolver, testSketch } from '../rebuild/testing.js';
+import { heldAtLimits } from './joint.js';
 
 let kernel: GeometryKernel;
 const cache = new RebuildCache();
@@ -70,4 +71,16 @@ it('turns the part about the axis, held by its limits', async () => {
   expect(turned.min.x).toBeCloseTo(-50, 4);
   const held = await jointed({ kind: 'revolute', axis, angle: Math.PI, maxAngle: 0 });
   expect(held.min.x).toBeCloseTo(0, 4);
+});
+
+describe('heldAtLimits', () => {
+  it('holds a value at the limit it passed', () => {
+    const params = { kind: 'revolute', angle: 2, minAngle: 0, maxAngle: 1 };
+    expect(heldAtLimits(params).angle).toBe(1);
+  });
+
+  it('leaves a value inside its limits and what has no limits alone', () => {
+    const params = { kind: 'slider', distance: 5, minDistance: 0, maxDistance: 10, angle: 9 };
+    expect(heldAtLimits(params)).toEqual(params);
+  });
 });

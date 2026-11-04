@@ -46,6 +46,7 @@ import {
 } from './navigation.js';
 import { Redraw } from './redraw.js';
 import { type ReferenceMesh, ReferenceMeshes } from './reference-meshes.js';
+import { awaySign, type SectionCut } from './section-cut.js';
 import { createSketchDraw, type SketchDraw } from './sketch-draw.js';
 import { createSketchPlanes, type PlaneName, type SketchPlanes } from './sketch-planes.js';
 import { addStudioLights } from './studio-lights.js';
@@ -288,8 +289,10 @@ export class ViewportScene {
   fit(box?: Bounds): void {
     this.#settleControls();
     scratchBox.makeEmpty();
-    if (box === undefined) scratchBox.expandByObject(this.content);
-    else scratchBox.set(scratchBox.min.copy(box.min), scratchBox.max.copy(box.max));
+    if (box === undefined) {
+      // Imported meshes are what a model is often built against, so they are framed too.
+      scratchBox.expandByObject(this.content).expandByObject(this.#references.group);
+    } else scratchBox.set(scratchBox.min.copy(box.min), scratchBox.max.copy(box.max));
     // An empty scene frames the origin at the default standoff, so the camera is never stranded.
     if (scratchBox.isEmpty()) {
       this.controls.target.set(0, 0, 0);
@@ -478,12 +481,19 @@ export class ViewportScene {
   }
 
   /** Cuts the model at a height along +Z; `null` removes the plane so no clip test runs. */
-  setSection(at: number | null): void {
-    if (at === null) {
+  setSection(cut: SectionCut | null): void {
+    if (cut === null) {
       this.#renderer.clippingPlanes = [];
       return;
     }
-    this.#section.constant = at;
+    // A clipping plane keeps what its normal points at: away from the side cut away.
+    const away = awaySign(cut);
+    this.#section.normal.set(
+      cut.axis === 'x' ? -away : 0,
+      cut.axis === 'y' ? -away : 0,
+      cut.axis === 'z' ? -away : 0,
+    );
+    this.#section.constant = away * cut.at;
     this.#renderer.clippingPlanes = [this.#section];
   }
 
@@ -582,6 +592,16 @@ export class ViewportScene {
       this.#glide = null;
       return;
     }
+    this.#glideFrom(fromPosition, fromTarget, fromZoom, fromParallel);
+  }
+
+  /** Runs `place`, which moves the camera, and glides there from where it stood. */
+  glideInto(place: () => void): void {
+    const fromParallel = this.#rig.isOrthographic;
+    const fromPosition = this.camera.position.clone();
+    const fromTarget = this.controls.target.clone();
+    const fromZoom = this.#rig.isOrthographic ? this.#rig.orthographic.zoom : 1;
+    place();
     this.#glideFrom(fromPosition, fromTarget, fromZoom, fromParallel);
   }
 

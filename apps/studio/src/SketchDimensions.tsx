@@ -112,9 +112,11 @@ export function SketchDimensions({
               ? onCircleChange === undefined
                 ? undefined
                 : (id: SketchId, diameter: number) => onCircleChange(id, diameter / 2)
-              : dimension.sourceKind === 'constraint'
-                ? onConstraintChange
-                : onChange;
+              : dimension.sourceKind === 'arc'
+                ? onCircleChange
+                : dimension.sourceKind === 'constraint'
+                  ? onConstraintChange
+                  : onChange;
         return (
           <div className="sketch-dimension-set" key={dimension.id}>
             <svg aria-hidden="true" className="sketch-dimension__guide">
@@ -150,7 +152,7 @@ export function SketchDimensions({
                 </span>
               ) : (
                 <DimensionInput
-                  label={`${dimension.sourceKind === 'circle' ? 'Diameter for sketch circle' : dimension.sourceKind === 'constraint' ? 'Value for sketch dimension' : 'Length for sketch line'} ${sourceId}`}
+                  label={`${dimension.sourceKind === 'circle' ? 'Diameter for sketch circle' : dimension.sourceKind === 'arc' ? 'Radius for sketch arc' : dimension.sourceKind === 'constraint' ? 'Value for sketch dimension' : 'Length for sketch line'} ${sourceId}`}
                   length={dimension.length}
                   onChange={(value) => change(sourceId, value)}
                 />

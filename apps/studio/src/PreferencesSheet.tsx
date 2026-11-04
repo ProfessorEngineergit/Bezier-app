@@ -36,6 +36,7 @@ export { DEFAULT_PREFS, QUALITY_DEFLECTION } from './preferences.js';
 interface Props {
   prefs: AppPrefs;
   onChange: (next: AppPrefs) => void;
+  onBackupAll: () => void;
   version: string;
   /** The section shown. Owned by the start page, whose search can jump to one. */
   tab: SettingsTab;
@@ -48,7 +49,15 @@ interface Props {
 }
 type Setter = <K extends keyof AppPrefs>(key: K, value: AppPrefs[K]) => void;
 
-export function PreferencesPage({ prefs, onChange, version, tab, onTab, filter }: Props) {
+export function PreferencesPage({
+  prefs,
+  onChange,
+  onBackupAll,
+  version,
+  tab,
+  onTab,
+  filter,
+}: Props) {
   const set: Setter = (key, value) => onChange({ ...prefs, [key]: value });
   const channel = useChannel();
   const visible = useMemo(() => settingsMatching(filter, channel), [filter, channel]);
@@ -110,7 +119,9 @@ export function PreferencesPage({ prefs, onChange, version, tab, onTab, filter }
           />
         )}{' '}
         {tab === 'mcp' && <McpSettings />}{' '}
-        {tab === 'data' && <Data onReset={() => onChange(DEFAULT_PREFS)} />}{' '}
+        {tab === 'data' && (
+          <Data onBackupAll={onBackupAll} onReset={() => onChange(DEFAULT_PREFS)} />
+        )}{' '}
         {tab === 'contribute' && <Contribute version={version} />}
       </div>
     </section>
@@ -310,7 +321,7 @@ function Viewport({ prefs, set }: { prefs: AppPrefs; set: Setter }) {
   );
 }
 
-function Data({ onReset }: { onReset: () => void }) {
+function Data({ onBackupAll, onReset }: { onBackupAll: () => void; onReset: () => void }) {
   const [usage, setUsage] = useState('Calculating…');
   // Reset asks for confirmation first and confirms when done.
   const [reset, setReset] = useState<'idle' | 'asking' | 'done'>('idle');
@@ -339,6 +350,16 @@ function Data({ onReset }: { onReset: () => void }) {
         </Row>
         <Row label="Cloud sync">
           <Planned />
+        </Row>
+      </Group>
+      <Group label="Backup">
+        <Row
+          label="All projects"
+          note="One file with every project and its history. Open it here again to bring them back."
+        >
+          <button className="prefs-button" onClick={onBackupAll} type="button">
+            Save backup
+          </button>
         </Row>
       </Group>
       <Group label="Preferences">

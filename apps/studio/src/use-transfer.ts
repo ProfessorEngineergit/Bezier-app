@@ -101,6 +101,7 @@ const ACCEPTED = [
   '.dxf',
   '.svg',
   '.bezier',
+  '.bezierbackup',
   ...IMAGE_EXTENSIONS,
 ];
 
@@ -128,6 +129,8 @@ interface TransferDeps {
   importImage: (name: string, bytes: Uint8Array, type: string) => Promise<string | null>;
   /** Opens a project backup (`.bezier`) as a new project. Resolves to an error, or null. */
   importProject: (name: string, text: string) => Promise<string | null>;
+  /** Opens every project of a `.bezierbackup` file. Resolves to an error, or null. */
+  importProjects: (bytes: Uint8Array) => Promise<string | null>;
 }
 
 export function useTransfer({
@@ -138,6 +141,7 @@ export function useTransfer({
   importDrawing,
   importImage,
   importProject,
+  importProjects,
 }: TransferDeps): TransferHandle {
   const [dropping, setDropping] = useState(false);
   const { begin, notify } = tasks;
@@ -157,13 +161,15 @@ export function useTransfer({
 
       const kind = picture
         ? 'image'
-        : name.endsWith('.bezier')
-          ? 'project'
-          : name.endsWith('.dxf') || name.endsWith('.svg')
-            ? 'drawing'
-            : name.endsWith('.stl') || name.endsWith('.obj')
-              ? 'mesh'
-              : 'solid';
+        : name.endsWith('.bezierbackup')
+          ? 'projects'
+          : name.endsWith('.bezier')
+            ? 'project'
+            : name.endsWith('.dxf') || name.endsWith('.svg')
+              ? 'drawing'
+              : name.endsWith('.stl') || name.endsWith('.obj')
+                ? 'mesh'
+                : 'solid';
       // Ask first when the machine likely lacks the memory, rather than let the OS kill the app
       // mid-import (e.g. the Voron on 8 GB).
       const tight = kind === 'solid' ? importTooLarge(file.size) : null;
@@ -204,13 +210,15 @@ export function useTransfer({
           refused =
             kind === 'image'
               ? await importImage(file.name, bytes, file.type)
-              : kind === 'project'
-                ? await importProject(file.name, new TextDecoder().decode(bytes))
-                : kind === 'mesh'
-                  ? await importMesh(file.name, bytes)
-                  : kind === 'drawing'
-                    ? await importDrawing(file.name, new TextDecoder().decode(bytes))
-                    : await importStep(file.name, new TextDecoder().decode(bytes));
+              : kind === 'projects'
+                ? await importProjects(bytes)
+                : kind === 'project'
+                  ? await importProject(file.name, new TextDecoder().decode(bytes))
+                  : kind === 'mesh'
+                    ? await importMesh(file.name, bytes)
+                    : kind === 'drawing'
+                      ? await importDrawing(file.name, new TextDecoder().decode(bytes))
+                      : await importStep(file.name, new TextDecoder().decode(bytes));
         } finally {
           building.stop();
         }
@@ -227,11 +235,13 @@ export function useTransfer({
                   ? { detail: 'As a picture on the XY plane. Drag it into place and size.' }
                   : kind === 'project'
                     ? { detail: 'As a new project in All Projects.' }
-                    : kind === 'mesh'
-                      ? { detail: 'As a reference mesh to model against.' }
-                      : kind === 'drawing'
-                        ? { detail: 'As a sketch on the XY plane.' }
-                        : {}),
+                    : kind === 'projects'
+                      ? { detail: 'As new projects in All Projects.' }
+                      : kind === 'mesh'
+                        ? { detail: 'As a reference mesh to model against.' }
+                        : kind === 'drawing'
+                          ? { detail: 'As a sketch on the XY plane.' }
+                          : {}),
               }
             : { title: `Could not import ${file.name}`, detail: refused, tone: 'fail' },
         );
@@ -243,7 +253,17 @@ export function useTransfer({
         });
       }
     },
-    [begin, notify, lock, importStep, importMesh, importDrawing, importImage, importProject],
+    [
+      begin,
+      notify,
+      lock,
+      importProjects,
+      importStep,
+      importMesh,
+      importDrawing,
+      importImage,
+      importProject,
+    ],
   );
 
   /**

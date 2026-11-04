@@ -11,8 +11,8 @@
 import type { CubeFace, Vec } from './view-cube-geometry.js';
 import { AXIS_CORNER, AXIS_PARTS, CUBE, CUBE_HALF, labelOf, shadeOf } from './view-cube-model.js';
 
-/** Margin around the 48 px cube for perspective corners, arms and letters. */
-export const CANVAS_MARGIN = 30;
+/** Margin around the 48 px cube for perspective corners, arms and letters: `--cube-margin`. */
+export const CANVAS_MARGIN = 52;
 export const CANVAS_SIZE = CUBE_HALF * 2 + CANVAS_MARGIN * 2;
 
 type Rgb = readonly [number, number, number];

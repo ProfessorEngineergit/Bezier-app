@@ -4,7 +4,7 @@
  * a variable through its expression, e.g. `wall * 2`.
  */
 
-import { variableNameProblem } from '@bezier/core';
+import { type DocumentMeta, type Variant, variableNameProblem } from '@bezier/core';
 import { CrossIcon } from '@bezier/ui';
 import { useState } from 'react';
 import type { Variables } from './use-variables.js';
@@ -14,15 +14,24 @@ function shown(value: number): string {
   return String(Math.round(value * 1000) / 1000);
 }
 
+/** Whether the variables stand at exactly this variant's values. */
+const current = (variant: Variant, list: readonly { name: string; expression: string }[]) =>
+  Object.entries(variant.values).every(
+    ([name, expression]) => list.find((entry) => entry.name === name)?.expression === expression,
+  );
+
 export function VariablesPanel({
-  list,
+  meta,
   variables,
   onClose,
 }: {
-  list: readonly { name: string; expression: string }[];
+  meta: DocumentMeta | undefined;
   variables: Variables;
   onClose: () => void;
 }) {
+  const list = meta?.variables ?? [];
+  const variants = meta?.variants ?? [];
+  const [variantName, setVariantName] = useState('');
   const [name, setName] = useState('');
   const [expression, setExpression] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
@@ -133,6 +142,46 @@ export function VariablesPanel({
         <button type="submit">Add</button>
       </form>
       {problem !== null && <p className="variables-panel__error">{problem}</p>}
+      {list.length > 0 && (
+        <section aria-label="Variants" className="variables-panel__variants">
+          <h3>Variants</h3>
+          {variants.length > 0 && (
+            <ul>
+              {variants.map((variant) => (
+                <li aria-current={current(variant, list)} key={variant.name}>
+                  <button onClick={() => variables.applyVariant(variant)} type="button">
+                    {variant.name}
+                  </button>
+                  <button
+                    aria-label={`Remove ${variant.name}`}
+                    onClick={() => variables.removeVariant(variant.name)}
+                    type="button"
+                  >
+                    <CrossIcon />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const name = variantName.trim();
+              if (name === '') return;
+              variables.saveVariant(name);
+              setVariantName('');
+            }}
+          >
+            <input
+              aria-label="New variant name"
+              onChange={(event) => setVariantName(event.target.value)}
+              placeholder="Small, medium, large"
+              value={variantName}
+            />
+            <button type="submit">Keep these</button>
+          </form>
+        </section>
+      )}
     </aside>
   );
 }

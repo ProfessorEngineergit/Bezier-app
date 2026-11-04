@@ -191,46 +191,4 @@ export function ScreenshotPanel({ settings, onChange, onCapture, onClose }: Scre
   );
 }
 
-/** An entry in the operation history. */
-export interface HistoryEntry {
-  seq: number;
-  at: string;
-  description: string;
-}
-
-export function HistoryPanel({
-  entries,
-  onClose,
-}: {
-  entries: readonly HistoryEntry[];
-  onClose: () => void;
-}) {
-  return (
-    <Popover onClose={onClose} side="right" title="History">
-      {entries.length === 0 ? (
-        <p className="popover__note">
-          Nothing yet. Once you start modelling, every step shows up here in the order it happened.
-        </p>
-      ) : (
-        <ol className="history">
-          {entries.map((entry) => (
-            <li key={entry.seq}>
-              <span className="history__what">{entry.description}</span>
-              <span className="history__when">{time(entry.at)}</span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </Popover>
-  );
-}
-
-/** Time-of-day part of an ISO timestamp. */
-function time(iso: string): string {
-  const at = new Date(iso);
-  return Number.isNaN(at.getTime())
-    ? ''
-    : at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-}
-
 export type PanelChildren = ReactNode;

@@ -106,6 +106,29 @@ export function InspectionPanel({
     [current, put, surroundings],
   );
 
+  // A rail's names appear on hover and may land on this panel: those stay hidden while it is there,
+  // as they do under an open flyout.
+  useEffect(() => {
+    const check = () => {
+      const panel = ref.current?.getBoundingClientRect();
+      if (panel === undefined) return;
+      for (const labels of document.querySelectorAll('.rail__group > .rail__labels')) {
+        const { left, right, top, bottom } = labels.getBoundingClientRect();
+        const covers =
+          left < panel.right && panel.left < right && top < panel.bottom && panel.top < bottom;
+        labels.toggleAttribute('data-covered', covers);
+      }
+    };
+    check();
+    document.addEventListener('pointerover', check);
+    return () => {
+      document.removeEventListener('pointerover', check);
+      for (const labels of document.querySelectorAll('[data-covered]')) {
+        labels.removeAttribute('data-covered');
+      }
+    };
+  }, []);
+
   // Re-settle when anything on the stage opens or closes, or the stage or panel resizes. At most
   // once per frame.
   useEffect(() => {

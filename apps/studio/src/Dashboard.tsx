@@ -60,6 +60,8 @@ export interface DashboardProps {
   /** The projects have been read; until then there is nothing to say about them. */
   loaded: boolean;
   documents: readonly DocumentInfo[];
+  /** Saves every project into one file (Settings, Data). */
+  onBackupAll: () => void;
   index: DashboardIndex;
   openFolder: string | null;
   onOpenFolder: (id: string | null) => void;
@@ -115,6 +117,7 @@ let answeredLearnRequest = 0;
 let landed = false;
 
 export function Dashboard({
+  onBackupAll,
   loaded,
   documents: everything,
   index,
@@ -570,6 +573,7 @@ export function Dashboard({
           ) : (
             <PreferencesPage
               filter={settingsSearch ? terms : []}
+              onBackupAll={onBackupAll}
               onChange={onPrefsChange}
               onTab={setSettingsTab}
               prefs={prefs}

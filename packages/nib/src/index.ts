@@ -35,7 +35,7 @@ export {
   type NibIslandProps,
 } from './island/NibIsland.js';
 export { grown } from './layout.js';
-export type { HeadState, NibHeadProps } from './NibHead.js';
+export type { NibHeadProps } from './NibHead.js';
 export { NibHead } from './NibHead.js';
 export {
   NibProvider,

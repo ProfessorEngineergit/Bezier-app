@@ -52,6 +52,8 @@ export type KernelMethod =
   | 'resizeCylinder'
   | 'moveParts'
   | 'offsetFaces'
+  | 'draftFaces'
+  | 'rimBand'
   | 'facePlane'
   | 'tessellate'
   | 'extractEdges'

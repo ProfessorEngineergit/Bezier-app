@@ -1,6 +1,6 @@
 # Icons
 
-The new icon set: 57 icons, drawn as code, as thin glass lines on a 16-unit grid. It is the set the
+The new icon set: 96 icons, drawn as code, as thin glass lines on a 16-unit grid. It is the set the
 app ships: `scripts/build-app-icons.mjs` turns it into `packages/ui/src/icons/brand-icons.generated.tsx`.
 The few icons it does not draw (slot, point, loft, sweep, joint, wrap, align, part, mouse, trackpad)
 are still drawn in `packages/ui/src/icons/Icons.tsx`.

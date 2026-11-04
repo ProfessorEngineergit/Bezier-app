@@ -6,6 +6,7 @@
 
 import { getFeature, type ParamsSpec } from '@bezier/core';
 import { PropertyPanel } from '@bezier/ui';
+import './tool-bar.css';
 import { type ActiveSurface, leaningSurface } from './use-sketch.js';
 import './move-gizmo.css';
 

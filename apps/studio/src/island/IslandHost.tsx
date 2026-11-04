@@ -396,7 +396,6 @@ export function IslandHost() {
           ? {}
           : { percent: formatPercent(view.progress) })}
         look={{ body: style.body, eyes: style.eyes }}
-        lively={level === 'friendly'}
         model="/nib/nib.glb"
         onClose={() => {
           setFirstMeeting(false);

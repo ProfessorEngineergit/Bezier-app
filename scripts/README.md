@@ -10,6 +10,6 @@
 | `linux-build/` | The Linux packages built in Docker (`build.sh`), and the Fedora `.rpm` packed natively from the `.deb` (`rpm-from-deb.sh`) |
 | `platform-check/` | The installed app checked on a clean Fedora 41 (`run-fedora.sh`): the film plays, the machine is recognised, how fast tools open, frames at rest (`check.mjs`, also usable by hand on Windows) |
 | `capture/` | The screenshots: `mac-window.sh`, `windows-window.ps1`, `screen.ps1`, `optimise.mjs` ([`docs/assets/README.md`](../docs/assets/README.md)) |
-| `dmg-background/` | The picture behind the installer window of the macOS .dmg: `render-nib.py` renders Nib in Blender (`art/nib.png`), `build.mjs` lays him on the brand ground and writes `apps/desktop/src-tauri/dmg/background.png`, and refuses to run if the icon positions in `tauri.conf.json` disagree with the drawing |
+| `dmg-background/` | The installer window of the macOS .dmg (`window.py`, its layout for release builds) and the picture behind it: `render-nib.py` renders Nib in Blender (`art/nib.png`), `build.mjs` lays him on the brand ground and writes `apps/desktop/src-tauri/dmg/background.png`, and refuses to run if the icon positions in `tauri.conf.json` disagree with the drawing |
 | `release.mjs` | Builds installers (`pnpm release`) |
 | `invite.mjs` | Makes, lists and withdraws invitation codes for the alpha channel (`pnpm invite`) |

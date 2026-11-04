@@ -62,6 +62,7 @@
 .dropzone__label,
 .menu,
 .items-panel,
+.history-panel,
 .inspection-panel,
 .dwg-toolbar,
 .dwg-inspector,
@@ -91,6 +92,7 @@
   .dropzone__label,
   .menu,
   .items-panel,
+  .history-panel,
   .inspection-panel,
   .dwg-toolbar,
   .dwg-inspector,
@@ -519,6 +521,10 @@
 }
 
 /* A group that still needs something keeps its labels visible until satisfied. */
+.rail__labels[data-covered] {
+  visibility: hidden;
+}
+
 .rail__group[data-needed] > .rail__labels {
   opacity: 1;
 }

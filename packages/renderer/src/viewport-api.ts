@@ -14,6 +14,7 @@ import type { ImageLayer } from './reference-images.js';
 import type { ReferenceMesh } from './reference-meshes.js';
 import type { ResultField } from './result-overlay.js';
 import type { CubeSide, ViewName } from './scene.js';
+import type { SectionCut } from './section-cut.js';
 import type { PlaneName } from './sketch-planes.js';
 
 /**
@@ -81,6 +82,8 @@ export interface Viewport {
    * Draws a rebuilt part (the solid a face pull is dragging) in place of the faces `replaces`
    * names. Null, or the next `setGeometry`, removes it.
    */
+  /** Lights the faces a history step made, or none. */
+  hoverStep(feature: string | null): void;
   showPartPreview(part: PartMesh | null, replaces?: readonly StableRef[]): void;
   /**
    * Draws the faces `replaces` names moved by `matrix` (column-major), for dragging a body without
@@ -111,7 +114,7 @@ export interface Viewport {
   /** Whether the view is currently a true parallel projection. */
   isOrthographic(): boolean;
   /** Cut along +Z at this height, or stop cutting with null. */
-  setSection(at: number | null): void;
+  setSection(cut: SectionCut | null): void;
   /** Square up to a named view. `animate` glides there instead of cutting. */
   /** A file dragged over the view at this point (CSS pixels), or null; drives the cloth effect. */
   pressFabric(point: { x: number; y: number } | null): void;
@@ -228,7 +231,8 @@ export interface Viewport {
   cameraPosition(): Readonly<{ x: number; y: number; z: number }>;
   /** The camera as a view that can be saved and gone back to (audit F-034). */
   cameraView(): CameraView;
-  showCameraView(view: CameraView): void;
+  /** `animate` glides there instead of jumping. */
+  showCameraView(view: CameraView, animate?: boolean): void;
   /**
    * World millimetres per screen pixel at the given distance (ignored for an orthographic camera),
    * for converting gizmo drags to world distances.
@@ -248,6 +252,13 @@ export interface Viewport {
    * them. Picking still uses the model. New geometry drops the results.
    */
   setResultField(field: ResultField | null): void;
+  /**
+   * Colours the model by wall thickness against `limit` millimetres, or clears it with null.
+   * Answers the thinnest wall and the share of the surface under the limit.
+   */
+  showWallThickness(limit: number | null): { thinnest: number; thin: number } | null;
+  /** Pulls the bodies apart for a look; 0 puts them back. Nothing in the model changes. */
+  setExploded(bodies: readonly (readonly StableRef[])[], amount: number): void;
   /** Scale the drawn displacement: 0 is undeformed, 1 is true scale. */
   setResultDeform(scale: number): void;
   /** Scalar under the pointer, on the displayed (possibly deformed) result mesh. */

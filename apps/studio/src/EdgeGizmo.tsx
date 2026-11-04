@@ -25,6 +25,12 @@ import { projectWorldArrow, worldEdgeArrow } from './world-edge-arrow.js';
 
 export type EdgeOp = 'fillet' | 'chamfer';
 
+/** After a size did not fit: what was built instead, or the largest that would fit. */
+export interface EdgeApplied {
+  kept?: number;
+  largest?: number;
+}
+
 export interface EdgeGizmoProps {
   initialKind?: EdgeOp;
   initialSize?: number;
@@ -34,7 +40,8 @@ export interface EdgeGizmoProps {
   /** Which way the edge runs and which way is out of the solid, in world space. */
   frame: EdgeFrame | null;
   handleRef: React.RefObject<ViewportHandle | null>;
-  onApply: (kind: EdgeOp, size: number) => void;
+  /** Commits; may answer what it did instead (`EdgeApplied`). */
+  onApply: (kind: EdgeOp, size: number) => Promise<EdgeApplied | undefined> | undefined;
   /** Called on every drag tick for a live preview; does not commit. */
   onPreview?: (kind: EdgeOp, size: number) => void;
   /** Called when the gizmo should go away without committing. */
@@ -104,6 +111,20 @@ export function EdgeGizmo({
    * distance, so a drag reports the size under the cursor at the current zoom.
    */
   const mmPerPixel = useRef(MM_PER_PIXEL_FALLBACK);
+  const [offer, setOffer] = useState<number | null>(null);
+  /** Commits and takes in the answer: a drag past the limit keeps the last size that fitted. */
+  const commit = (op: EdgeOp, value: number) => {
+    setOffer(null);
+    void Promise.resolve(onApply(op, value)).then((applied) => {
+      setOffer(applied?.largest ?? null);
+      if (applied?.kept !== undefined) {
+        setSize(applied.kept);
+        lastSize.current = applied.kept;
+      }
+    });
+  };
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
   const number = useEdgeNumber({
     size,
     onStart: () => {
@@ -119,7 +140,7 @@ export function EdgeGizmo({
     onCommit: (value) => {
       setSize(value);
       lastSize.current = value;
-      if (value > 0 || lockKind) onApply(kindRef.current, value);
+      if (value > 0 || lockKind) commit(kindRef.current, value);
     },
   });
 
@@ -261,7 +282,7 @@ export function EdgeGizmo({
       setDragging(false);
       // Commit once on release, from the ref onMove kept current. Called here, not inside a state
       // updater, so it never runs during a render. Size 0 still reaches it: the preview must go.
-      onApply(kindRef.current, lastSize.current);
+      commitRef.current(kindRef.current, lastSize.current);
     };
 
     window.addEventListener('pointermove', onMove);
@@ -270,7 +291,7 @@ export function EdgeGizmo({
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
     };
-  }, [onApply, onPreview, initialKind, lockKind]);
+  }, [onPreview, initialKind, lockKind]);
 
   // Escape cancels without committing.
   useEffect(() => {
@@ -341,7 +362,15 @@ export function EdgeGizmo({
           </button>
 
           {menuOpen && (
-            <div className="edge-gizmo__menu" role="menu">
+            <div
+              className="edge-gizmo__menu"
+              // Near the foot of the window it opens upward, or its choices are out of reach.
+              ref={(menu) => {
+                if (menu !== null && menu.getBoundingClientRect().bottom > window.innerHeight)
+                  menu.dataset.up = '';
+              }}
+              role="menu"
+            >
               <p className="edge-gizmo__menu-title">Chamfer/Fillet</p>
               {(['fillet', 'chamfer'] as const).map((option) => (
                 <button
@@ -391,6 +420,21 @@ export function EdgeGizmo({
           <button className="edge-gizmo__value" onClick={() => number.start()} type="button">
             {label}
             <span className="edge-gizmo__unit">mm</span>
+          </button>
+        )}
+
+        {offer !== null && !number.editing && (
+          <button
+            className="edge-gizmo__offer"
+            onClick={() => {
+              setSize(offer);
+              lastSize.current = offer;
+              commit(kind, offer);
+            }}
+            type="button"
+          >
+            Use {kind === 'fillet' ? 'R' : ''}
+            {trim(offer)}
           </button>
         )}
       </div>

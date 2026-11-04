@@ -39,6 +39,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             ask::ask_question,
             external::open_external,
+            external::open_in_slicer,
             lesson::load_lesson_state,
             lesson::open_lesson_state_file,
             memory::machine_memory,

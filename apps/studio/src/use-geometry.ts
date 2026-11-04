@@ -2,15 +2,18 @@ import {
   type FaceRef,
   type FeatureId,
   formatRef,
+  heldAtLimits,
   type Operation,
   type SketchPlane,
   type StableRef,
 } from '@bezier/core';
+import type { Point2 } from '@bezier/solver';
 import { rectangleSketch } from '@bezier/ui';
 import { type MutableRefObject, useCallback, useRef, useState } from 'react';
 import { coalescePreview } from './coalesce-preview.js';
-import type { EdgeOp } from './EdgeGizmo.js';
+import type { EdgeApplied, EdgeOp } from './EdgeGizmo.js';
 import { countedName } from './feature-names.js';
+import { revolveAxis } from './revolve-axis.js';
 import type { Session, SessionView } from './session.js';
 import type { PartEdit, PartPreview } from './session-part-edit.js';
 
@@ -34,6 +37,8 @@ export interface ExtrudeParams {
 export interface SketchTarget {
   sketch: FeatureId;
   regions: readonly string[];
+  /** What those regions look like in the sketch's own plane. */
+  outlines: readonly (readonly Point2[])[];
 }
 
 /** Defaults for the rail's Extrude. */
@@ -61,6 +66,8 @@ interface GeometryDeps {
   say: (msg: string) => void;
   /** Draws one part in place of its solid while dragged; null removes it. */
   showPart: (part: PartPreview | null) => void;
+  /** A step was built whose settings should open. */
+  onCreated: (id: FeatureId) => void;
 }
 
 export function useGeometry({
@@ -74,6 +81,7 @@ export function useGeometry({
   checkContacts,
   say,
   showPart,
+  onCreated,
 }: GeometryDeps) {
   // Read through a ref: the preview coalescers below are created once (lazy useState) and must see
   // the current `setView` when a preview resolves.
@@ -173,15 +181,24 @@ export function useGeometry({
     [extrudePreview],
   );
 
+  /** A step that used up the pick was built: nothing may keep offering to pull the old face. */
+  const opened = useCallback(
+    (id: FeatureId) => {
+      setSelectedRefs([]);
+      onCreated(id);
+    },
+    [setSelectedRefs, onCreated],
+  );
+
   const addRevolve = useCallback(() => {
     const target = railTarget();
-    void run((session) => {
+    void run(async (session) => {
       if (target === null) {
         say('Draw a closed shape before revolving it.');
         return session.rebuild();
       }
       const id = `revolve-${String(Date.now())}`;
-      return addOrExplain(session, say, id, 'Revolve', {
+      const view = await addOrExplain(session, say, id, 'Revolve', {
         op: 'addFeature',
         id,
         type: 'revolve',
@@ -189,14 +206,16 @@ export function useGeometry({
         index: session.document.features.length,
         params: {
           sketch: target.sketch,
-          axis: 'u',
+          axis: revolveAxis(target.outlines),
           angleDegrees: 360,
           operation: 'new',
           regions: target.regions,
         },
       });
+      if (session.document.features.some((feature) => feature.id === id)) opened(id);
+      return view;
     });
-  }, [run, railTarget, say]);
+  }, [run, railTarget, say, opened]);
 
   const addFillet = useCallback(() => {
     const edges = selectedRefs.filter((ref) => ref.kind === 'edge');
@@ -224,17 +243,19 @@ export function useGeometry({
       return;
     }
     const id = `shell-${String(Date.now())}`;
-    void run((session) =>
-      addOrExplain(session, say, id, 'Shell', {
+    void run(async (session) => {
+      const view = await addOrExplain(session, say, id, 'Shell', {
         op: 'addFeature',
         id,
         type: 'shell',
         name: 'Shell',
         index: session.document.features.length,
         params: { faces: faces.map(formatRef), thickness: 2 },
-      }),
-    );
-  }, [run, selectedRefs, say]);
+      });
+      if (session.document.features.some((feature) => feature.id === id)) opened(id);
+      return view;
+    });
+  }, [run, selectedRefs, say, opened]);
 
   /**
    * Renames an item as its own journal step (`renameFeature`, which inverts), so it is undoable.
@@ -265,17 +286,24 @@ export function useGeometry({
 
   const changeParam = useCallback(
     (id: FeatureId, key: string, value: unknown) => {
-      void run((session) => {
+      void run(async (session) => {
         const feature = session.document.features.find((f) => f.id === id);
         if (feature === undefined) return session.rebuild();
-        return session.apply({
-          op: 'updateParams',
+        const params = { ...feature.params, [key]: value };
+        const operation = {
+          op: 'updateParams' as const,
           id,
-          params: { ...feature.params, [key]: value },
-        });
+          params: feature.type === 'joint' ? heldAtLimits(params) : params,
+        };
+        // A picked reference taken off the list stays off; the step is then marked until it has one.
+        if (Array.isArray(value)) return session.apply(operation);
+        // A value the step cannot be built with is not kept: the model stays as it was.
+        const tried = await session.tryApply(operation, id);
+        if (tried.refused !== null) say(tried.refused);
+        return tried.view;
       });
     },
-    [run],
+    [run, say],
   );
 
   /**
@@ -294,6 +322,8 @@ export function useGeometry({
    * the edge: dragging a different edge starts a new feature instead of overwriting the last one.
    */
   const editing = useRef<{ edgeKey: string; featureId: FeatureId; kind: EdgeOp } | null>(null);
+  /** The last round or bevel a drag drew, so letting go past what fits keeps that one. */
+  const shownSize = useRef<{ key: string; size: number } | null>(null);
 
   // Coalesced like `extrudePreview` above.
   const [edgeGizmoPreview] = useState(() =>
@@ -308,30 +338,44 @@ export function useGeometry({
   // A round or bevel at the end of the document previews from its own solid
   // (`session-part-edit.ts`), like a face pull.
   const [edgePartPreview] = useState(() =>
-    coalescePreview<{ edit: PartEdit; replacing: FeatureId | undefined }, PartPreview | null>(
-      ({ edit, replacing }) =>
-        sessionRef.current?.partPreview(edit, replacing) ?? Promise.resolve(null),
-      (part) => showPartRef.current(part),
+    coalescePreview<
+      { edit: Extract<PartEdit, { kind: EdgeOp }>; replacing: FeatureId | undefined },
+      { part: PartPreview | null; edit: Extract<PartEdit, { kind: EdgeOp }> }
+    >(
+      async ({ edit, replacing }) => ({
+        part: (await sessionRef.current?.partPreview(edit, replacing)) ?? null,
+        edit,
+      }),
+      ({ part, edit }) => {
+        if (part !== null) {
+          shownSize.current = { key: `${edit.kind}|${formatRef(edit.edge)}`, size: edit.size };
+        }
+        showPartRef.current(part);
+      },
     ),
   );
 
   const applyEdgeGizmo = useCallback(
-    (kind: EdgeOp, size: number) => {
+    async (kind: EdgeOp, size: number): Promise<EdgeApplied> => {
       // A step still on its way would land on the result and hide the part it replaced.
       edgePartPreview.cancel();
       edgeGizmoPreview.cancel();
-      const edge = selectedRefs.find((ref) => ref.kind === 'edge');
+      const picked = selectedRefs.filter((ref) => ref.kind === 'edge');
+      const edge = picked[0];
       if (edge === undefined || size <= 0) {
         showPartRef.current(null);
-        return;
+        return {};
       }
-      const edgeKey = formatRef(edge);
-      const params =
-        kind === 'fillet'
-          ? { edges: [edgeKey], radius: size }
-          : { edges: [edgeKey], distance: size };
+      const edges = picked.map(formatRef);
+      const edgeKey = edges.join();
+      const paramsAt = (at: number) =>
+        kind === 'fillet' ? { edges, radius: at } : { edges, distance: at };
+      // The last size a drag showed, if this is still that drag.
+      const fitted = shownSize.current?.key === `${kind}|${edgeKey}` ? shownSize.current.size : 0;
+      shownSize.current = null;
+      let applied: EdgeApplied = {};
 
-      void run(async (session) => {
+      await run(async (session) => {
         const prior = editing.current;
         // Stale once its feature is gone (removed, or never committed in this document), so an id
         // from a previous document is never written into this one.
@@ -341,11 +385,11 @@ export function useGeometry({
           session.document.features.some((f) => f.id === prior.featureId);
 
         if (resuming && prior.kind === kind) {
-          return session.apply({ op: 'updateParams', id: prior.featureId, params });
+          return session.apply({ op: 'updateParams', id: prior.featureId, params: paramsAt(size) });
         }
 
         const id = `${kind}-${String(Date.now())}` as FeatureId;
-        const add: Operation = {
+        const add = (at: number): Operation => ({
           op: 'addFeature',
           id,
           type: kind,
@@ -354,47 +398,70 @@ export function useGeometry({
           index: resuming
             ? session.document.features.findIndex((f) => f.id === prior.featureId)
             : session.document.features.length,
-          params,
-        };
+          params: paramsAt(at),
+        });
         // Fillet and chamfer are different feature types, so switching withdraws the earlier one
         // and adds this one in its place, as one undo step.
-        const tried = await session.tryApply(
-          resuming ? [{ op: 'removeFeature', id: prior.featureId }, add] : add,
-          id,
-        );
-        if (tried.refused !== null) {
-          showPartRef.current(null);
-          say(`${add.name} could not be applied: ${tried.refused}`);
+        const attempt = (at: number) =>
+          session.tryApply(
+            resuming ? [{ op: 'removeFeature', id: prior.featureId }, add(at)] : add(at),
+            id,
+          );
+        const tried = await attempt(size);
+        if (tried.refused === null) {
+          editing.current = { edgeKey, featureId: id, kind };
           return tried.view;
         }
-        editing.current = { edgeKey, featureId: id, kind };
+        // Dragged past what fits: the part stays at the last size the drag showed.
+        const held = fitted > 0 && fitted < size ? await attempt(fitted) : null;
+        if (held !== null && held.refused === null) {
+          editing.current = { edgeKey, featureId: id, kind };
+          applied = { kept: fitted };
+          return held.view;
+        }
+        showPartRef.current(null);
+        const name = kind === 'fillet' ? 'Fillet' : 'Chamfer';
+        say(`${name} could not be applied: ${tried.refused}`);
+        const largest =
+          picked.length === 1
+            ? await session.largestEdgeSize(
+                { kind, edge, size },
+                resuming ? prior.featureId : undefined,
+              )
+            : null;
+        if (largest !== null) applied = { largest };
         return tried.view;
       });
+      return applied;
     },
     [run, selectedRefs, say, edgePartPreview, edgeGizmoPreview],
   );
 
   const previewEdgeGizmo = useCallback(
     (kind: EdgeOp, size: number) => {
-      const edge = selectedRefs.find((r) => r.kind === 'edge');
+      const picked = selectedRefs.filter((r) => r.kind === 'edge');
+      const edge = picked[0];
       if (edge === undefined || size <= 0) return;
       const session = sessionRef.current;
       if (session === null) return;
       const id = `${kind}-preview`;
       const prior = editing.current;
       const features = session.document.features;
+      const edges = picked.map(formatRef);
+      const edgeKey = edges.join();
       const at =
-        prior === null || prior.edgeKey !== formatRef(edge)
+        prior === null || prior.edgeKey !== edgeKey
           ? -1
           : features.findIndex((feature) => feature.id === prior.featureId);
-      if (at === -1 || at === features.length - 1) {
+      // The solid of a part preview takes one edge; several go through the whole document.
+      if (picked.length === 1 && (at === -1 || at === features.length - 1)) {
         const replacing = at === -1 ? undefined : prior?.featureId;
         edgePartPreview.request({ edit: { kind, edge, size }, replacing });
         return;
       }
       const updating =
         prior !== null &&
-        prior.edgeKey === formatRef(edge) &&
+        prior.edgeKey === edgeKey &&
         prior.kind === kind &&
         session.document.features.some((feature) => feature.id === prior.featureId);
       edgeGizmoPreview.request(
@@ -402,10 +469,7 @@ export function useGeometry({
           ? {
               op: 'updateParams',
               id: prior.featureId,
-              params:
-                kind === 'fillet'
-                  ? { edges: [formatRef(edge)], radius: size }
-                  : { edges: [formatRef(edge)], distance: size },
+              params: kind === 'fillet' ? { edges, radius: size } : { edges, distance: size },
             }
           : kind === 'fillet'
             ? {
@@ -414,7 +478,7 @@ export function useGeometry({
                 type: 'fillet',
                 name: 'Fillet',
                 index: session.document.features.length,
-                params: { edges: [formatRef(edge)], radius: size },
+                params: { edges, radius: size },
               }
             : {
                 op: 'addFeature',
@@ -422,7 +486,7 @@ export function useGeometry({
                 type: 'chamfer',
                 name: 'Chamfer',
                 index: session.document.features.length,
-                params: { edges: [formatRef(edge)], distance: size },
+                params: { edges, distance: size },
               },
       );
     },
@@ -433,6 +497,7 @@ export function useGeometry({
     addFillet,
     addRevolve,
     addShell,
+    opened,
     changeParam,
     patchParams,
     renameFeature,

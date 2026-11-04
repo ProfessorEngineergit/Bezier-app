@@ -140,14 +140,12 @@ export function ViewCube({
   // tracked here for hover: the canvas only takes the pointer over a face, so the area around the
   // cube still reaches the model.
   useEffect(() => {
-    let box: DOMRect | null = null;
-    const forget = () => {
-      box = null;
-    };
     const onMove = (event: PointerEvent) => {
       const board = canvasRef.current;
       if (board !== null && drag.current === null) {
-        box ??= board.getBoundingClientRect();
+        // Read each time: the cube moves aside when a side panel opens, and a remembered box would
+        // leave its hit area behind at the old place.
+        const box = board.getBoundingClientRect();
         const index = faceAt(drawn.current, event.clientX - box.left, event.clientY - box.top);
         board.style.pointerEvents = index >= 0 ? 'auto' : 'none';
         if (index !== hovered.current) {
@@ -172,11 +170,9 @@ export function ViewCube({
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-    window.addEventListener('resize', forget);
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('resize', forget);
     };
   }, [handleRef]);
 

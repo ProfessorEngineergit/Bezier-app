@@ -15,7 +15,7 @@ import {
 import { type ReactNode, type RefObject, useState } from 'react';
 import type { ViewportHandle } from '../Viewport.js';
 import { sendPhysicsSheet } from '../workspaces/physics-inbox.js';
-import { ResultHover } from './ResultHover.js';
+import { ResultScale } from './ResultScale.js';
 import { format, PlacementEditor } from './SimulationParts.js';
 import { makePhysicsSheet, savePictures, saveValues, VIEW_ANGLES } from './sim-report.js';
 import type { ResultQuantity, SimulationHandle } from './use-simulation.js';
@@ -315,28 +315,13 @@ function Scale({
 }) {
   const legend = sim.legend;
   if (legend === null) return null;
-  const ticks = Array.from(
-    { length: 6 },
-    (_, i) => legend.max - ((legend.max - legend.min) * i) / 5,
-  );
   return (
-    <div className="sim-legend" data-palette={legend.palette}>
-      <div className="sim-legend__title">
-        {legend.label}
-        {legend.unit !== '' && <small>{legend.unit}</small>}
-      </div>
-      <div className="sim-legend__scale">
-        <div className="sim-legend__bar" data-banded={sim.bands > 0 ? '' : undefined}>
-          <ResultHover handleRef={handleRef} max={legend.max} min={legend.min} unit={legend.unit} />
-        </div>
-        <ol>
-          {ticks.map((tick, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: the ticks are positional
-            <li key={index}>{legend.palette === 'safety' && index === 0 ? '8+' : format(tick)}</li>
-          ))}
-        </ol>
-      </div>
-    </div>
+    <ResultScale
+      banded={sim.bands > 0}
+      handleRef={handleRef}
+      legend={legend}
+      {...(legend.palette === 'safety' ? { top: '8+' } : {})}
+    />
   );
 }
 

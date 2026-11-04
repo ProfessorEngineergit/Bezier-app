@@ -16,6 +16,7 @@ import type { DisplayGeometry } from '@bezier/renderer';
 import { type RefObject, useCallback, useMemo, useRef, useState } from 'react';
 import type { ItemsPanelProps } from './ItemsPanel.js';
 import type { BodyContact, Session, SessionView } from './session.js';
+import { addGenerated, isGenerator } from './use-generators.js';
 import { useHistoryOrder } from './use-history-order.js';
 
 type Run = (change: (session: Session) => Promise<SessionView>) => void;
@@ -142,11 +143,14 @@ export function useBodies({
           operation.id,
         );
         if (tried.refused !== null) say(`${operation.name} could not be applied: ${tried.refused}`);
-        else if (inspect) setSelectedFeature(operation.id);
+        else if (inspect) {
+          setSelectedRefs([]);
+          setSelectedFeature(operation.id);
+        }
         return tried.view;
       });
     },
-    [run, say, setSelectedFeature],
+    [run, say, setSelectedFeature, setSelectedRefs],
   );
 
   /** Picks a body from the list; with a modifier, toggles it in the selection. */
@@ -253,6 +257,18 @@ export function useBodies({
           return false;
         }
         setSelectedRefs([]);
+        // A rounding on one edge is that step's own face: taking the step away cannot fail on the
+        // faces beside it, as closing the gap can.
+        const rounding = sessionRef.current?.document.features.find(
+          (step) =>
+            (step.type === 'fillet' || step.type === 'chamfer') &&
+            step.id === faces[0]?.feature &&
+            (step.params.edges as readonly string[]).length === 1,
+        );
+        if (faces.length === 1 && rounding !== undefined) {
+          removeFeature(rounding.id);
+          return true;
+        }
         addTool(
           {
             op: 'addFeature',
@@ -269,7 +285,16 @@ export function useBodies({
       removeBodies(whole.map((body) => body.key));
       return true;
     },
-    [bodies, selectedRefs, removeBodies, setSelectedFeature, setSelectedRefs, addTool, say],
+    [
+      bodies,
+      selectedRefs,
+      removeBodies,
+      setSelectedFeature,
+      setSelectedRefs,
+      addTool,
+      say,
+      sessionRef,
+    ],
   );
 
   /** The picked bodies, or a notice saying what to pick. */
@@ -284,41 +309,59 @@ export function useBodies({
     [bodies, selectedRefs, say],
   );
 
-  /** Duplicates the picked bodies beside them. Bound to Cmd/Ctrl+D. */
-  const duplicate = useCallback(() => {
-    const picked = pickedOrSay('duplicate');
-    if (picked === null) return;
-    const faces = picked.flatMap((body) => body.faces);
-    const box = boundsOf(view?.display ?? null, faces);
-    const width = box === null ? 20 : box.max[0] - box.min[0];
-    const id = `copy-${String(Date.now())}`;
-    void run(async (session) => {
-      const tried = await session.tryApply(
-        {
-          op: 'addFeature',
-          id,
-          type: 'transform-copy',
-          name: 'Duplicate',
-          index: session.document.features.length,
-          // One body width plus a gap to the side, so the copy is visibly separate.
-          params: {
-            faces: picked.map(handleOf).filter((h): h is string => h !== null),
-            dx: Math.ceil(width + 10),
-          },
-        },
-        id,
-      );
-      if (tried.refused !== null) say(`Duplicate could not be made: ${tried.refused}`);
-      else {
-        setSelectedRefs(
-          (tried.view.display?.faceRefs ?? []).filter(
-            (ref): ref is StableRef => ref?.kind === 'face' && ref.feature === id,
-          ),
-        );
+  const copied = useRef<readonly string[]>([]);
+
+  /**
+   * Duplicates the picked bodies beside them. Bound to Cmd/Ctrl+D, and to Copy and Paste, which
+   * split the same thing in two: Copy remembers the bodies, Paste makes each copy.
+   */
+  const duplicate = useCallback(
+    (step?: 'copy' | 'paste') => {
+      if (step === 'copy') {
+        const chosen = pickedOrSay('copy');
+        if (chosen !== null) copied.current = chosen.map((body) => body.key);
+        return;
       }
-      return tried.view;
-    });
-  }, [pickedOrSay, view, run, say, setSelectedRefs]);
+      const remembered = bodies.filter((body) => copied.current.includes(body.key));
+      if (step === 'paste' && remembered.length === 0) {
+        say('Select a body and copy it first.');
+        return;
+      }
+      const picked = step === 'paste' ? remembered : pickedOrSay('duplicate');
+      if (picked === null) return;
+      const faces = picked.flatMap((body) => body.faces);
+      const box = boundsOf(view?.display ?? null, faces);
+      const width = box === null ? 20 : box.max[0] - box.min[0];
+      const id = `copy-${String(Date.now())}`;
+      void run(async (session) => {
+        const tried = await session.tryApply(
+          {
+            op: 'addFeature',
+            id,
+            type: 'transform-copy',
+            name: 'Duplicate',
+            index: session.document.features.length,
+            // One body width plus a gap to the side, so the copy is visibly separate.
+            params: {
+              faces: picked.map(handleOf).filter((h): h is string => h !== null),
+              dx: Math.ceil(width + 10),
+            },
+          },
+          id,
+        );
+        if (tried.refused !== null) say(`Duplicate could not be made: ${tried.refused}`);
+        else {
+          setSelectedRefs(
+            (tried.view.display?.faceRefs ?? []).filter(
+              (ref): ref is StableRef => ref?.kind === 'face' && ref.feature === id,
+            ),
+          );
+        }
+        return tried.view;
+      });
+    },
+    [bodies, pickedOrSay, view, run, say, setSelectedRefs],
+  );
 
   /** Splits the picked body through its middle; plane and offset are in its panel. */
   const addSplit = useCallback(() => {
@@ -516,7 +559,7 @@ export function useBodies({
           op: 'addFeature',
           id: `combine-${String(Date.now())}`,
           type: 'combine',
-          name: operation === 'join' ? 'Union' : operation === 'cut' ? 'Subtract' : 'Intersect',
+          name: 'Combine',
           index: 0,
           params: { target: [target], tools, operation, keepTools: false },
         },
@@ -608,7 +651,7 @@ export function useBodies({
 
   /** Runs the rail's whole-body command `id`; returns whether it was one. */
   const command = (id: string): boolean => {
-    const run = {
+    const action = {
       combine: addCombine,
       split: addSplit,
       scale: addScale,
@@ -617,11 +660,16 @@ export function useBodies({
       joint: addJoint,
       pattern: addPattern,
     }[id];
-    run?.();
-    return run !== undefined;
+    action?.();
+    if (isGenerator(id)) {
+      addGenerated(id, { run, view, say, setSelectedFeature });
+      return true;
+    }
+    return action !== undefined;
   };
 
   return {
+    history,
     itemsProps,
     command,
     addCombine,

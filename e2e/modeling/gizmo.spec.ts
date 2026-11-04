@@ -84,6 +84,30 @@ test('the extrude arrow follows the face normal while its value stays readable',
   await expect(page.locator('.extrude-gizmo__value')).not.toHaveAttribute('style', /rotate\(/);
 });
 
+test('the solid a pull edits is ready when the pointer reaches the arrow, not after the first step', async ({
+  page,
+}) => {
+  await openApp(page);
+  await addBox(page);
+  await pickAt(page, { x: 40, y: 10, z: 7.5 });
+  const handle = page.getByRole('button', { name: 'Drag to change extrude distance' });
+  const box = await handle.boundingBox();
+  expect(box).not.toBeNull();
+  if (box === null) return;
+  const prepared = () =>
+    page.evaluate(() => performance.getEntriesByName('bezier:part-start').length);
+  await page.evaluate(() => performance.clearMeasures());
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await expect.poll(prepared).toBe(1);
+  await page.mouse.down();
+  await page.mouse.move(x + 30, y + 10, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  expect(await prepared()).toBe(1);
+});
+
 test('the menu switches the gizmo between Fillet and Chamfer', async ({ page }) => {
   await openApp(page);
   await addBox(page);
@@ -121,6 +145,71 @@ test('typing a value and pressing Enter commits a real fillet', async ({ page })
 
   await openItems(page);
   await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', 'Fillet']);
+});
+
+test('clicking the value and typing replaces the size', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  await selectEdge(page);
+  await page.locator('.edge-gizmo__value').click();
+  await page.keyboard.type('4');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.edge-gizmo__value')).toHaveText('R4mm');
+
+  await page.locator('.edge-gizmo__value').click();
+  await page.keyboard.type('3');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.edge-gizmo__value')).toHaveText('R3mm');
+});
+
+test('several edges share one size', async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('bezier.e2e', '1'));
+  await openApp(page);
+  await addBox(page);
+  await selectEdge(page);
+
+  const second = screenPointOf(await canvasRect(page), { x: 20, y: 0, z: 15 });
+  await page.keyboard.down('Shift');
+  await page.mouse.click(second.x, second.y);
+  await page.keyboard.up('Shift');
+  await expect(page.locator('.edge-gizmo__bar')).toBeVisible();
+
+  await page.locator('.edge-gizmo__value').click();
+  const field = page.locator('.edge-gizmo__value--input');
+  await field.fill('3');
+  await field.press('Enter');
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+
+  await openItems(page);
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', 'Fillet']);
+  // The second edge is rounded as well: what was its corner is not on the solid any more.
+  const rect = await canvasRect(page);
+  const hit = await page.evaluate(
+    ([x, y]) =>
+      (
+        window as unknown as {
+          __bezierViewport: { pick(x: number, y: number): { point: { z: number } } | null };
+        }
+      ).__bezierViewport.pick(x ?? 0, y ?? 0),
+    [second.x - rect.x, second.y - rect.y],
+  );
+  expect(hit?.point.z ?? 0).toBeLessThan(14.9);
+});
+
+test('Delete on a rounded face takes that rounding away', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  await selectEdge(page);
+  await page.locator('.edge-gizmo__value').click();
+  await page.locator('.edge-gizmo__value--input').fill('3');
+  await page.locator('.edge-gizmo__value--input').press('Enter');
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await pickAt(page, { x: 37 + 3 / Math.sqrt(2), y: 10, z: 12 + 3 / Math.sqrt(2) });
+  await page.keyboard.press('Backspace');
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await openItems(page);
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude']);
 });
 
 test('a rounded face reopens its radius and zero removes the fillet', async ({ page }) => {
@@ -252,4 +341,72 @@ test('the edge arrow keeps its size on screen while the view zooms', async ({ pa
   const after = await arrowSize();
   expect(after / before).toBeGreaterThan(0.8);
   expect(after / before).toBeLessThan(1.25);
+});
+
+test('a round too large offers the largest that fits, and one click builds it', async ({
+  page,
+}) => {
+  await openApp(page);
+  await addBox(page);
+  await openItems(page);
+  await selectEdge(page);
+  await page.locator('.edge-gizmo__value').click();
+  await page.locator('.edge-gizmo__value--input').fill('500');
+  await page.locator('.edge-gizmo__value--input').press('Enter');
+  const offer = page.locator('.edge-gizmo__offer');
+  await expect(offer).toHaveText(/^Use R[\d.]+$/);
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude']);
+  await offer.click();
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', 'Fillet']);
+  await expect(offer).toHaveCount(0);
+});
+
+test('a finished round made too large keeps its size and offers the largest that fits', async ({
+  page,
+}) => {
+  await openApp(page);
+  await addBox(page);
+  await selectEdge(page);
+  await page.locator('.edge-gizmo__value').click();
+  await page.locator('.edge-gizmo__value--input').fill('3');
+  await page.locator('.edge-gizmo__value--input').press('Enter');
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await pickAt(page, { x: 37 + 3 / Math.sqrt(2), y: 10, z: 12 + 3 / Math.sqrt(2) });
+  await expect(page.locator('.edge-gizmo__value')).toHaveText('R3mm');
+  await openItems(page);
+  await page.locator('.edge-gizmo__value').click();
+  await page.locator('.edge-gizmo__value--input').fill('500');
+  await page.locator('.edge-gizmo__value--input').press('Enter');
+  const offer = page.locator('.edge-gizmo__offer');
+  await expect(offer).toHaveText(/^Use R[\d.]+$/);
+  await expect(page.locator('.items-row__status')).toHaveCount(0);
+  await offer.click();
+  await expect(offer).toHaveCount(0);
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', 'Fillet']);
+  await expect(page.locator('.items-row__status')).toHaveCount(0);
+});
+
+test('a drag past what fits stays at the last size it showed', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  await openItems(page);
+  await selectEdge(page);
+  const handle = page.getByRole('button', { name: 'Drag to size' });
+  const box = await handle.boundingBox();
+  if (box === null) throw new Error('the handle is not on screen');
+  const from = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(from.x + 60, from.y, { steps: 8 });
+  await expect(page.locator('canvas.viewport[data-part-preview]')).toHaveCount(1);
+  await page.waitForTimeout(400);
+  await page.mouse.move(from.x + 1100, from.y, { steps: 20 });
+  await page.waitForTimeout(600);
+  await page.mouse.up();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await expect(page.locator('.items-row')).toHaveText(['Sketch 1', 'Extrude', /Fillet|Chamfer/]);
+  await expect(page.locator('.items-row__status')).toHaveCount(0);
+  await expect(page.locator('.edge-gizmo__offer')).toHaveCount(0);
 });

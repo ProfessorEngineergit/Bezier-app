@@ -11,7 +11,7 @@ import { typedNumber } from './typed-number.js';
 const DEGREES_PER_RADIAN = 180 / Math.PI;
 
 /** The control to draw for one parameter. */
-export type Control =
+export type Control = { more?: true } & (
   | {
       kind: 'number';
       key: string;
@@ -38,7 +38,24 @@ export type Control =
   /** A sketch; edited by drawing, listed so the panel can say so. */
   | { kind: 'sketch'; key: string; label: string }
   /** A value chosen elsewhere (in the viewport), shown read-only. */
-  | { kind: 'note'; key: string; label: string; text: string };
+  | { kind: 'note'; key: string; label: string; text: string }
+);
+
+/** Choices in words. Anything not here reads as its stored name, capitalised. */
+const WORDS: Readonly<Record<string, string>> = {
+  u: 'Horizontal',
+  v: 'Vertical',
+  new: 'New body',
+  add: 'Add to body',
+  cut: 'Cut from body',
+};
+
+export function optionLabel(option: string): string {
+  const word = WORDS[option];
+  if (word !== undefined) return word;
+  const spaced = option.replaceAll('-', ' ');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
 
 /** The controls for one feature, in schema order (not the key order of the loaded params). */
 export function controlsFor(spec: ParamsSpec, params: Record<string, unknown>): Control[] {
@@ -51,7 +68,8 @@ export function controlsFor(spec: ParamsSpec, params: Record<string, unknown>): 
       continue;
     if ((entry.kind === 'length' || entry.kind === 'angle') && !shown(spec, params, entry.when))
       continue;
-    controls.push(controlFor(key, entry, params[key]));
+    const control = controlFor(key, entry, params[key]);
+    controls.push(entry.more === true ? { ...control, more: true } : control);
   }
   return controls;
 }
@@ -104,7 +122,7 @@ function controlFor(key: string, spec: ParamSpec, raw: unknown): Control {
         key,
         label: spec.label,
         value: numberOr(raw, spec.default),
-        unit: '×',
+        unit: spec.plain === true ? '' : '×',
         step: 0.1,
         ...(spec.min === undefined ? {} : { min: spec.min }),
         ...(spec.max === undefined ? {} : { max: spec.max }),

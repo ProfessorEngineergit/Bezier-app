@@ -8,7 +8,7 @@ import { zip } from '../formats/zip.js';
 
 /** Location of the server source, in one place because it may move to its own repository. */
 export const SERVER_SOURCE = 'https://github.com/ProfessorEngineergit/bezier';
-export const SERVER_GUIDE = `${SERVER_SOURCE}/tree/main/sync`;
+export const SERVER_GUIDE = `${SERVER_SOURCE}/tree/main/apps/sync-server`;
 const BUILD_CONTEXT = `${SERVER_SOURCE}.git#main:apps/sync-server`;
 
 /** A random code of `length` letters and digits, excluding easily misread ones. */
@@ -28,6 +28,12 @@ services:
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
     env_file: .env
+    # Nothing in the container can change but its data, and nothing it runs can gain rights.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    mem_limit: 1g
     environment:
       BEZIER_SYNC_TRUST_PROXY: "1"
       BEZIER_SYNC_REPLICAS: /replica
@@ -39,11 +45,16 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
     ports: ["80:80", "443:443"]
     env_file: .env
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
+      # Parts for Bezier's library, if you offer any.
+      - ./parts:/srv/parts:ro
 
   # Checks every copy of every file and repairs from a good one:
   #   docker compose run --rm scrub
@@ -61,12 +72,34 @@ services:
 volumes:
   caddy-data:
 `;
-  const caddy = `{$BEZIER_DOMAIN} {
+  const caddy = `{
+\tservers {
+\t\ttimeouts {
+\t\t\tread_header 15s
+\t\t\tidle 2m
+\t\t}
+\t}
+}
+
+{$BEZIER_DOMAIN} {
 \trequest_body {
 \t\tmax_size 20MB
 \t}
 \tencode gzip
-\treverse_proxy sync:8787
+\theader {
+\t\tStrict-Transport-Security "max-age=31536000"
+\t\t-Server
+\t\t-Via
+\t}
+\thandle_path /parts/* {
+\t\troot * /srv/parts
+\t\theader Access-Control-Allow-Origin *
+\t\theader X-Content-Type-Options nosniff
+\t\tfile_server
+\t}
+\thandle {
+\t\treverse_proxy sync:8787
+\t}
 }
 `;
   const env = `# The name your server is reached by. Caddy gets its certificate for it.
@@ -76,8 +109,8 @@ BEZIER_DOMAIN=${domain}
 # the people you want in, or empty it once everyone has joined.
 BEZIER_SYNC_ENROLLMENT=${enrollment}
 
-# Space one vault may use, in megabytes. Empty means no limit.
-BEZIER_SYNC_QUOTA_MB=
+# Space one vault may use, in megabytes. Empty means no limit, and a full disk stops every vault.
+BEZIER_SYNC_QUOTA_MB=2048
 
 # For a second server that keeps a copy of this one (see the guide). 32+ characters.
 BEZIER_SYNC_MIRROR_TOKEN=
@@ -85,7 +118,9 @@ BEZIER_SYNC_MIRROR_TOKEN=
   const readme = `Bezier server
 
 1. Point the name ${domain} at this machine (a DNS record, or Tailscale).
-2. In this folder: docker compose up -d
+2. In this folder, on Linux, give the server its folders:
+     mkdir -p data replica parts && sudo chown 1000:1000 data replica
+   Then start it: docker compose up -d
 3. In Bezier: Settings → Collaboration → Connect, with https://${domain}
    and the enrollment code from .env.
 

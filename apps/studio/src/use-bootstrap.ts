@@ -3,11 +3,13 @@
  * state; `App` passes in its setters.
  */
 
+import type { StepCamera } from '@bezier/core';
 import type { DocumentInfo } from '@bezier/storage';
-import type { MutableRefObject } from 'react';
+import type { MutableRefObject, RefObject } from 'react';
 import { useEffect } from 'react';
 import { type Booted, boot } from './boot.js';
 import { finishLoading, finishLoadingAfterPaint } from './boot-loader.js';
+import { askToKeepProjects } from './project-backup.js';
 import type { Said } from './said.js';
 import type { SessionDeps } from './session.js';
 
@@ -28,6 +30,8 @@ export interface BootstrapSinks {
   setFatal: (message: string) => void;
   /** Called when the geometry engine had to restart; read at that moment. */
   engineRestartRef: MutableRefObject<() => void>;
+  /** Asked where the camera stands, for each new step. */
+  viewportRef: RefObject<{ cameraView: () => StepCamera } | null>;
 }
 
 /**
@@ -36,8 +40,16 @@ export interface BootstrapSinks {
  * rejected by OPFS.
  */
 export function useBootstrap(sinks: BootstrapSinks): void {
-  const { depsRef, setNotices, replaceNotices, setDocuments, setBusy, setFatal, engineRestartRef } =
-    sinks;
+  const {
+    depsRef,
+    setNotices,
+    replaceNotices,
+    setDocuments,
+    setBusy,
+    setFatal,
+    engineRestartRef,
+    viewportRef,
+  } = sinks;
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +58,9 @@ export function useBootstrap(sinks: BootstrapSinks): void {
       .then(async (booted) => {
         if (cancelled) return;
         depsRef.current = booted.deps;
+        booted.deps.camera = () => viewportRef.current?.cameraView();
         setDocuments(booted.documents);
+        if (booted.documents.length > 0) askToKeepProjects();
 
         // Exposes which solver is active.
         document.documentElement.dataset.solver = booted.placeholderSolver ? 'stand-in' : 'real';
@@ -114,5 +128,14 @@ export function useBootstrap(sinks: BootstrapSinks): void {
     };
     // All dependencies are stable setters or refs (bootOnce guards the double boot); listed to
     // satisfy the exhaustive-deps lint.
-  }, [depsRef, setNotices, replaceNotices, setDocuments, setBusy, setFatal, engineRestartRef]);
+  }, [
+    depsRef,
+    setNotices,
+    replaceNotices,
+    setDocuments,
+    setBusy,
+    setFatal,
+    engineRestartRef,
+    viewportRef,
+  ]);
 }

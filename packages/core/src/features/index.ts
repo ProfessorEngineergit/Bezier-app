@@ -26,11 +26,26 @@ import './scale.js';
 import './split-body.js';
 import './import-step.js';
 import './hole.js';
+import './thread.js';
+import './gear.js';
+import './spring.js';
+import './pipe.js';
+import './fastener.js';
+import './primitive.js';
+import './boss.js';
+import './rib.js';
+import './snap-fit.js';
+import './fit-test.js';
+import './draft.js';
+import './lip.js';
 import './mirror.js';
 import './pattern.js';
 import './reference-mesh.js';
 import './reference-image.js';
 
+export type { FastenerPlacement } from './fastener.js';
+export { FASTENERS, fastenerExists, fastenerLengths } from './fastener-shape.js';
+export { METRIC_SIZES, pitchFor } from './iso-metric.js';
 export type { ParamError, ParamSpec, ParamsOf, ParamsSpec } from './params.js';
 export { canonicalise, validateParams } from './params.js';
 export type {

@@ -9,6 +9,7 @@ const SKETCH_TOOLS: readonly SketchTool[] = [
   'circle',
   'rectangle',
   'center-rectangle',
+  'three-point-rectangle',
   'trim',
   'extend',
   'split',

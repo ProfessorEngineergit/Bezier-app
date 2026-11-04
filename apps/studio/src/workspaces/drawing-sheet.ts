@@ -127,17 +127,29 @@ export function hiddenDash(points: readonly number[]): string {
 
 export function layoutViews(projections: DrawingProjection[], options: SheetOptions): SheetView[] {
   const [w, h] = sheetSize(options.format);
+  // Front, plan, from the right, isometric, then section and detail. The plan and the view from
+  // the right sit where the projection puts them, with or without the last two.
+  const third = options.projection === 'third';
   const centers =
     projections.length > 4
-      ? [
-          [w * 0.2, h * 0.56],
-          [w * 0.2, h * 0.24],
-          [w * 0.5, h * 0.56],
-          [w * 0.5, h * 0.24],
-          [w * 0.8, h * 0.56],
-          [w * 0.8, h * 0.24],
-        ]
-      : options.projection === 'third'
+      ? third
+        ? [
+            [w * 0.2, h * 0.56],
+            [w * 0.2, h * 0.24],
+            [w * 0.5, h * 0.56],
+            [w * 0.5, h * 0.24],
+            [w * 0.8, h * 0.56],
+            [w * 0.8, h * 0.24],
+          ]
+        : [
+            [w * 0.5, h * 0.28],
+            [w * 0.5, h * 0.6],
+            [w * 0.2, h * 0.28],
+            [w * 0.2, h * 0.6],
+            [w * 0.8, h * 0.28],
+            [w * 0.8, h * 0.6],
+          ]
+      : third
         ? [
             [w * 0.3, h * 0.58],
             [w * 0.3, h * 0.24],

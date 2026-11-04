@@ -1,5 +1,5 @@
 /** The workspaces against real rendering, HLR and persistent project storage. */
-import { addBox, openApp } from '../app.js';
+import { addBox, canvasRect, openApp, railButton } from '../app.js';
 import { expect, test } from '../fixtures.js';
 
 async function mode(page: import('@playwright/test').Page, name: string) {
@@ -139,4 +139,50 @@ test('the drawing inspector can be dragged wider, and the sheet keeps clear of i
 
   await handle.dblclick();
   await expect.poll(async () => (await panel.boundingBox())?.width).toBe(before);
+});
+
+test('a new project opens in Modeling, wherever the last one was left', async ({ page }) => {
+  await openApp(page);
+  await addBox(page);
+  await page.getByRole('button', { name: /Workspace:/ }).click();
+  await page.getByRole('menuitemradio', { name: /^Drawings/ }).click();
+  await expect(page.getByRole('button', { name: 'Workspace: Drawings' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Projects', exact: true }).click();
+  await page.getByRole('button', { name: 'New Project' }).first().click();
+  await expect(page.getByRole('button', { name: 'Workspace: Modeling' })).toBeVisible();
+});
+
+test('a second project shows its own views in Drawings', async ({ page }) => {
+  const toDrawings = async () => {
+    await page.getByRole('button', { name: /Workspace:/ }).click();
+    await page.getByRole('menuitemradio', { name: /^Drawings/ }).click();
+  };
+  await openApp(page);
+  await addBox(page);
+  await toDrawings();
+  await expect(page.locator('.drawing-paper polyline')).not.toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Projects', exact: true }).click();
+  await page.getByRole('button', { name: 'New Project' }).first().click();
+  await expect(page.getByRole('button', { name: 'Workspace: Modeling' })).toBeVisible();
+  // Drawn and pulled by hand, as a person does, not the starter box.
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
+  await page.waitForTimeout(600);
+  await railButton(page, 'Sketch').click();
+  await page.keyboard.press('r');
+  const rect = await canvasRect(page);
+  await page.mouse.click(rect.x + rect.width * 0.4, rect.y + rect.height * 0.4);
+  await page.mouse.click(rect.x + rect.width * 0.6, rect.y + rect.height * 0.6);
+  await page.keyboard.press('Escape');
+  await railButton(page, 'Finish Sketch').click();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await page.mouse.click(rect.x + rect.width * 0.5, rect.y + rect.height * 0.5);
+  const field = page.getByRole('spinbutton', { name: 'Extrude distance' });
+  await field.fill('10');
+  await field.press('Enter');
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await toDrawings();
+  await expect(page.locator('.drawing-paper polyline')).not.toHaveCount(0);
 });

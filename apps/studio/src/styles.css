@@ -103,63 +103,6 @@ body {
 
 /* inspector */
 
-/**
- * The selection's parameters, in the move gizmo's floating bar (`move-gizmo__toolbar`) at the
- * bottom of the canvas. Only what a generated panel needs: fields in a row, styled like the
- * gizmo's own entry.
- */
-.inspector {
-  z-index: 2;
-  /* Centred with `left: 50%`, which would otherwise cap it at half the window and wrap fields. */
-  width: max-content;
-  max-width: calc(100vw - 2 * (var(--utility-size) + var(--pad-lg)));
-  white-space: normal;
-}
-
-.inspector .property-panel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 12px;
-}
-
-.inspector .property-panel__row {
-  gap: 6px;
-  margin: 0;
-  font-size: 11px;
-}
-
-.inspector .property-panel__row label {
-  flex: none;
-}
-
-.inspector .property-panel__row input[type="text"],
-.inspector .property-panel__row select {
-  width: 64px;
-  height: 32px;
-  padding: 0 8px;
-  border: 1px solid var(--glass-border);
-  border-radius: 9px;
-  background: rgb(127 127 127 / 8%);
-  color: var(--text);
-  font: 500 12px var(--font);
-}
-
-.inspector .property-panel__row select {
-  width: auto;
-}
-
-.inspector .property-panel__unit {
-  width: auto;
-}
-
-/* Notes (a sketch is edited by drawing, an area was picked in the view) and an empty pick list:
-   in a one-line bar they are plain words between the fields. */
-.inspector .property-panel__row--note,
-.inspector .property-panel__row--refs:has(> .property-panel__note) {
-  display: none;
-}
-
 .selection {
   position: absolute;
   bottom: var(--floor);
@@ -390,7 +333,7 @@ body {
   top: var(--edge);
   bottom: var(--floor);
   left: var(--rail-inset);
-  z-index: 2;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   /*
@@ -588,7 +531,9 @@ body {
  * The resize strip on the panel's right edge, like the library sidebar's: eight pixels of target
  * around a one-pixel line.
  */
-.items-panel__resize {
+/* One edge handle for both side panels; each sits on the panel's inner edge. */
+.items-panel__resize,
+.history-panel__resize {
   position: absolute;
   top: 0;
   right: -4px;
@@ -600,6 +545,11 @@ body {
   outline: none;
   cursor: col-resize;
   touch-action: none;
+}
+
+.history-panel__resize {
+  right: auto;
+  left: -4px;
 }
 
 /*
@@ -787,6 +737,18 @@ body {
 .edge-gizmo__unit {
   font-size: var(--text-size-badge);
   font-weight: 600;
+}
+
+/* What does fit, offered beside a size that did not. */
+.edge-gizmo__offer {
+  padding: var(--pad-xs) var(--pad-sm);
+  border: none;
+  border-radius: 7px;
+  background: var(--gizmo-label-surface);
+  color: var(--gizmo-label-text);
+  font: 600 var(--text-size-sm) / 1 var(--font);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .edge-gizmo__value--input {
@@ -1039,6 +1001,11 @@ span.sketch-dimension__value {
   border-radius: var(--radius-lg);
   background: var(--surface-popover);
   box-shadow: var(--gizmo-edge);
+}
+
+.edge-gizmo__menu[data-up] {
+  top: auto;
+  bottom: calc(100% + var(--pad-xs));
 }
 
 .edge-gizmo__menu-title {

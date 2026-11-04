@@ -25,7 +25,16 @@ export type { Notice, Tone } from './notification-types.js';
 export { Choice, Field, Popover, SegmentedChoice, Toggle } from './Popover.js';
 export type { RailGroup, RailItem, RailProps } from './Rail.js';
 export { Rail } from './Rail.js';
-export { LEFT_RAIL, leftRailFor, QUICK_SETTINGS, RIGHT_RAIL } from './RailContents.js';
+export {
+  HISTORY,
+  LEFT_RAIL,
+  leftRailFor,
+  MODEL_RIGHT_RAIL,
+  QUICK_SETTINGS,
+  RIGHT_RAIL,
+  stepCommand,
+  stepIcon,
+} from './RailContents.js';
 export { Slider, type SliderProps } from './Slider.js';
 export type { StatusStripProps } from './StatusStrip.js';
 export { StatusStrip } from './StatusStrip.js';
@@ -44,7 +53,6 @@ export type { RunningTask } from './task-progress.js';
 export { describeTask, formatPercent, formatRate, formatRemaining } from './task-progress.js';
 export type {
   DetailChoice,
-  HistoryEntry,
   PanelProps,
   ScreenshotPanelProps,
   ScrollDeviceChoice,
@@ -53,7 +61,6 @@ export type {
   ViewTab,
 } from './UtilityPanels.js';
 export {
-  HistoryPanel,
   ScreenshotPanel,
   VIEW_TABS,
   ViewPanel,

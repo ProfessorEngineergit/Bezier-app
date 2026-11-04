@@ -8,6 +8,7 @@ import type { GeometryKernel, KernelResult, Profile, ShapeId, Vec3 } from '@bezi
 import { err } from '@bezier/kernel';
 import { faceSketchBasis, type PlaneBasis } from '../rebuild/plane.js';
 import { withinOwningSolids } from './bodies.js';
+import { METRIC_SIZES, metricSize, tapDrill } from './iso-metric.js';
 import { defineFeature } from './registry.js';
 
 const ABOVE = 0.01;
@@ -17,9 +18,28 @@ export const holeFeature = defineFeature({
   label: 'Hole',
   params: {
     faces: { kind: 'geometryRefs', label: 'Face', of: 'face' },
-    x: { kind: 'length', label: 'X', default: 0 },
-    y: { kind: 'length', label: 'Y', default: 0 },
-    diameter: { kind: 'length', label: 'Diameter', default: 5, min: 0.01 },
+    x: { more: true, kind: 'length', label: 'X', default: 0 },
+    y: { more: true, kind: 'length', label: 'Y', default: 0 },
+    standard: {
+      kind: 'choice',
+      label: 'Size',
+      options: ['custom', ...METRIC_SIZES.map((size) => size.name)] as const,
+      default: 'custom',
+    },
+    /** A screw passing through, or a drill to cut a thread in. */
+    fit: {
+      kind: 'choice',
+      label: 'For',
+      options: ['clearance', 'tap'] as const,
+      default: 'clearance',
+    },
+    diameter: {
+      kind: 'length',
+      label: 'Diameter',
+      default: 5,
+      min: 0.01,
+      when: { standard: ['custom'] },
+    },
     through: { kind: 'boolean', label: 'Through all', default: false },
     depth: { kind: 'length', label: 'Depth', default: 10, min: 0.01, when: { through: [false] } },
     style: {
@@ -29,20 +49,23 @@ export const holeFeature = defineFeature({
       default: 'simple',
     },
     headDiameter: {
+      more: true,
       kind: 'length',
       label: 'Head diameter',
       default: 9,
       min: 0.01,
-      when: { style: ['counterbore', 'countersink'] },
+      when: { style: ['counterbore', 'countersink'], standard: ['custom'] },
     },
     headDepth: {
+      more: true,
       kind: 'length',
       label: 'Head depth',
       default: 3,
       min: 0.01,
-      when: { style: ['counterbore'] },
+      when: { style: ['counterbore'], standard: ['custom'] },
     },
     sinkAngle: {
+      more: true,
       kind: 'angle',
       label: 'Countersink angle',
       default: 90,
@@ -66,7 +89,8 @@ export const holeFeature = defineFeature({
     const plane = await kernel.facePlane(face);
     if (!plane.ok) return err('invalid-result', 'A hole needs a flat face.', plane.error.detail);
     const basis = faceSketchBasis(plane.value.origin, plane.value.normal);
-    if (params.style !== 'simple' && !(params.headDiameter > params.diameter)) {
+    const { diameter, headDiameter, headDepth } = holeSizes(params);
+    if (params.style !== 'simple' && !(headDiameter > diameter)) {
       return err('invalid-result', 'The head of the hole must be wider than the hole.');
     }
 
@@ -81,18 +105,11 @@ export const holeFeature = defineFeature({
     const centre = pointOn(basis, params.x, params.y, 0);
     const tools: ShapeId[] = [];
     try {
-      const bore = await cylinder(kernel, basis, params.x, params.y, params.diameter / 2, depth);
+      const bore = await cylinder(kernel, basis, params.x, params.y, diameter / 2, depth);
       if (!bore.ok) return bore;
       tools.push(bore.value);
       if (params.style === 'counterbore') {
-        const head = await cylinder(
-          kernel,
-          basis,
-          params.x,
-          params.y,
-          params.headDiameter / 2,
-          params.headDepth,
-        );
+        const head = await cylinder(kernel, basis, params.x, params.y, headDiameter / 2, headDepth);
         if (!head.ok) return head;
         tools.push(head.value);
       } else if (params.style === 'countersink') {
@@ -100,7 +117,7 @@ export const holeFeature = defineFeature({
           kernel,
           basis,
           centre,
-          params.headDiameter / 2,
+          headDiameter / 2,
           (params.sinkAngle * Math.PI) / 180,
         );
         if (!sink.ok) return sink;
@@ -123,6 +140,24 @@ export const holeFeature = defineFeature({
     }
   },
 });
+
+/** The hole's sizes: the ones typed in, or those of a standard screw. */
+function holeSizes(params: {
+  standard: string;
+  fit: string;
+  style: string;
+  diameter: number;
+  headDiameter: number;
+  headDepth: number;
+}) {
+  const size = metricSize(params.standard);
+  if (size === undefined) return params;
+  return {
+    diameter: params.fit === 'tap' ? tapDrill(size) : size.clearance,
+    headDiameter: params.style === 'countersink' ? size.sunkHead : size.capHead + 1,
+    headDepth: size.capHeight,
+  };
+}
 
 function pointOn(basis: PlaneBasis, x: number, y: number, out: number): Vec3 {
   const { origin, xDirection: u, yDirection: v, normal: n } = basis;

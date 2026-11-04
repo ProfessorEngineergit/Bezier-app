@@ -3,6 +3,7 @@ import { expect, test } from '../fixtures.js';
 
 test('IndexedDB keeps projects across reloads when OPFS cannot open', async ({ page }) => {
   await page.addInitScript(() => {
+    window.localStorage.removeItem('bezier.notices.seen');
     // WebKit on Linux has no `navigator.storage`, so OPFS is unavailable already.
     if (navigator.storage === undefined) return;
     Object.defineProperty(navigator.storage, 'getDirectory', {

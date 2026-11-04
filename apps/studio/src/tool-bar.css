@@ -1,0 +1,272 @@
+/*
+ * A tool's numbers, in the floating bar at the foot of the canvas (`move-gizmo__toolbar`). One strip,
+ * the height of the Move bar's controls: what the tool is on the left, Done on the right, and between
+ * them cells that share a rhythm and no boxes. A cell shows its frame only when the pointer or the
+ * keyboard is on it, and then in the same blue as the pill on the canvas. Numbers are the brightest
+ * thing in the bar; names and units step back.
+ */
+.inspector {
+  z-index: 2;
+  gap: 4px;
+  /* Centred with `left: 50%`, which would otherwise cap it at half the window. */
+  width: max-content;
+  max-width: calc(100vw - 2 * (var(--utility-size) + var(--pad-lg)));
+  padding: 6px 6px 6px 12px;
+  white-space: nowrap;
+}
+
+/* It is centred on the window, so whichever side panel is wider sets the room on both sides. */
+:root:has(.items-panel) .inspector {
+  max-width: calc(
+    100vw -
+    2 *
+    (max(var(--items-width), var(--side-panel, 0px)) + var(--utility-size) + var(--pad-lg))
+  );
+}
+
+.inspector > .move-gizmo__heading {
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding-right: 6px;
+}
+
+.inspector .move-gizmo__heading svg {
+  width: 18px;
+  height: 18px;
+}
+
+.inspector .property-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.param {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 10px 0 7px;
+  border-radius: 11px;
+  cursor: text;
+  transition: background 120ms var(--ease);
+}
+
+.param:hover {
+  background: rgb(127 127 127 / 10%);
+}
+
+.param:focus-within {
+  background: rgb(127 127 127 / 10%);
+  box-shadow: inset 0 0 0 1.5px var(--select);
+}
+
+.param[data-invalid]:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--danger, #e5484d);
+}
+
+/* Between two cells at rest, a hair of a line. */
+.param + .param::before,
+.param + .param-more::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  left: -2px;
+  width: 1px;
+  background: var(--glass-border);
+}
+
+.param:hover::before,
+.param:focus-within::before,
+.param:hover + .param::before,
+.param:focus-within + .param::before {
+  opacity: 0;
+}
+
+.param__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--text-dim);
+}
+
+.param__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* The picture is the handle: drag it sideways and the number follows. */
+.param__icon--drag {
+  border-radius: 7px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.param__icon--drag:hover {
+  color: var(--text);
+}
+
+.param__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.param__label {
+  color: var(--text-dim);
+  font: 500 10px / 12px var(--font);
+}
+
+.param__value {
+  display: flex;
+  gap: 3px;
+  align-items: baseline;
+  color: var(--text);
+  font: 600 13px / 16px var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+.param__value input {
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.property-panel__unit {
+  color: var(--text-dim);
+  font: 500 10px / 16px var(--font);
+}
+
+.param__chevron {
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  color: var(--text-dim);
+}
+
+/* The system's own menu opens from the whole cell; the cell draws what it says. */
+.param--choice {
+  cursor: default;
+}
+
+.param--choice select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: default;
+}
+
+.param--toggle {
+  cursor: default;
+}
+
+.param--toggle input {
+  width: 26px;
+  height: 16px;
+  margin: 0 0 0 4px;
+  border-radius: 8px;
+  accent-color: var(--select);
+}
+
+.param-more {
+  position: relative;
+  padding: 0 2px 0 4px;
+}
+
+.param-more__button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.param-more__button:hover,
+.param-more__button[aria-expanded="true"] {
+  background: rgb(127 127 127 / 14%);
+  color: var(--text);
+}
+
+.param-more__button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Rises from the strip, in the same glass. Solid: a blur inside a blurred bar sees only the bar. */
+.param-more__sheet {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  display: grid;
+  gap: 2px;
+  min-width: 190px;
+  padding: 6px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: var(--glass-bg-opaque);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 16%);
+  animation: param-more-in 140ms var(--ease);
+}
+
+.param-more__sheet .param + .param::before {
+  display: none;
+}
+
+@keyframes param-more-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Notes (a sketch is edited by drawing, an area was picked in the view) and an empty pick list say
+   nothing the strip needs. */
+.inspector .property-panel__row--note,
+.inspector .property-panel__row--refs:has(> .property-panel__note) {
+  display: none;
+}
+
+.inspector .property-panel__row--refs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+/* Beside the Items panel at laptop width the name goes: the icon says what the tool is. */
+@media (max-width: 1320px) {
+  :root:has(.items-panel) .inspector .move-gizmo__heading strong {
+    display: none;
+  }
+}
+
+/* A window too narrow for a strip: names go too, and the numbers keep their pictures. */
+@media (max-width: 760px) {
+  .inspector .param__label {
+    display: none;
+  }
+
+  .inspector .param {
+    height: 34px;
+  }
+}

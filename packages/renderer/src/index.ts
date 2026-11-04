@@ -33,6 +33,7 @@ export type {
   PresentationMaterialSurface,
   PresentationProceduralPattern,
 } from './presentation-material.js';
+export type { SectionAxis, SectionCut } from './section-cut.js';
 /** The presentation engine is loaded only when its workspace is opened. */
 export async function createPresentation(canvas: HTMLCanvasElement) {
   const { PresentationRenderer } = await import('./presentation.js');

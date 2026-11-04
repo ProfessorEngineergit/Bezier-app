@@ -134,6 +134,21 @@ describe('work under way', () => {
     expect(viewOf(state, 1 + TASK_SHOWN_AFTER).progress).toBeNull();
   });
 
+  it('pushed away, the line stays away until the next work', () => {
+    const at = 1 + TASK_SHOWN_AFTER;
+    const away = run('quiet', [1, { kind: 'tasks', tasks }], [at, { kind: 'dismiss' }]);
+    expect(viewOf(away, at + 1).shape).toBe('hidden');
+    const later = step(
+      away,
+      { kind: 'tasks', tasks: [{ label: 'Opening project', progress: 0.8 }] },
+      at + 2,
+    );
+    expect(viewOf(later, at + 3).shape).toBe('hidden');
+    const done = step(later, { kind: 'tasks', tasks: [] }, at + 4);
+    const next = step(done, { kind: 'tasks', tasks }, at + 5);
+    expect(viewOf(next, at + 5 + TASK_SHOWN_AFTER).shape).toBe('compact');
+  });
+
   it('says when it will show, so the host wakes then', () => {
     const state = run('quiet', [1, { kind: 'tasks', tasks }]);
     expect(nextChange(state, 1)).toBe(1 + TASK_SHOWN_AFTER);
@@ -300,39 +315,41 @@ describe('what the app says, said by him', () => {
 });
 
 describe('two things said one after the other', () => {
-  it('says the second when the first is done with, and replaces neither', () => {
-    const say = (title: string): IslandInput => ({
-      kind: 'message',
-      message: { title, tone: 'fail', sticky: true },
-    });
+  const say = (title: string, tone: 'fail' | 'info' = 'fail'): IslandInput => ({
+    kind: 'message',
+    message: { title, tone, sticky: true },
+  });
+
+  it('shows the newer, and the older is gone: there is no pile to click through', () => {
     let state = step(initialIsland('quiet', 0), say('a.png could not be read'), 0);
     state = step(state, say('b.png could not be read'), 0.1);
-    const first = viewOf(state, 0.2).content;
-    expect(first?.kind === 'message' && first.message.title).toBe('a.png could not be read');
-    expect(first?.kind === 'message' && first.more).toBe(1);
+    const shown = viewOf(state, 0.2).content;
+    expect(shown?.kind === 'message' && shown.message.title).toBe('b.png could not be read');
+    expect(shown?.kind === 'message' && shown.more).toBe(0);
     state = step(state, { kind: 'dismiss' }, 1);
-    const second = viewOf(state, 1).content;
-    expect(second?.kind === 'message' && second.message.title).toBe('b.png could not be read');
+    expect(viewOf(state, 1).content).toBeNull();
   });
-});
 
-describe('a failure said while something else is on show', () => {
-  it('comes first, and the other waits its turn', () => {
+  it('keeps one with a button to press, and says the other after it', () => {
     let state = step(
       initialIsland('quiet', 0),
-      { kind: 'message', message: { title: 'View only', tone: 'info', sticky: true } },
+      {
+        kind: 'message',
+        message: {
+          title: 'Model is in',
+          tone: 'ok',
+          sticky: true,
+          action: { label: 'Open', deed: 'open:a' },
+        },
+      },
       0,
     );
-    state = step(
-      state,
-      { kind: 'message', message: { title: 'Could not rename', tone: 'fail', sticky: true } },
-      1,
-    );
-    const now = viewOf(state, 1).content;
-    expect(now?.kind === 'message' && now.message.title).toBe('Could not rename');
+    state = step(state, say('Could not rename'), 1);
+    const first = viewOf(state, 1).content;
+    expect(first?.kind === 'message' && first.message.title).toBe('Model is in');
     state = step(state, { kind: 'dismiss' }, 2);
     const then = viewOf(state, 2).content;
-    expect(then?.kind === 'message' && then.message.title).toBe('View only');
+    expect(then?.kind === 'message' && then.message.title).toBe('Could not rename');
   });
 });
 

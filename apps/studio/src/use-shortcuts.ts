@@ -37,7 +37,8 @@ interface ShortcutDeps {
   onDeselect: () => boolean;
   onSelectAll: () => void;
   onStepHistory: (direction: 'undo' | 'redo') => void;
-  onDuplicate: () => void;
+  /** Duplicates the picked bodies; `copy` remembers them and `paste` makes the copy. */
+  onDuplicate: (step?: 'copy' | 'paste') => void;
   /** Deletes the selection: a picked history step, or whole bodies. */
   onDelete: () => void;
   onCombine: (operation: 'join' | 'cut' | 'intersect') => void;
@@ -165,11 +166,16 @@ export function useShortcuts(deps: ShortcutDeps): void {
       if (action === 'view-square') onSquareView();
       else if (action === 'zoom-fit') onZoomFit();
       else if (action === 'duplicate') onDuplicate();
-      else if (action === 'select-all') onSelectAll();
+      // In a sketch these belong to its own clipboard (`use-sketch-clipboard.ts`), which listens for
+      // the browser's copy and paste; so does any text field.
+      else if (action === 'copy' || action === 'paste') {
+        if (sketching) return false;
+        onDuplicate(action);
+      } else if (action === 'select-all') onSelectAll();
       else if (action === 'deselect') onDeselect();
       else if (action === 'filter-cycle') onFilterCycle();
       else if (action === 'variables') onVariables();
-      else if (action === 'items') activateLeft('items');
+      else if (action === 'items' || action === 'history') activateLeft(action);
       else if (action === 'import') activateLeft('file');
       else return false;
       return true;

@@ -1,4 +1,15 @@
 # HTTPS in front of the sync server, with a certificate from Let's Encrypt.
+{
+	servers {
+		# Long polls wait 25 s and a large upload takes minutes, so only headers and idle time are
+		# cut short: enough to stop a connection that just sits there.
+		timeouts {
+			read_header 15s
+			idle 2m
+		}
+	}
+}
+
 {$BEZIER_DOMAIN} {
 	# Large projects upload in 4 MB chunks; this leaves room and stops anything bigger.
 	request_body {
@@ -8,6 +19,17 @@
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		-Server
+		-Via
 	}
-	reverse_proxy sync:8787
+	# A folder of parts for Bezier's library, read by anyone who has the address. Files only: no
+	# listing, nothing runs, and the folder is mounted read-only.
+	handle_path /parts/* {
+		root * /srv/parts
+		header Access-Control-Allow-Origin *
+		header X-Content-Type-Options nosniff
+		file_server
+	}
+	handle {
+		reverse_proxy sync:8787
+	}
 }

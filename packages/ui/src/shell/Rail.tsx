@@ -10,7 +10,7 @@
  *     handled by the caller.
  */
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useLayoutEffect, useRef } from 'react';
 import type { Shortcut } from './shortcut.js';
 import { shortcutCaps } from './shortcut.js';
 
@@ -59,7 +59,8 @@ export interface RailProps {
   side: 'left' | 'right';
   groups: readonly RailGroup[];
   /** Item shown as current; null if none. */
-  activeId: string | null;
+  /** The item that is on, or the items: a rail's panels can be open together. */
+  activeId: string | readonly string[] | null;
   onActivate: (id: string) => void;
   /** Label visibility; icons never move. Flyouts always show their labels. */
   showLabels?: boolean;
@@ -104,12 +105,14 @@ export function Rail({
 interface GroupProps {
   group: RailGroup;
   side: 'left' | 'right';
-  activeId: string | null;
+  activeId: RailProps['activeId'];
   onActivate: (id: string) => void;
   showLabels: boolean;
 }
 
 function Group({ group, side, activeId, onActivate, showLabels }: GroupProps) {
+  const on = (id: string) =>
+    typeof activeId === 'string' || activeId === null ? id === activeId : activeId.includes(id);
   return (
     <div className="rail__group" data-needed={group.needed === undefined ? undefined : ''}>
       <div className="rail__icons">
@@ -123,21 +126,21 @@ function Group({ group, side, activeId, onActivate, showLabels }: GroupProps) {
         )}
         {group.items.map((item) => (
           <div className="rail__slot" key={item.id}>
-            <IconButton item={item} onActivate={onActivate} selected={item.id === activeId} />
+            <IconButton item={item} onActivate={onActivate} selected={on(item.id)} />
 
-            {item.id === activeId && item.popover !== undefined && (
+            {on(item.id) && item.popover !== undefined && (
               <div className={`rail__popoverAnchor rail__popoverAnchor--${side}`}>
                 {item.popover}
               </div>
             )}
 
             {/* Nested in its slot so the first row lines up with the button without measuring. */}
-            {item.id === activeId && item.flyout !== undefined && (
-              <div className={`rail__flyout rail__flyout--${side}`}>
+            {on(item.id) && item.flyout !== undefined && (
+              <Flyout side={side}>
                 <div className="rail__icons">
                   {item.flyout.map((child) => (
                     <div className="rail__slot" key={child.id}>
-                      <IconButton item={child} onActivate={onActivate} selected={false} />
+                      <IconButton item={child} onActivate={onActivate} selected={on(child.id)} />
                     </div>
                   ))}
                 </div>
@@ -146,7 +149,7 @@ function Group({ group, side, activeId, onActivate, showLabels }: GroupProps) {
                     <Label item={child} key={child.id} side={side} />
                   ))}
                 </div>
-              </div>
+              </Flyout>
             )}
           </div>
         ))}
@@ -221,5 +224,32 @@ function Label({ item, side }: { item: RailItem; side: 'left' | 'right' }) {
       </span>
       {side === 'left' && caps}
     </span>
+  );
+}
+
+/** Clear of the window's edge. */
+const FLYOUT_MARGIN = 8;
+
+/** Opens beside its button, moved up as far as it takes to stay inside the window. */
+function Flyout({ side, children }: { side: string; children: ReactNode }) {
+  const box = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const element = box.current;
+    if (element === null) return;
+    const fit = () => {
+      element.style.translate = '';
+      const box = element.getBoundingClientRect();
+      // Never past the top: a window too short for the list keeps its first rows in reach.
+      const up = Math.min(box.bottom - window.innerHeight + FLYOUT_MARGIN, box.top - FLYOUT_MARGIN);
+      if (up > 0) element.style.translate = `0 ${String(-up)}px`;
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
+  return (
+    <div className={`rail__flyout rail__flyout--${side}`} ref={box}>
+      {children}
+    </div>
   );
 }

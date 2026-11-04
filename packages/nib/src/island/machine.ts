@@ -129,6 +129,8 @@ export interface IslandState {
   /** Start of current work; short tasks never show. */
   tasksSince: number | null;
   tasksOpen: boolean;
+  /** The work line was pushed away; it stays away until this work ends. */
+  tasksAway: boolean;
   strain: Strain;
   strainSince: number | null;
   strainOpen: boolean;
@@ -139,7 +141,7 @@ export interface IslandState {
   lastMilestone: number;
   /** Current app message, open as a card or folded into the line. */
   message: (Timed<IslandMessage> & { open: boolean }) | null;
-  /** Messages queued behind the current one; none replaces another. */
+  /** Messages behind one that has a button waiting to be pressed. */
   waiting: readonly IslandMessage[];
   menu: boolean;
   /** The open question; shown above everything until answered. */
@@ -188,6 +190,7 @@ export function initialIsland(level: NibLevel, now: number): IslandState {
     tasks: [],
     tasksSince: null,
     tasksOpen: false,
+    tasksAway: false,
     strain: 0,
     strainSince: null,
     strainOpen: false,
@@ -278,6 +281,7 @@ function apply(state: IslandState, input: IslandInput, now: number): IslandState
         tasks: input.tasks,
         tasksSince: busy ? (state.tasksSince ?? now) : null,
         tasksOpen: busy && state.tasksOpen,
+        tasksAway: busy && state.tasksAway,
       };
     }
     case 'strain':
@@ -299,21 +303,12 @@ function apply(state: IslandState, input: IslandInput, now: number): IslandState
         note: { value: input.text, at: now, mood: 'proud', until: now + NOTE_SHOWN },
       };
     case 'message': {
-      // A failure jumps ahead of other messages; the current one goes to the head of the queue.
-      if (
-        state.message !== null &&
-        input.message.tone === 'fail' &&
-        state.message.value.tone !== 'fail'
-      )
-        return {
-          ...state,
-          message: { value: input.message, at: now, open: true },
-          waiting: [state.message.value, ...state.waiting].slice(0, MESSAGES_WAITING),
-        };
-      if (state.message !== null)
+      // Only a message with a button to press is kept for later: a newer one replaces any other,
+      // so there is never a pile to click through.
+      if (state.message?.value.action !== undefined)
         return { ...state, waiting: [...state.waiting, input.message].slice(-MESSAGES_WAITING) };
       // Over an open card (crash, menu, lesson) it waits on the line.
-      const busy = state.crash !== null || cardOf(state) !== null;
+      const busy = state.crash !== null || cardOf({ ...state, message: null }) !== null;
       return { ...state, message: { value: input.message, at: now, open: !busy } };
     }
     case 'ask':
@@ -340,7 +335,7 @@ function apply(state: IslandState, input: IslandInput, now: number): IslandState
       if (state.message?.open === true)
         return { ...state, message: { ...state.message, open: false, at: now } };
       return cardOf(state) === null ? state : closed(state);
-    case 'dismiss':
+    case 'dismiss': {
       if (state.crash !== null) return { ...state, crash: null, unseen: null };
       if (state.message?.open === true) return following(state, now);
       if (state.menu || state.tasksOpen) return closed(state);
@@ -349,8 +344,11 @@ function apply(state: IslandState, input: IslandInput, now: number): IslandState
       if (state.strainOpen) return { ...closed(state), strainQuietUntil: now + STRAIN_QUIET_FOR };
       if (state.unseen !== null) return { ...state, unseen: null };
       if (state.message !== null) return following(state, now);
+      const line = lineOf(state, now);
+      if (line?.kind === 'task' || line?.kind === 'effort') return { ...state, tasksAway: true };
       if (state.note !== null) return { ...state, note: null };
       return state;
+    }
     case 'covered':
       return input.covered === state.covered ? state : { ...state, covered: input.covered };
     case 'reporting':
@@ -507,7 +505,7 @@ function lineOf(state: IslandState, now: number): IslandLine | null {
   }
   if (state.message !== null)
     return { kind: 'message', text: state.message.value.title, tone: state.message.value.tone };
-  if (state.tasksSince !== null && now - state.tasksSince >= TASK_SHOWN_AFTER) {
+  if (!state.tasksAway && state.tasksSince !== null && now - state.tasksSince >= TASK_SHOWN_AFTER) {
     const real = state.tasks.filter((task) => task.light !== true);
     const task = real[0];
     if (task !== undefined) return { kind: 'task', label: task.label, count: real.length };

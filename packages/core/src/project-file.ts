@@ -1,14 +1,33 @@
 /** Boundary validation for downloadable lesson checkpoints and portable projects. */
-import { type CadDocument, DOCUMENT_SCHEMA_VERSION, type SavedView } from './document.js';
+import {
+  type CadDocument,
+  DOCUMENT_SCHEMA_VERSION,
+  type SavedView,
+  type Variant,
+} from './document.js';
 import { readParams } from './features/registry.js';
-import type { FeatureRecord } from './features/types.js';
+import type { FeatureRecord, StepCamera } from './features/types.js';
+
+const record = (v: unknown): v is Record<string, unknown> =>
+  v !== null && typeof v === 'object' && !Array.isArray(v);
+
+const triple = (v: unknown) =>
+  Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n));
+
+function stepCamera(view: unknown): view is StepCamera {
+  return (
+    record(view) &&
+    triple(view.position) &&
+    triple(view.target) &&
+    typeof view.parallel === 'boolean' &&
+    typeof view.zoom === 'number'
+  );
+}
 
 export function parseProjectFile(text: string): CadDocument {
   // A backup holds its imported files, which can be hundreds of megabytes (the Voron's 241 MB).
   if (text.length > 600_000_000) throw new Error('Project files must be smaller than 600 MB.');
   const value: unknown = JSON.parse(text);
-  const record = (v: unknown): v is Record<string, unknown> =>
-    v !== null && typeof v === 'object' && !Array.isArray(v);
   if (!record(value) || !record(value.meta) || !Array.isArray(value.features))
     throw new Error('This is not a Bezier project file.');
   const meta = value.meta;
@@ -49,23 +68,24 @@ export function parseProjectFile(text: string): CadDocument {
       ))
   )
     throw new Error('Project metadata lists variables it cannot read.');
+  const variants = meta.variants;
+  if (
+    variants !== undefined &&
+    (!Array.isArray(variants) ||
+      !variants.every(
+        (variant) =>
+          record(variant) &&
+          typeof variant.name === 'string' &&
+          record(variant.values) &&
+          Object.values(variant.values).every((value) => typeof value === 'string'),
+      ))
+  )
+    throw new Error('Project metadata lists variants it cannot read.');
   const views = meta.savedViews;
-  const triple = (v: unknown) =>
-    Array.isArray(v) &&
-    v.length === 3 &&
-    v.every((n) => typeof n === 'number' && Number.isFinite(n));
   if (
     views !== undefined &&
     (!Array.isArray(views) ||
-      !views.every(
-        (view) =>
-          record(view) &&
-          typeof view.name === 'string' &&
-          triple(view.position) &&
-          triple(view.target) &&
-          typeof view.parallel === 'boolean' &&
-          typeof view.zoom === 'number',
-      ))
+      !views.every((view) => record(view) && typeof view.name === 'string' && stepCamera(view)))
   )
     throw new Error('Project metadata lists saved views it cannot read.');
   if (value.features.length > 2000)
@@ -99,6 +119,8 @@ export function parseProjectFile(text: string): CadDocument {
       name: f.name,
       params: result.params,
       ...(f.suppressed === undefined ? {} : { suppressed: f.suppressed }),
+      // Only for playing the history back, so one that cannot be read is left out.
+      ...(stepCamera(f.view) ? { view: f.view } : {}),
       ...(record(expressions) && Object.keys(expressions).length > 0
         ? { expressions: expressions as Record<string, string> }
         : {}),
@@ -129,6 +151,9 @@ export function parseProjectFile(text: string): CadDocument {
           }
         : {}),
       ...(Array.isArray(views) && views.length > 0 ? { savedViews: views as SavedView[] } : {}),
+      ...(Array.isArray(variants) && variants.length > 0
+        ? { variants: variants as Variant[] }
+        : {}),
     },
     features,
   };

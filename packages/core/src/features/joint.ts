@@ -11,6 +11,24 @@ import { transformParts, unchangedBody } from './transform-parts.js';
 const REVOLUTE = { kind: ['revolute'] } as const;
 const SLIDER = { kind: ['slider'] } as const;
 
+const clamp = (value: number, low: number, high: number) =>
+  Math.min(Math.max(value, Math.min(low, high)), Math.max(low, high));
+
+/** A joint's value as it will be built, so a field shows where the part really stopped. */
+export function heldAtLimits(params: Record<string, unknown>): Record<string, unknown> {
+  const held = (value: string, low: string, high: string) =>
+    typeof params[value] === 'number' &&
+    typeof params[low] === 'number' &&
+    typeof params[high] === 'number'
+      ? { [value]: clamp(params[value], params[low], params[high]) }
+      : {};
+  return {
+    ...params,
+    ...held('angle', 'minAngle', 'maxAngle'),
+    ...held('distance', 'minDistance', 'maxDistance'),
+  };
+}
+
 export const jointFeature = defineFeature({
   type: 'joint',
   label: 'Joint',
@@ -61,8 +79,6 @@ export const jointFeature = defineFeature({
       origin = plane.value.origin;
       direction = plane.value.normal;
     }
-    const clamp = (value: number, low: number, high: number) =>
-      Math.min(Math.max(value, Math.min(low, high)), Math.max(low, high));
     if (params.kind === 'revolute') {
       const angle = clamp(params.angle, params.minAngle, params.maxAngle);
       if (angle === 0) return unchangedBody(kernel, input.body);

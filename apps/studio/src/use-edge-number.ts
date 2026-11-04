@@ -17,7 +17,10 @@ export function useEdgeNumber({
   const cancelBlur = useRef(false);
   const active = useRef(false);
   active.current = editing;
+  // A click on the value replaces it, a digit typed over the model goes on from that digit.
+  const replacing = useRef(false);
   const start = (first?: string) => {
+    replacing.current = first === undefined;
     cancelBlur.current = false;
     onStart();
     setText(first ?? String(size));
@@ -51,7 +54,7 @@ export function useEdgeNumber({
     if (editing) {
       input.current?.focus();
       const length = input.current?.value.length ?? 0;
-      input.current?.setSelectionRange(length, length);
+      input.current?.setSelectionRange(replacing.current ? 0 : length, length);
     }
   }, [editing]);
   return {

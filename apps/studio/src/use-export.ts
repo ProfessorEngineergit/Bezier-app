@@ -9,12 +9,13 @@ import type { Sketch } from '@bezier/solver';
 import { sketchToDxf, sketchToSvg } from '@bezier/ui';
 import type { MutableRefObject } from 'react';
 import { useCallback } from 'react';
-import { save } from './download.js';
+import { openInSlicer, save } from './download.js';
 import { meshTolerance } from './mesh-quality.js';
 import type { Session } from './session.js';
 import type { TasksHandle } from './use-tasks.js';
+import { bodyColours } from './workspaces/use-body-appearance.js';
 
-export type ExportFormat = 'stl' | 'step' | '3mf' | 'dxf' | 'svg' | 'bom';
+export type ExportFormat = 'slicer' | 'stl' | 'step' | '3mf' | 'dxf' | 'svg' | 'bom';
 
 export interface FormatInfo {
   id: ExportFormat;
@@ -34,6 +35,14 @@ export const EXPORT_FORMATS: readonly FormatInfo[] = [
     extension: 'step',
     mime: 'application/step',
     note: 'Keeps the real geometry. For handing the part to another CAD tool.',
+    of: 'part',
+  },
+  {
+    id: 'slicer',
+    label: 'Open in slicer',
+    extension: '3mf',
+    mime: 'model/3mf',
+    note: 'Straight into the app that opens 3MF files here, with colours and each body apart.',
     of: 'part',
   },
   {
@@ -90,13 +99,18 @@ interface ExportDeps {
   sketchRef?: MutableRefObject<{ name: string; sketch: Sketch } | null>;
 }
 
-/** Saves the file. */
-function handOver(bytes: Uint8Array, name: string, mime: string): Promise<string | null> {
+/** Saves the file, or hands it to the system to open. */
+function handOver(
+  bytes: Uint8Array,
+  name: string,
+  mime: string,
+  open: boolean,
+): Promise<string | null> {
   // Copied into a plain ArrayBuffer: a Uint8Array over a SharedArrayBuffer is not a valid BlobPart,
   // and kernel output may be backed by one.
   const buffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(buffer).set(bytes);
-  return save(buffer, name, mime);
+  return open ? openInSlicer(buffer, name, mime) : save(buffer, name, mime);
 }
 
 export function useExport({
@@ -128,8 +142,8 @@ export function useExport({
               ? null
               : id === 'stl'
                 ? await session.exportStl(faces, meshTolerance())
-                : id === '3mf'
-                  ? await session.export3mf(faces, meshTolerance())
+                : id === '3mf' || id === 'slicer'
+                  ? await session.export3mf(faces, meshTolerance(), bodyColours(session.id))
                   : id === 'bom'
                     ? await session.billOfMaterials()
                     : await session.exportStep(faces);
@@ -153,13 +167,13 @@ export function useExport({
           bytesRemaining: 0,
         });
 
-        const written = await handOver(bytes, file, format.mime);
+        const written = await handOver(bytes, file, format.mime, id === 'slicer');
         if (written === null) {
           task.done({ title: 'Export cancelled', detail: file, tone: 'ok' });
           return;
         }
         task.done({
-          title: `Exported ${file}`,
+          title: id === 'slicer' ? `Sent ${file} to your slicer` : `Exported ${file}`,
           detail: `${format.label} · ${formatSize(bytes.byteLength)}`,
           tone: 'ok',
         });

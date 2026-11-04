@@ -3,7 +3,7 @@
  * stable-ref.ts.
  */
 
-export type { CadDocument, DocumentMeta, RebuildResult, SavedView } from './document.js';
+export type { CadDocument, DocumentMeta, RebuildResult, SavedView, Variant } from './document.js';
 export { createEmptyDocument, DOCUMENT_SCHEMA_VERSION } from './document.js';
 export type { Evaluated, Variable } from './expressions.js';
 export {
@@ -13,6 +13,8 @@ export {
   namesIn,
   variableNameProblem,
 } from './expressions.js';
+export type { FastenerPlacement } from './features/fastener.js';
+export { fastenerExists, fastenerLengths } from './features/fastener-shape.js';
 export type {
   FeatureDefinition,
   ParamSpec,
@@ -30,7 +32,15 @@ export {
   readParams,
   validateParams,
 } from './features/index.js';
-export type { FeatureId, FeatureRecord, FeatureStatus, SketchPlane } from './features/types.js';
+export { METRIC_SIZES, pitchFor } from './features/iso-metric.js';
+export { heldAtLimits } from './features/joint.js';
+export type {
+  FeatureId,
+  FeatureRecord,
+  FeatureStatus,
+  SketchPlane,
+  StepCamera,
+} from './features/types.js';
 export * from './journal/index.js';
 export { parseProjectFile } from './project-file.js';
 export type { BodyList, BodySummary } from './rebuild/bodies.js';

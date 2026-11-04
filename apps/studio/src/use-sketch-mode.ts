@@ -376,15 +376,25 @@ export function useSketchMode({
    * What the rail's Extrude acts on without a click: the pending offer's regions, else the unused
    * regions of the newest visible sketch.
    */
+  const outlinesOf = (sketch: FeatureId, regions: readonly string[]) =>
+    (view?.sketches.get(sketch)?.regions ?? [])
+      .filter((region) => regions.length === 0 || regions.includes(region.key))
+      .map((region) => region.outline);
+
   const railTarget = (): SketchTarget | null => {
-    if (offer !== null) return { sketch: offer.sketch, regions: offer.params.regions };
+    if (offer !== null) {
+      const { sketch } = offer;
+      const { regions } = offer.params;
+      return { sketch, regions, outlines: outlinesOf(sketch, regions) };
+    }
     for (let index = shown.length - 1; index >= 0; index -= 1) {
       const item = shown[index];
       if (item === undefined || view === null) continue;
       const areas = view.sketches.get(item.id)?.regions.map((region) => region.key) ?? [];
       const unused = areas.filter((key) => !item.used.has(key));
       if (unused.length === 0) continue;
-      return { sketch: item.id, regions: item.used.size === 0 ? [] : unused };
+      const regions = item.used.size === 0 ? [] : unused;
+      return { sketch: item.id, regions, outlines: outlinesOf(item.id, regions) };
     }
     return null;
   };

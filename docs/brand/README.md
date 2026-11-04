@@ -21,7 +21,7 @@ everyone else sees an elegant mark.
 | --- | --- |
 | [`logo/bezier-app-icon-dark.png`](logo/bezier-app-icon-dark.png) | The mark: the silver B with the glass cube on a near-black plate, 1024 px. App icon on every platform (`pnpm --filter @bezier/desktop icons` makes the rest from it), website mark, loader. |
 | [`logo/bezier-app-icon-light.png`](logo/bezier-app-icon-light.png) | The same mark for a light ground: the graphite B with the glass cube on a white plate, 1024 px. Shown wherever the interface is in its light scheme. |
-| [`icons/`](icons/README.md) | The new icon set as code: 57 thin glass icons, a glass renderer and a generated stylesheet. Not in the app yet. |
+| [`icons/`](icons/README.md) | The new icon set as code: 65 thin glass icons, a glass renderer and a generated stylesheet. Not in the app yet. |
 
 | [`icons/`](icons/README.md) | The new icon set as code: 53 thin glass icons, a glass renderer and a generated stylesheet. Not in the app yet. |
 

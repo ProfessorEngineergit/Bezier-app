@@ -354,6 +354,10 @@ Projects stay in this app's private storage on this device. They are never sent 
 - **Storage used** is how much of the browser's storage for Bezier is in use, as the browser reports it. It reads Unavailable if the browser will not say.
 - **Cloud sync** says In development. It is not built. To share a project with other people, see [collaboration](doc:collaboration).
 
+## Back up all projects
+
+**Save backup** writes every project and its history into one file. Open that file with File in any project, or drop it on the window, and the projects come back as new ones next to what is there. Keep it somewhere other than this computer. To save one project, use the menu on its card.
+
 ## Reset settings
 
 **Restore Bezier defaults** puts every setting back: theme, shortcuts, mouse bindings and the rest. Your projects and modeling data are kept.

@@ -39,6 +39,10 @@ export const test = base.extend<{ consoleErrors: string[]; developerView: boolea
               'bezier.nib.offered',
               JSON.stringify(['design', 'visualize', 'drawings', 'simulation']),
             );
+          // Playwright's WebKit has no OPFS, so its notice would stand in the island at the start
+          // of every test. The test of that notice resets it.
+          if (window.localStorage.getItem('bezier.notices.seen') === null)
+            window.localStorage.setItem('bezier.notices.seen', '["storage-indexeddb"]');
         } catch {
           // Without storage the tip shows; only the tip's own test depends on it.
         }

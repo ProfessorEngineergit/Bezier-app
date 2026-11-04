@@ -100,6 +100,7 @@ export {
   snapCandidate,
   snapSketchPoint,
   snapToGrid,
+  threePointRectangleAt,
 } from './sketch-tools.js';
 export { trimAt } from './sketch-trim.js';
 export { typedNumber } from './typed-number.js';

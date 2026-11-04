@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import {
   AlignIcon,
   ArcIcon,
+  BossIcon,
   CenterlineIcon,
   ChamferIcon,
   CircleIcon,
@@ -14,38 +15,57 @@ import {
   CommandMark,
   ConstructIcon,
   DeleteIcon,
+  DraftIcon,
   ExitIcon,
+  ExplodedIcon,
   ExtrudeIcon,
   FilletIcon,
+  FitTestIcon,
+  GearWheelIcon,
+  HistoryIcon,
   HoleIcon,
   ImportIcon,
   ItemsIcon,
   JointIcon,
+  LibraryIcon,
   LineIcon,
+  LipIcon,
   LoftIcon,
   MeasureIcon,
   MirrorIcon,
+  ModelingIcon,
   MoveRotateIcon,
   OffsetEdgeIcon,
   PatternIcon,
+  PipeIcon,
   PointIcon,
   PolygonIcon,
   ProjectIcon,
   QuickSettingsIcon,
   RectangleIcon,
   RevolveIcon,
+  RibIcon,
   ScaleIcon,
   SectionIcon,
   ShellIcon,
   SketchIcon,
   SlotIcon,
+  SnapFitIcon,
+  SolidBoxIcon,
+  SolidConeIcon,
+  SolidCylinderIcon,
+  SolidSphereIcon,
+  SolidTorusIcon,
   SplineIcon,
   SplitIcon,
+  SpringIcon,
   SweepIcon,
   TextIcon,
+  ThreadIcon,
   ToolsIcon,
   TransformIcon,
   TrimIcon,
+  WallThicknessIcon,
   WrapIcon,
 } from '../icons/Icons.js';
 import type { CategoryId } from './commands.js';
@@ -87,6 +107,22 @@ const COMMAND_ICONS: Record<string, ReactNode> = {
   extrude: <ExtrudeIcon />,
   chamfer: <ChamferIcon />,
   hole: <HoleIcon />,
+  thread: <ThreadIcon />,
+  library: <LibraryIcon />,
+  boss: <BossIcon />,
+  rib: <RibIcon />,
+  draft: <DraftIcon />,
+  lip: <LipIcon />,
+  'snap-fit': <SnapFitIcon />,
+  'fit-test': <FitTestIcon />,
+  box: <SolidBoxIcon />,
+  cylinder: <SolidCylinderIcon />,
+  sphere: <SolidSphereIcon />,
+  cone: <SolidConeIcon />,
+  torus: <SolidTorusIcon />,
+  gear: <GearWheelIcon />,
+  spring: <SpringIcon />,
+  pipe: <PipeIcon />,
   fillet: <FilletIcon />,
   shell: <ShellIcon />,
   combine: <CombineIcon />,
@@ -129,6 +165,13 @@ function buildLeftRail(): readonly RailGroup[] {
           opensPalette: true,
           flyout: commandsOf('tools'),
         },
+        {
+          id: 'parts',
+          label: 'Parts',
+          icon: <GearWheelIcon />,
+          opensPalette: true,
+          flyout: commandsOf('parts'),
+        },
       ],
     },
     {
@@ -150,6 +193,8 @@ export const LEFT_RAIL: readonly RailGroup[] = buildLeftRail();
  */
 /** Id of the quick-settings button. */
 export const QUICK_SETTINGS = 'quick-settings';
+/** Id of the history button, at the head of the right rail like Items on the left. */
+export const HISTORY = 'history';
 
 export const RIGHT_RAIL: readonly RailGroup[] = [
   {
@@ -158,6 +203,46 @@ export const RIGHT_RAIL: readonly RailGroup[] = [
     items: [{ id: QUICK_SETTINGS, label: 'Quick settings', icon: <QuickSettingsIcon /> }],
   },
 ];
+
+/** The right rail in Modeling, the one workspace with a history to show. */
+export const MODEL_RIGHT_RAIL: readonly RailGroup[] = [
+  { id: 'history', items: [{ id: HISTORY, label: 'History', icon: <HistoryIcon /> }] },
+  {
+    id: 'analysis',
+    zone: 'bottom',
+    items: [
+      { id: 'wall-thickness', label: 'Wall thickness', icon: <WallThicknessIcon /> },
+      { id: 'exploded', label: 'Exploded view', icon: <ExplodedIcon /> },
+    ],
+  },
+  ...RIGHT_RAIL,
+];
+
+/** Steps named differently from the command that makes them. */
+const STEP_COMMANDS: Readonly<Record<string, string>> = {
+  'face-extrude': 'extrude',
+  'import-step': 'file',
+  'move-parts': 'move-rotate',
+  move: 'move-rotate',
+  rotate: 'move-rotate',
+  'transform-copy': 'move-rotate',
+  'remove-body': 'sketch-delete',
+  'remove-faces': 'sketch-delete',
+  'split-body': 'split',
+  fastener: 'library',
+  primitive: 'box',
+};
+
+/** The command that makes a history step. */
+export function stepCommand(type: string): string {
+  return STEP_COMMANDS[type] ?? type;
+}
+
+/** A history step's icon: the icon of the command that made it. */
+export function stepIcon(type: string): ReactNode {
+  if (type === 'sketch') return <SketchIcon />;
+  return COMMAND_ICONS[stepCommand(type)] ?? <ModelingIcon />;
+}
 
 /** The command's key in the active keymap. Combine uses Union's key. */
 function shortcutOf(id: string, fallback: string | undefined): { shortcut?: string } {

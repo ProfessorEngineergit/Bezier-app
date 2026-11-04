@@ -3,13 +3,14 @@
  * here (ADR 0004); every document edit goes through `Session.apply`.
  */
 
-import { type FeatureId, formatRef, getFeature, type StableRef } from '@bezier/core';
+import { type FeatureId, getFeature, type StableRef } from '@bezier/core';
 import type { EdgeFrame, ShownSketch } from '@bezier/renderer';
 import type { Sketch } from '@bezier/solver';
 import {
   CATEGORIES,
   type CategoryId,
   DEFAULT_VIEW_SETTINGS,
+  HISTORY,
   leftRailFor,
   resolveKeymap,
   setActiveKeymap,
@@ -26,13 +27,12 @@ import './workspaces/workspaces.css';
 import { ContactPrompt } from './ContactPrompt.js';
 import { useCollabProject } from './collab/use-collab-project.js';
 import { EdgeGizmo } from './EdgeGizmo.js';
-import { EdgeTreatmentEditor } from './EdgeTreatmentEditor.js';
 import { EditorOverlays } from './EditorOverlays.js';
-import { FaceExtrusion } from './FaceExtrusion.js';
 import { faceToolTarget } from './face-tool-target.js';
+import { HistorySidebar } from './HistorySidebar.js';
 import { FeatureInspector, PickedRefs } from './Inspector.js';
 import { ItemsPanel } from './ItemsPanel.js';
-import { inspectionMode, toggleSection } from './inspection-mode.js';
+import { inspectionMode, sectionCut, toggleSection } from './inspection-mode.js';
 import { useKernelWarmUp } from './kernel-warm-up.js';
 import { LibraryOverlay } from './LibraryOverlay.js';
 import { useLessons } from './lessons-host.js';
@@ -46,14 +46,16 @@ import {
   useQuickSettings,
   viewTabsFor,
 } from './Panels.js';
+import { PickEditors } from './PickEditors.js';
 import { ProjectChrome } from './ProjectChrome.js';
+import { PartsLibrary } from './parts/PartsLibrary.js';
+import { usePartsLibrary } from './parts/use-parts-library.js';
 import { projectFaceEdges, startMove } from './rail-actions.js';
 import { ReportButton } from './report/ReportButton.js';
 import { SceneInspection } from './SceneInspection.js';
 import { SelectionControls } from './SelectionControls.js';
-import { SketchActionBar } from './SketchActionBar.js';
-import { SketchAreaOffer } from './SketchAreaOffer.js';
-import { SketchPlanePanel, surfaceLabel } from './SketchPlanePanel.js';
+import { SketchBars } from './SketchBars.js';
+import { surfaceLabel } from './SketchPlanePanel.js';
 import { type Said, sameSaid, spoken } from './said.js';
 import type { Session, SessionDeps, SessionView } from './session.js';
 import {
@@ -65,7 +67,9 @@ import { SimulationWorkspace } from './simulation/SimulationWorkspace.js';
 import { useSimulation } from './simulation/use-simulation.js';
 import { squareView } from './square-view.js';
 import { TransformControls } from './TransformControls.js';
+import { cuedSketches } from './timelapse-script.js';
 import { useActivity } from './use-activity.js';
+import { useAnalysisPanels } from './use-analysis-panels.js';
 import { areaPicked, bodiesPicked, useBodies } from './use-bodies.js';
 import { useBodyFolders } from './use-body-folders.js';
 import { useBootstrap } from './use-bootstrap.js';
@@ -76,6 +80,7 @@ import { useExport } from './use-export.js';
 import { useGeometry } from './use-geometry.js';
 import { useGoHome, useHomeWhileIdle } from './use-go-home.js';
 import { useHistory } from './use-history.js';
+import { stepProps, useHistorySidebar } from './use-history-sidebar.js';
 import { useHole } from './use-hole.js';
 import { useItemsWidth } from './use-items-width.js';
 import { useLibrary } from './use-library.js';
@@ -104,6 +109,7 @@ import { Viewport, type ViewportHandle } from './Viewport.js';
 type Vec3 = { x: number; y: number; z: number };
 
 const CATEGORY_IDS: readonly string[] = Object.keys(CATEGORIES);
+const OWN_RIGHT: readonly string[] = [HISTORY, 'wall-thickness', 'exploded'];
 /** Nothing on show; one shared list so the viewport is not told twice. */
 const NO_SHOWN: readonly ShownSketch[] = [];
 
@@ -121,6 +127,7 @@ export function App() {
   const [gizmoFrame, setGizmoFrame] = useState<EdgeFrame | null>(null);
   const [moveMode, setMoveMode] = useState(false);
   const [measureMode, setMeasureMode] = useState(false);
+  const analysis = useAnalysisPanels();
   const [measurePoints, setMeasurePoints] = useState<readonly Vec3[]>([]);
   const measuredGeometry = useRef(view?.display);
   useEffect(() => {
@@ -139,6 +146,7 @@ export function App() {
   const [exportOpen, setExportOpen] = useState(false);
   const [workspace, setWorkspace] = useState<StudioMode>(prefs.startupWorkspace);
   const quick = useQuickSettings(workspace);
+  const historyPanel = useHistorySidebar(workspace === 'design');
   /** The Simulation study browser. Closed by default so it never covers the canvas unasked. */
   const [studyBrowser, setStudyBrowser] = useState(false);
   /** Shows a message once; repeats would stack up and shift the canvas. */
@@ -146,7 +154,6 @@ export function App() {
     const said = spoken(message);
     setNotices((all) => (all.some((known) => sameSaid(known, said)) ? all : [...all, said]));
   }, []);
-
   useUpdateNotice(prefs.checkForUpdates, say);
 
   // The dashboard reaches the task bar through this ref before the project hook exists.
@@ -207,6 +214,7 @@ export function App() {
     setBusy,
     setFatal,
     engineRestartRef: useEngineRestart(depsRef, sessionRef, run),
+    viewportRef,
   });
 
   useKernelWarmUp(depsRef, !dash.dashboardOpen);
@@ -242,6 +250,14 @@ export function App() {
   const [variablesOpen, setVariablesOpen] = useState(false);
   /** Where the last click landed on the model, for commands placed by a click (Hole). */
   const lastPickPoint = useRef<{ x: number; y: number; z: number } | null>(null);
+  const partsLibrary = usePartsLibrary({
+    run,
+    say,
+    selectedRefs,
+    lastPoint: lastPickPoint,
+    viewportRef,
+    setSelectedFeature,
+  });
   const keymap = useMemo(
     () => resolveKeymap(prefs.keymap.preset, prefs.keymap.overrides),
     [prefs.keymap],
@@ -278,6 +294,7 @@ export function App() {
     addFillet,
     addRevolve,
     addShell,
+    opened,
     changeParam,
     patchParams,
     renameFeature,
@@ -299,14 +316,9 @@ export function App() {
     checkContacts: bodies.checkContacts,
     say,
     showPart: (part) => viewportRef.current?.showPartPreview(part, part?.replaces),
-  });
-  const addHole = useHole({
-    run,
-    selectedRefs,
-    lastPoint: lastPickPoint,
-    say,
     onCreated: setSelectedFeature,
   });
+  const addHole = useHole({ run, selectedRefs, lastPoint: lastPickPoint, say, onCreated: opened });
 
   const { pick, selectBody, selectAll, deselectAll } = useSelection({
     view,
@@ -369,6 +381,7 @@ export function App() {
     (view?.bodies ?? []).reduce((n, body) => n + body.faces.length, 0),
     documentId,
     switchWorkspace,
+    prefs.startupWorkspace,
   );
 
   const stepHistory = useHistory({
@@ -408,12 +421,18 @@ export function App() {
         return projectFaceEdges(mode.surface?.face ?? null, sessionRef.current, sketch, say);
       if (id === 'visualization' || id === 'drawings') return; // disabled
       if (id === 'items') return setDrawer((d) => (d === 'items' ? null : 'items'));
+      if (id === 'library') return partsLibrary.toggle();
+      if (id === 'exploded' && (view?.bodies.length ?? 0) < 2) {
+        return say('One body has nothing to come apart from.');
+      }
+      if (analysis.activate(id)) return;
+      if (id === HISTORY) return historyPanel.toggle();
       if (id === 'section') {
         setCategory(null);
         const centre = viewportRef.current?.contentCenter();
         setSettings((current) => ({
           ...current,
-          section: toggleSection(current.section, centre?.z),
+          section: toggleSection(current.section, centre?.[current.sectionAxis]),
         }));
         return;
       }
@@ -433,7 +452,8 @@ export function App() {
       if (sketchCommands.run(id)) return;
       if (id === 'fillet') return addFillet();
       if (id === 'shell') return addShell();
-      if (id === 'hole') return addHole();
+      if (id === 'hole' || id === 'thread' || id === 'boss' || id === 'lip' || id === 'draft')
+        return addHole(id);
       if (bodiesRef.current.command(id)) return;
       if (id === 'file') return project.transfer.pickFile();
       if (id === 'extrude') {
@@ -457,6 +477,9 @@ export function App() {
     },
     // `category` decides whether Sketch starts or finishes a drawing, so it must be a dependency.
     [
+      historyPanel.toggle,
+      partsLibrary.toggle,
+      analysis.activate,
       addFillet,
       addRevolve,
       loftSweep,
@@ -499,7 +522,7 @@ export function App() {
       deselectAll();
       return had;
     },
-    onDuplicate: () => bodiesRef.current.duplicate(),
+    onDuplicate: (step) => bodiesRef.current.duplicate(step),
     // The selection went with it, so the move arrows and edge handle must not linger.
     onDelete: () => {
       if (bodiesRef.current.deleteSelection(selectedFeature, removeFeature)) deselectAll();
@@ -541,7 +564,7 @@ export function App() {
     viewport.setGridPlane(settings.gridPlane);
     viewport.setAxesVisible(settings.showAxes);
     viewport.setFieldOfView(settings.fieldOfView);
-    viewport.setSection(settings.section);
+    viewport.setSection(sectionCut(settings));
   }, [settings]);
 
   // What DXF and SVG write: the sketch open for drawing, else the one selected.
@@ -592,35 +615,49 @@ export function App() {
   const planePicking = category === 'sketch' && mode.surface === null;
   // A flyout hides rail labels; a mode keeps them, since the rail is the mode's toolbar. Sketch is
   // a mode too.
-  const railLabelsVisible = prefs.showLabels && (category === null || category === 'sketch');
+  const { cue } = historyPanel;
+  const railCategory = cue === null ? category : cue.category;
+  const railLabels = prefs.showLabels && (railCategory === null || railCategory === 'sketch');
+  const rail = leftRailFor(railCategory, guard, settings.section !== null, sketchCommands.chosen);
   const { extrudeRef, edgeTreatment } = faceToolTarget(moveMode, selectedRefs, document);
   const activeSketchTool = sketchCommands.activeCommand;
   const activeInspection = inspectionMode(measureMode, settings.section);
+  const steps = stepProps(selectedFeature, setSelectedFeature, {
+    deselectAll,
+    mode,
+    removeFeature,
+    renameFeature,
+    setSuppressed,
+  });
   const showModelItems = workspace !== 'drawings' && !simulating && drawer === 'items';
 
   return (
     <Workspace
       activeLeftId={
-        simulating
-          ? simulationActiveId(sim, studyBrowser)
-          : (activeSketchTool ??
-            category ??
-            activeInspection ??
-            (drawer === 'items' ? 'items' : null))
+        cue !== null
+          ? [cue.category ?? '', cue.tool ?? '']
+          : simulating
+            ? simulationActiveId(sim, studyBrowser)
+            : (activeSketchTool ??
+              category ??
+              activeInspection ??
+              (drawer === 'items' ? 'items' : null))
       }
-      activeRightId={quick.tab === null ? null : QUICK_SETTINGS}
+      activeRightId={[
+        quick.tab === null ? '' : QUICK_SETTINGS,
+        historyPanel.shown ? HISTORY : '',
+        ...analysis.active,
+      ]}
       leftGroups={
         !['design', 'simulation'].includes(workspace)
           ? []
           : simulating
             ? simulationRail(sim)
-            : modelBusy
-              ? lockRail(
-                  leftRailFor(category, guard, settings.section !== null, sketchCommands.chosen),
-                )
-              : leftRailFor(category, guard, settings.section !== null, sketchCommands.chosen)
+            : modelBusy && cue === null
+              ? lockRail(rail)
+              : rail
       }
-      leftLabels={simulating ? prefs.showLabels : railLabelsVisible}
+      leftLabels={simulating ? prefs.showLabels : railLabels}
       showPerformance={prefs.showPerformance}
       onTogglePerformance={() => setPrefs({ ...prefs, showPerformance: !prefs.showPerformance })}
       leftPanel={simulating ? studyBrowser : drawer === 'items'}
@@ -629,7 +666,7 @@ export function App() {
           ? (id) => activateSimulation(id, sim, () => setStudyBrowser((open) => !open))
           : activateLeft
       }
-      onActivateRight={quick.activate}
+      onActivateRight={(id) => (OWN_RIGHT.includes(id) ? activateLeft(id) : quick.activate(id))}
       dropping={project.transfer.dropping}
       onExport={() => setExportOpen((open) => !open)}
       titleTrailing={<ReportButton handleRef={viewportRef} view={view} workspace={workspace} />}
@@ -719,7 +756,7 @@ export function App() {
         planePicking={planePicking}
         selected={simulating ? sim.selectedRefs : selectedRefs}
         sketchDraft={category === 'sketch' ? sketch.draft : null}
-        shownSketches={simulating ? NO_SHOWN : mode.shown}
+        shownSketches={simulating ? NO_SHOWN : cuedSketches(mode.shown, historyPanel.cue)}
         references={references}
         images={images}
         onImagePick={pickImage}
@@ -784,8 +821,8 @@ export function App() {
       {/* Transforms own the interaction while open, the edge's fillet handle included. */}
       {!moveMode &&
         gizmoAnchor !== null &&
-        selectedRefs.length === 1 &&
-        selectedRefs[0]?.kind === 'edge' && (
+        selectedRefs.length > 0 &&
+        selectedRefs.every((ref) => ref.kind === 'edge') && (
           <EdgeGizmo
             anchor={gizmoAnchor}
             frame={gizmoFrame}
@@ -802,44 +839,23 @@ export function App() {
           />
         )}
 
-      {/* The offer on a clicked profile: nothing is built until the drag sets a distance, and
-          Escape leaves the document unchanged. */}
-      {mode.offer !== null && (
-        <SketchAreaOffer
-          offer={mode.offer}
-          onChange={mode.setOffer}
-          canCombine={(view?.bodies.length ?? 0) > 0}
-          handleRef={viewportRef}
-          onCommit={extrudeSketchById}
-          onPreview={previewExtrudeSketch}
-        />
-      )}
-
-      {extrudeRef !== null && edgeTreatment !== undefined && (
-        <EdgeTreatmentEditor
-          key={edgeTreatment.id}
-          feature={edgeTreatment}
-          onRemoved={deselectAll}
-          face={extrudeRef}
-          handleRef={viewportRef}
-          sessionRef={sessionRef}
-          run={run}
-          setView={setView}
-        />
-      )}
-      {/* One extrude gizmo at a time: a clicked sketch area outranks the face it was drawn on. */}
-      {extrudeRef !== null && edgeTreatment === undefined && mode.offer === null && (
-        <FaceExtrusion
-          key={formatRef(extrudeRef)}
-          face={extrudeRef}
-          point={lastPickPoint.current}
-          handleRef={viewportRef}
-          sessionRef={sessionRef}
-          run={run}
-          setView={setView}
-          onPulled={bodies.checkContacts}
-        />
-      )}
+      <PickEditors
+        mode={mode}
+        canCombine={(view?.bodies.length ?? 0) > 0}
+        extrudeRef={extrudeRef}
+        edgeTreatment={edgeTreatment}
+        point={lastPickPoint.current}
+        onExtrudeSketch={extrudeSketchById}
+        onPreviewSketch={previewExtrudeSketch}
+        onRemoved={deselectAll}
+        onPulled={bodies.checkContacts}
+        handleRef={viewportRef}
+        sessionRef={sessionRef}
+        run={run}
+        setView={setView}
+        say={say}
+      />
+      {partsLibrary.open && <PartsLibrary {...partsLibrary.props} />}
 
       {/* Transforms own the interaction while open; face tools stay out of the way. */}
       {moveMode && (
@@ -871,10 +887,11 @@ export function App() {
       <SceneInspection
         settings={settings}
         measuring={measureMode}
+        {...analysis.panels}
         points={measurePoints}
         view={view}
         handleRef={viewportRef}
-        onSection={(section) => setSettings((current) => ({ ...current, section }))}
+        onSection={(patch) => setSettings((current) => ({ ...current, ...patch }))}
         setPoints={setMeasurePoints}
         onClose={() => setMeasureMode(false)}
         selected={selectedRefs}
@@ -888,12 +905,7 @@ export function App() {
 
       {showModelItems && document !== null && view !== null && (
         <ItemsPanel
-          features={document.features}
-          onDelete={(id) => {
-            if (selectedFeature === id) setSelectedFeature(null);
-            removeFeature(id);
-          }}
-          onEditSketch={mode.edit}
+          {...steps(document, view)}
           {...bodies.itemsProps}
           onSelectBody={(key, additive) => {
             setSelectedFeature(null);
@@ -910,41 +922,29 @@ export function App() {
           onBodiesVisible={bodyFolders.onBodiesVisible}
           showHistory={prefs.showHistory}
           only={workspace === 'visualize' ? 'bodies' : undefined}
-          onRename={renameFeature}
-          onToggleSuppressed={setSuppressed}
-          statuses={view.statuses}
           shownSketches={new Set(mode.shown.map((item) => item.id))}
-          onSelect={(id) => {
-            deselectAll();
-            setSelectedFeature(id);
-          }}
           onWidthChange={setItemsWidth}
-          selectedId={selectedFeature}
           width={itemsWidth}
         />
       )}
-
-      {category === 'sketch' && sketchCommands.action !== null && (
-        <SketchActionBar
-          action={sketchCommands.action}
-          onApply={sketch.applyEdit}
-          onClose={sketchCommands.closeAction}
-          placeAt={sketchCommands.textAt}
-          selected={sketch.selected}
-          sketch={sketch.draft}
+      {historyPanel.shown && document !== null && view !== null && (
+        <HistorySidebar
+          {...steps(document, view)}
+          {...bodies.history}
+          locked={category === 'sketch'}
+          {...historyPanel.sidebar}
+          viewport={viewportRef}
         />
       )}
-      {category === 'sketch' &&
-        mode.surface !== null &&
-        feature === null &&
-        sketch.selected.length === 0 &&
-        sketchCommands.action === null && (
-          <SketchPlanePanel
-            freedom={sketch.freedom}
-            onChange={mode.setSurface}
-            surface={mode.surface}
-          />
-        )}
+
+      <SketchBars
+        commands={sketchCommands}
+        idle={feature === null}
+        onSurface={mode.setSurface}
+        sketch={sketch}
+        sketching={category === 'sketch'}
+        surface={mode.surface}
+      />
       {!moveMode && (
         <FeatureInspector
           definition={definition}
@@ -960,7 +960,7 @@ export function App() {
 
       {variablesOpen && !dash.dashboardOpen && (
         <VariablesPanel
-          list={document?.meta.variables ?? []}
+          meta={document?.meta}
           onClose={() => setVariablesOpen(false)}
           variables={variables}
         />

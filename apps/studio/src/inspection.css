@@ -327,9 +327,12 @@
 }
 .measure-pinned li > span {
   flex: 1;
+  min-width: 0;
   color: var(--text-dim);
 }
 .measure-pinned li strong {
+  flex: none;
+  white-space: nowrap;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -358,17 +361,17 @@
   box-shadow: var(--shadow-popover);
   white-space: nowrap;
 }
-.section-position {
+.inspection-number {
   display: grid;
   gap: 8px;
   margin: 20px 0;
 }
-.section-position > span {
+.inspection-number > span {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.section-position input {
+.inspection-number input {
   min-width: 0;
   flex: 1;
   width: 100%;
@@ -381,7 +384,7 @@
   font: inherit;
   font-variant-numeric: tabular-nums;
 }
-.section-position input[aria-invalid="true"] {
+.inspection-number input[aria-invalid="true"] {
   border-color: var(--text);
 }
 @media (max-width: 600px) {
@@ -408,4 +411,17 @@
 .measure-angle dt {
   color: var(--text-dim);
   font-size: var(--text-size-badge);
+}
+
+.wall-panel {
+  display: grid;
+  gap: 8px;
+  padding: 2px 4px 6px;
+}
+
+/* The same ramp as the model: the limit stands a third of the way along. */
+
+.wall-panel__verdict {
+  margin: 0;
+  font: 500 12px / 1.4 var(--font);
 }

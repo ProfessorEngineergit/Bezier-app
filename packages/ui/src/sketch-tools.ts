@@ -25,6 +25,7 @@ export type SketchTool =
   | 'circle'
   | 'rectangle'
   | 'center-rectangle'
+  | 'three-point-rectangle'
   | 'trim'
   | 'extend'
   | 'split'
@@ -256,6 +257,63 @@ export function connect(sketch: Sketch, start: SketchId, end: SketchId): Sketch 
  * A rectangle from two opposite corners: four lines on four shared points, with horizontal and
  * vertical constraints. The clicked corners snap; the other two are new points.
  */
+/**
+ * A rectangle at any angle: one side from `a` to `b`, the opposite side through `c`. Square corners
+ * and parallel sides are held as constraints, so it stays a rectangle when it is dimensioned.
+ */
+export function threePointRectangleAt(sketch: Sketch, a: Point2D, b: Point2D, c: Point2D): Sketch {
+  const [du, dv] = [b.u - a.u, b.v - a.v];
+  const side = Math.hypot(du, dv);
+  if (side < 1e-6) return sketch;
+  const [nu, nv] = [-dv / side, du / side];
+  const height = (c.u - a.u) * nu + (c.v - a.v) * nv;
+  if (Math.abs(height) < 1e-6) return sketch;
+  const corners: Point2D[] = [
+    a,
+    b,
+    { u: b.u + nu * height, v: b.v + nv * height },
+    { u: a.u + nu * height, v: a.v + nv * height },
+  ];
+  let next = sketch;
+  const ids: SketchId[] = [];
+  for (const corner of corners) {
+    const step = ensurePoint(next, corner, SNAP_DISTANCE);
+    next = step.sketch;
+    ids.push(step.id);
+  }
+  const lines: SketchId[] = [];
+  for (let i = 0; i < ids.length; i++) {
+    const [from, to] = [ids[i], ids[(i + 1) % ids.length]];
+    if (from === undefined || to === undefined) continue;
+    const before = next.primitives.length;
+    next = connect(next, from, to);
+    const added = next.primitives[next.primitives.length - 1];
+    if (next.primitives.length > before && added !== undefined) lines.push(added.id);
+  }
+  // Four new sides only: a side that was already there may belong to something else.
+  const [one, two, three, four] = lines;
+  if (one === undefined || two === undefined || three === undefined || four === undefined) {
+    return next;
+  }
+  const taken = new Set<SketchId>([
+    ...next.primitives.map((primitive) => primitive.id),
+    ...next.constraints.map((constraint) => constraint.id),
+  ]);
+  let index = next.constraints.length;
+  const fresh = () => {
+    while (taken.has(`c${index}`)) index += 1;
+    const id = `c${index}`;
+    taken.add(id);
+    return id;
+  };
+  const constraints: SketchConstraint[] = [
+    { kind: 'perpendicular', id: fresh(), a: one, b: two },
+    { kind: 'parallel', id: fresh(), a: one, b: three },
+    { kind: 'parallel', id: fresh(), a: two, b: four },
+  ];
+  return { ...next, constraints: [...next.constraints, ...constraints] };
+}
+
 export function rectangleAt(
   sketch: Sketch,
   from: Point2D,

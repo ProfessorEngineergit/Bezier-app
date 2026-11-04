@@ -150,6 +150,17 @@ export class PartEditPreview {
     }
   }
 
+  /** Whether OCCT builds this round or bevel; nothing is drawn. */
+  async fits(edit: Extract<PartEdit, { kind: 'fillet' | 'chamfer' }>): Promise<boolean> {
+    const handles = [this.#handle];
+    const made =
+      edit.kind === 'fillet'
+        ? await this.#kernel.fillet(this.#solid, handles, edit.size)
+        : await this.#kernel.chamfer(this.#solid, handles, edit.size);
+    if (made.ok) await this.#kernel.dispose(made.value.shape);
+    return made.ok;
+  }
+
   async end(): Promise<void> {
     await this.#kernel.dispose(this.#solid);
     if (this.#rest !== null) await this.#kernel.dispose(this.#rest);

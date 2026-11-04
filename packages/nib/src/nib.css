@@ -201,14 +201,19 @@
   animation: none;
 }
 
-/* The live head canvas fills its round window. */
+/* The live head canvas fills its round window, and the picture of him until it is drawn. */
 .nib-head,
-.nib-head canvas {
+.nib-head canvas,
+.nib-head img {
   position: absolute;
   inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.nib-head[data-head="live"] img {
+  display: none;
 }
 
 .nib-head {

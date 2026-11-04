@@ -1,5 +1,5 @@
 /**
- * Nib's head in the island. Without a GPU this checks that he always shows (image or live, never
+ * Nib's head in the island. Without a GPU this checks that he always shows (picture or live, never
  * empty) and that when switched off or with reduced motion none of his model is fetched.
  * `data-head="live"` only means the stage started, which happens with a GPU (WebKit on macOS) but
  * not in headless Chromium, where he stays an image.
@@ -36,12 +36,16 @@ test('the island opens with his head in it, a picture first and alive when the g
 }) => {
   await open(page);
   await expect(island(page)).toHaveAttribute('data-shape', 'card', { timeout: 8000 });
-  await expect(island(page).locator('.nib-island__head')).toHaveAttribute(
+  await expect(island(page).locator('.nib-island__head .nib-head')).toHaveAttribute(
     'data-head',
     /^(live|picture|loading)$/,
   );
-  // The flat face is always under the live one, so he is never missing.
-  await expect(island(page).locator('.nib-island__head .nib-face')).toHaveCount(1);
+  // The picture is the rendered head, there until the live one is drawn, so he is never missing.
+  const picture = island(page).locator('.nib-island__head .nib-head img');
+  await expect(picture).toHaveCount(1);
+  await expect
+    .poll(() => picture.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
 });
 
 test('switched off he is gone and nothing of him is fetched', async ({ page }) => {
@@ -54,7 +58,10 @@ test('switched off he is gone and nothing of him is fetched', async ({ page }) =
 test('with reduced motion he is a picture and the model is never fetched', async ({ page }) => {
   const requested = await open(page, { motion: 'reduced' });
   await expect(island(page)).toHaveAttribute('data-shape', 'card', { timeout: 8000 });
-  await expect(island(page).locator('.nib-island__head')).toHaveAttribute('data-head', 'picture');
+  await expect(island(page).locator('.nib-island__head .nib-head')).toHaveAttribute(
+    'data-head',
+    'picture',
+  );
   await page.waitForTimeout(500);
   expect(requested.some((url) => MODEL.test(url))).toBe(false);
 });

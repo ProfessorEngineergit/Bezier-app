@@ -11,6 +11,7 @@ import {
   evaluateVariables,
   type FeatureId,
   lookupIn,
+  type Variant,
 } from '@bezier/core';
 import { useCallback, useMemo } from 'react';
 import type { Session, SessionView } from './session.js';
@@ -28,6 +29,11 @@ export interface Variables {
   renameVariable: (from: string, to: string) => void;
   /** Sets a parameter to an expression, or (empty) back to a plain number. */
   setExpression: (id: FeatureId, param: string, expression: string) => void;
+  /** Keeps the variables as they are now under a name. */
+  saveVariant: (name: string) => void;
+  /** Gives the variables a variant's values, as one undo step. */
+  applyVariant: (variant: Variant) => void;
+  removeVariant: (name: string) => void;
 }
 
 export function useVariables(document: CadDocument | null, run: Run): Variables {
@@ -85,5 +91,46 @@ export function useVariables(document: CadDocument | null, run: Run): Variables 
     [run],
   );
 
-  return { values, check, setVariable, renameVariable, setExpression };
+  const saveVariant = useCallback(
+    (name: string) => {
+      void run((session) => {
+        const current = session.document.meta.variables ?? [];
+        const kept = Object.fromEntries(current.map((entry) => [entry.name, entry.expression]));
+        return session.apply({ op: 'setVariant', name, values: kept });
+      });
+    },
+    [run],
+  );
+
+  const applyVariant = useCallback(
+    (variant: Variant) => {
+      void run((session) => {
+        const names = new Set((session.document.meta.variables ?? []).map((entry) => entry.name));
+        return session.apply(
+          Object.entries(variant.values)
+            .filter(([name]) => names.has(name))
+            .map(([name, expression]) => ({ op: 'setVariable' as const, name, expression })),
+        );
+      });
+    },
+    [run],
+  );
+
+  const removeVariant = useCallback(
+    (name: string) => {
+      void run((session) => session.apply({ op: 'setVariant', name, values: null }));
+    },
+    [run],
+  );
+
+  return {
+    values,
+    check,
+    setVariable,
+    renameVariable,
+    setExpression,
+    saveVariant,
+    applyVariant,
+    removeVariant,
+  };
 }

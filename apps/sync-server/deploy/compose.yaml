@@ -11,6 +11,13 @@ services:
       dockerfile: deploy/Dockerfile
     restart: unless-stopped
     env_file: .env
+    # It only ever writes to its data directories, so nothing else in the container can change,
+    # and nothing it runs can gain rights or start a swarm of processes.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    mem_limit: 1g
     volumes:
       - ${BEZIER_DATA_DIR:-./data}:/data
       # A second disk or a NAS mount as a replica. Remove if there is none.
@@ -26,6 +33,9 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
     ports:
       - "443:443"
       - "80:80"
@@ -34,6 +44,8 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
+      # Parts for Bezier's library, if you offer any (README).
+      - ${BEZIER_PARTS_DIR:-./parts}:/srv/parts:ro
 
   # Nightly check of every copy of every object, repairing from a good copy.
   scrub:

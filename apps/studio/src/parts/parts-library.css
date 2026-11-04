@@ -1,0 +1,420 @@
+/*
+ * The parts library. The pictures carry it: large, on the plainest surface the theme has, so a screw
+ * reads like a page of a good catalogue. Everything around them stays out of the way. The foot is
+ * one line, in the same language as the tool bar: what you are about to add, and one blue button.
+ */
+.parts-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 18%);
+  animation: parts-fade 140ms var(--ease);
+}
+
+.parts-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(820px, 100%);
+  height: min(640px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--glass-bg-opaque);
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 28%),
+    inset 0 1px 0 rgb(255 255 255 / 7%);
+  color: var(--text);
+  animation: parts-rise 200ms var(--ease);
+}
+
+@keyframes parts-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes parts-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+.parts-sheet__head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 6px 24px;
+}
+
+.parts-sheet__head h2 {
+  margin: 0;
+  font: 600 17px / 1.2 var(--font);
+}
+
+.parts-sheet__close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--text-dim);
+}
+
+.parts-sheet__close:hover {
+  background: rgb(127 127 127 / 14%);
+  color: var(--text);
+}
+
+.parts-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  padding: 0 24px 20px;
+  overflow-y: auto;
+}
+
+.parts-sheet__scroll h3 {
+  margin: 18px 0 10px;
+  color: var(--text-dim);
+  font: 600 11px / 1 var(--font);
+}
+
+.parts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.part-card {
+  position: relative;
+  min-width: 0;
+}
+
+.part-card > button:first-child {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.part-card__picture {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 6px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 7%);
+  transition: box-shadow 120ms var(--ease);
+}
+
+@media (prefers-color-scheme: dark) {
+  .part-card__picture {
+    background: #17171a;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%);
+  }
+}
+
+:root[data-theme="dark"] .part-card__picture {
+  background: #17171a;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%);
+}
+
+:root[data-theme="light"] .part-card__picture {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 7%);
+}
+
+.part-card__picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: scale 200ms var(--ease);
+}
+
+.part-card > button:hover img {
+  scale: 1.03;
+}
+
+.part-card[data-picked] .part-card__picture {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+
+.part-card > button:focus-visible {
+  outline: 0;
+}
+
+.part-card > button:focus-visible .part-card__picture {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+
+.part-card__name {
+  overflow: hidden;
+  font: 600 12px / 16px var(--font);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.part-card__note {
+  color: var(--text-dim);
+  font: 500 11px / 14px var(--font);
+}
+
+.part-card__initial {
+  color: var(--text-faint);
+  font: 600 40px / 1 var(--font);
+}
+
+.part-card__plus {
+  position: relative;
+  width: 26px;
+  height: 26px;
+}
+
+.part-card__plus::before,
+.part-card__plus::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 26px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--text-dim);
+}
+
+.part-card__plus::after {
+  rotate: 90deg;
+}
+
+.part-card--add .part-card__picture {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--glass-border);
+}
+
+.part-card--add > button:hover .part-card__picture {
+  background: rgb(127 127 127 / 8%);
+}
+
+.part-card__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--glass-bg-opaque);
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 120ms var(--ease);
+}
+
+.part-card:hover .part-card__remove,
+.part-card__remove:focus-visible {
+  opacity: 1;
+}
+
+.parts-server {
+  display: flex;
+  gap: 6px;
+  max-width: 420px;
+}
+
+.parts-server input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  outline: 0;
+  background: rgb(127 127 127 / 8%);
+  color: var(--text);
+  font: 500 12px var(--font);
+}
+
+.parts-server input:focus {
+  box-shadow: 0 0 0 1.5px var(--select);
+}
+
+.parts-server button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(127 127 127 / 14%);
+  color: var(--text);
+  font: 600 12px var(--font);
+}
+
+.parts-server__failed {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font: 500 11px / 1.4 var(--font);
+}
+
+.parts-sheet__foot {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  padding: 12px 14px 12px 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.parts-sizes {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.parts-sizes legend {
+  float: left;
+  margin-right: 8px;
+  color: var(--text-dim);
+  font: 500 11px / 28px var(--font);
+}
+
+.parts-sizes label {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 9px;
+  color: var(--text-dim);
+  font: 600 12px var(--font);
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+
+.parts-sizes label:hover {
+  background: rgb(127 127 127 / 12%);
+  color: var(--text);
+}
+
+.parts-sizes label[data-on] {
+  background: var(--select);
+  color: #fff;
+}
+
+.parts-sizes input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.parts-sizes label:has(input:focus-visible) {
+  box-shadow: 0 0 0 2px var(--select);
+}
+
+.parts-length {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 500 11px var(--font);
+}
+
+.parts-length > span:last-child {
+  position: relative;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 9px;
+  background: rgb(127 127 127 / 10%);
+  color: var(--text);
+  font: 600 13px / 18px var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+.parts-length > span:last-child:hover {
+  background: rgb(127 127 127 / 16%);
+}
+
+.parts-length small {
+  padding-top: 1px;
+  color: var(--text-dim);
+  font: 500 10px var(--font);
+}
+
+/* The system's list of the standard's lengths opens from the whole field. */
+.parts-length select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+}
+
+.parts-length:focus-within > span:last-child {
+  box-shadow: 0 0 0 1.5px var(--select);
+}
+
+.parts-sheet__action {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.parts-sheet__where,
+.parts-hole {
+  color: var(--text-dim);
+  font: 500 11px var(--font);
+  white-space: nowrap;
+}
+
+.parts-hole {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--text);
+}
+
+.parts-hole input {
+  margin: 0;
+  accent-color: var(--select);
+}
+
+.parts-sheet__add {
+  height: 32px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--select);
+  color: #fff;
+  font: 600 13px var(--font);
+}
+
+.parts-sheet__add:hover {
+  filter: brightness(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parts-scrim,
+  .parts-sheet {
+    animation: none;
+  }
+}

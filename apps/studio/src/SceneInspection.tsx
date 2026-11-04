@@ -2,16 +2,22 @@ import type { StableRef } from '@bezier/core';
 import type { ViewSettings } from '@bezier/ui';
 import { type MutableRefObject, type RefObject, useMemo, useRef } from 'react';
 import { BodyMeasure } from './BodyMeasure.js';
+import { ExplodePanel } from './ExplodePanel.js';
 import { MeasureMode } from './MeasureMode.js';
 import type { MeasurePoint } from './measurements.js';
 import { SectionPanel } from './SectionPanel.js';
 import type { Session, SessionView } from './session.js';
 import { bodiesPicked } from './use-bodies.js';
 import type { ViewportHandle } from './Viewport.js';
+import { WallThicknessPanel } from './WallThicknessPanel.js';
 
 export function SceneInspection({
   settings,
   measuring,
+  walls,
+  onCloseWalls,
+  exploded,
+  onCloseExploded,
   points,
   view,
   handleRef,
@@ -23,11 +29,19 @@ export function SceneInspection({
 }: {
   settings: ViewSettings;
   measuring: boolean;
+  /** Wall thickness is showing. */
+  walls: boolean;
+  onCloseWalls: () => void;
+  /** The exploded view is showing. */
+  exploded: boolean;
+  onCloseExploded: () => void;
   points: readonly MeasurePoint[];
   /** The displayed model: what is measured, and which project the pins belong to. */
   view: SessionView | null;
   handleRef: RefObject<ViewportHandle | null>;
-  onSection: (at: number | null) => void;
+  onSection: (
+    patch: Partial<Pick<ViewSettings, 'section' | 'sectionAxis' | 'sectionFlip'>>,
+  ) => void;
   setPoints: (points: readonly MeasurePoint[]) => void;
   onClose: () => void;
   /** The current pick; bodies in it are measured whole. */
@@ -43,13 +57,23 @@ export function SceneInspection({
   // Memoized on the pick and bodies so the measurement is not recomputed every render.
   const picked = useMemo(() => bodiesPicked(bodies ?? [], pick), [bodies, pick]);
   const faces = useMemo(() => picked.flatMap((body) => body.faces), [picked]);
+  const centre = (axis = settings.sectionAxis) => handleRef.current?.contentCenter()?.[axis] ?? 0;
   return (
     <>
+      {walls && <WallThicknessPanel handleRef={handleRef} onClose={onCloseWalls} view={view} />}
+      {exploded && <ExplodePanel handleRef={handleRef} onClose={onCloseExploded} view={view} />}
       {settings.section !== null && !measuring && (
         <SectionPanel
           at={settings.section}
-          onChange={onSection}
-          onCenter={() => handleRef.current?.contentCenter()?.z ?? 0}
+          onChange={(section) => onSection({ section })}
+          onCenter={centre}
+          onPlane={(plane) =>
+            onSection({
+              ...plane,
+              // A new axis starts through the model, not wherever the last one stood.
+              ...(plane.sectionAxis === undefined ? {} : { section: centre(plane.sectionAxis) }),
+            })
+          }
           settings={settings}
         />
       )}

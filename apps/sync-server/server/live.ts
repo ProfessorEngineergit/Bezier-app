@@ -22,6 +22,16 @@ import type { Store } from './store.ts';
 /** Edits kept behind the latest checkpoint, for devices that were away a short while. */
 const KEEP_BEHIND = 500;
 
+/**
+ * Edits one project may hold on disk before a checkpoint has to trim them. Checkpoints come every
+ * few hundred edits, so only a client that never writes one reaches this, and quotas count objects,
+ * not edits: without it a writer could fill the disk 64 KB at a time.
+ */
+const MAX_UNTRIMMED = 20_000;
+
+/** Projects kept in memory. Any id can be asked for, so what is remembered of them is bounded. */
+const MAX_CHANNELS = 10_000;
+
 /** Largest edit sent inline. A larger one (an imported file) goes as an object first. */
 export const MAX_INLINE = 64 * 1024;
 
@@ -70,6 +80,9 @@ export class Live {
       const ch = await this.#channel(vault, channel);
       const known = ch.ids.get(body.id);
       if (known !== undefined) return known;
+      if (ch.first !== 0 && ch.seq - ch.first >= MAX_UNTRIMMED) {
+        throw new HttpError(429, 'This project needs a checkpoint before more edits.');
+      }
       const seq = ch.seq + 1;
       const entry: LiveEditEntry = {
         seq,
@@ -171,8 +184,20 @@ export class Live {
       loading = this.#load(vault, channel);
       this.#channels.set(k, loading);
       loading.catch(() => this.#channels.delete(k));
+      this.#forgetOldest();
     }
     return loading;
+  }
+
+  /** Drops the longest-known project nobody is waiting on; it loads again from disk if asked. */
+  #forgetOldest(): void {
+    if (this.#channels.size <= MAX_CHANNELS) return;
+    for (const [k, loading] of this.#channels) {
+      void loading.then((ch) => {
+        if (ch.waiters.size === 0) this.#channels.delete(k);
+      });
+      return;
+    }
   }
 
   async #load(vault: string, channel: string): Promise<Channel> {

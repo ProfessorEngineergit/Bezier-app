@@ -53,10 +53,10 @@ Drag the grip at the top of the panel. With the grip focused, the arrow keys mov
     title: 'Section View: look inside the model',
     area: 'View',
     summary:
-      'Cut the view with a horizontal plane to see what is inside, without changing the model.',
+      'Cut the view with a plane across any axis to see what is inside, without changing the model.',
     keywords:
       'section view cut clip plane slice inside cross section inspect hide above z height cutaway',
-    body: `Section View hides the part of the model above a horizontal plane, so you can see inside. It is for looking only: the geometry is not cut. The cut is closed over with a hatched face, as a section is drawn on paper, so you can tell material from air.
+    body: `Section View hides the part of the model on one side of a plane, so you can see inside. Cut across Z, Y or X, and **Flip side** shows the other half. It is for looking only: the geometry is not cut. The cut is closed over with a hatched face, as a section is drawn on paper, so you can tell material from air.
 
 ## Use it
 

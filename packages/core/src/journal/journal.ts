@@ -116,6 +116,7 @@ export function apply(document: CadDocument, op: Operation): ApplyResult {
         ...(op.expressions !== undefined && Object.keys(op.expressions).length > 0
           ? { expressions: op.expressions }
           : {}),
+        ...(op.view !== undefined ? { view: op.view } : {}),
       };
       const features = [...document.features];
       // Clamped, not rejected, so an out-of-range index does not block opening the document.
@@ -239,6 +240,26 @@ export function apply(document: CadDocument, op: Operation): ApplyResult {
     case 'setExpression':
       return applyExpression(document, op);
 
+    case 'setVariant': {
+      const name = op.name.trim();
+      if (name === '') return { ok: false, reason: 'A variant needs a name.' };
+      // Saving under an existing name replaces that variant in place.
+      const variants = [...(document.meta.variants ?? [])];
+      const at = variants.findIndex((variant) => variant.name === name);
+      if (op.values === null) {
+        if (at >= 0) variants.splice(at, 1);
+      } else if (at >= 0) variants[at] = { name, values: op.values };
+      else variants.push({ name, values: op.values });
+      const { variants: _previous, ...meta } = document.meta;
+      return {
+        ok: true,
+        document: {
+          ...document,
+          meta: variants.length > 0 ? { ...meta, variants } : meta,
+        },
+      };
+    }
+
     case 'setSavedView': {
       const name = op.name.trim();
       if (name === '') return { ok: false, reason: 'A saved view needs a name.' };
@@ -295,6 +316,7 @@ export function invert(document: CadDocument, op: Operation): Operation | null {
         index,
         params: previous.params,
         ...(previous.expressions !== undefined ? { expressions: previous.expressions } : {}),
+        ...(previous.view !== undefined ? { view: previous.view } : {}),
       };
     }
 
@@ -368,6 +390,11 @@ export function invert(document: CadDocument, op: Operation): Operation | null {
 
     case 'setExpression':
       return invertExpression(document, op);
+
+    case 'setVariant': {
+      const before = document.meta.variants?.find((variant) => variant.name === op.name.trim());
+      return { op: 'setVariant', name: op.name, values: before?.values ?? null };
+    }
 
     case 'setSavedView': {
       // A restored view goes to the end of the list.

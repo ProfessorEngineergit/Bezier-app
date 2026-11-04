@@ -5,12 +5,11 @@
 
 import './island.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { type HeadState, NibHead } from '../NibHead.js';
+import { NibHead } from '../NibHead.js';
 import type { NibLook } from '../stage.js';
-import { FACES, glancing } from './face.js';
 import type { IslandView } from './machine.js';
-import { NibFace } from './NibFace.js';
 import { NibSummon } from './NibSummon.js';
+import { useSwipeAway } from './use-swipe-away.js';
 
 export interface IslandAction {
   label: string;
@@ -54,10 +53,8 @@ export interface NibIslandProps {
   onClose: () => void;
   /** An outside press leaves the card open (lesson steps are read while working in the app). */
   keepOpen: boolean;
-  /** Reduced motion: no blinking, no glances, no spring transitions. */
+  /** Reduced motion: a still picture of him, no spring transitions. */
   still: boolean;
-  /** Enables occasional glances. Off at the quiet level, since movement draws the eye. */
-  lively: boolean;
   /** Model URL for the live head. */
   model: string;
   /** Nib's colours. */
@@ -72,6 +69,25 @@ export interface NibIslandProps {
 const LINE_HEIGHT = 30;
 const LINE_LEAST = 120;
 const CARD_WIDTH = 372;
+/** The bar's cells: whole cells light up, one at a time, like a battery. Matches `island.css`. */
+const METER_CELLS = 24;
+const METER_CELL = 12;
+const litCells = (progress: number) => Math.floor(Math.min(1, Math.max(0, progress)) * METER_CELLS);
+/** The bar of cells, on the line and in the list of work; `null` progress is unknown. */
+function Meter({ progress }: { progress: number | null }) {
+  return (
+    <span aria-hidden="true" className="nib-island__meter">
+      <span
+        className="nib-island__fill"
+        data-unknown={progress === null ? '' : undefined}
+        style={
+          progress === null ? undefined : { width: `${String(litCells(progress) * METER_CELL)}px` }
+        }
+      />
+    </span>
+  );
+}
+
 /** How long content stays after the shape starts closing, so it fades out. */
 const LINGER = 260;
 
@@ -86,7 +102,6 @@ export function NibIsland({
   onClose,
   keepOpen,
   still,
-  lively,
   model,
   look,
   lookAt,
@@ -97,18 +112,20 @@ export function NibIsland({
   const [size, setSize] = useState({ width: 40, height: 0 });
   const open = view.shape === 'card';
   const shown = view.shape !== 'hidden';
-  const blink = useBlink(still || !shown, view.mood === 'sleepy');
-  const glance = useGlance(!lively || still || view.shape !== 'compact' || view.mood !== 'rest');
+  // Work has a second row, for its bar.
+  const working = view.shape === 'compact' && view.line?.kind === 'task';
   const said = useLingering(open ? card : null, still ? 0 : LINGER);
   const saidLine = useLingering(view.shape === 'compact' ? line : null, still ? 0 : LINGER);
-  const [head, setHead] = useState<HeadState>('loading');
   // The live head (WebGL context plus model) is created the first time the island shows, not at
   // startup, since most sessions never show it. The compact line uses it too.
   const [headWanted, setHeadWanted] = useState(false);
   useEffect(() => {
     if (shown) setHeadWanted(true);
   }, [shown]);
-  const [lineHead, setLineHead] = useState<HeadState>('loading');
+  // A lesson folds away instead: pushing the card up must not end it.
+  useSwipeAway(shell, shown && view.content?.kind !== 'question', () =>
+    view.content?.kind === 'speech' ? onCollapse() : onClose(),
+  );
 
   // Size the shell to its content, measured at the final size, so text is laid out once and the
   // shell only reveals it.
@@ -121,14 +138,14 @@ export function NibIsland({
     const measure = () =>
       setSize((before) => {
         const width = open ? CARD_WIDTH : Math.max(LINE_LEAST, Math.ceil(node.offsetWidth));
-        const height = open ? Math.ceil(node.offsetHeight) : LINE_HEIGHT;
+        const height = open || working ? Math.ceil(node.offsetHeight) : LINE_HEIGHT;
         return before.width === width && before.height === height ? before : { width, height };
       });
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [shown, open]);
+  }, [shown, open, working]);
 
   // Escape folds the card into the line. An outside press does too, except during a lesson step,
   // where the user is expected to click around the app. Folding answers nothing.
@@ -162,10 +179,6 @@ export function NibIsland({
     (asking !== null ? (primary ?? actions?.[0]) : actions?.[0])?.focus();
   }, [menu, asking]);
 
-  let face = FACES[view.mood];
-  if (glance !== null) face = glancing(face, glance.x, glance.y);
-  if (blink) face = { ...face, top: 1, bottom: 0 };
-
   return (
     <div
       className="nib-island"
@@ -194,14 +207,12 @@ export function NibIsland({
               <Card
                 card={said}
                 face={
-                  <div className="nib-island__head" data-head={head}>
-                    <NibFace face={face} />
+                  <div className="nib-island__head">
                     {headWanted && (
                       <NibHead
                         active={open}
                         mood={view.mood}
                         model={model}
-                        onState={setHead}
                         still={still}
                         {...(look === undefined ? {} : { look })}
                         {...(lookAt === undefined ? {} : { lookAt })}
@@ -216,41 +227,30 @@ export function NibIsland({
               <button
                 aria-label={label}
                 className="nib-island__line"
+                data-working={working ? '' : undefined}
                 onClick={onPress}
                 tabIndex={shown ? 0 : -1}
                 type="button"
               >
-                <span className="nib-island__eyes" data-head={lineHead}>
-                  <NibFace face={face} />
+                <span className="nib-island__eyes">
                   {headWanted && (
                     <NibHead
                       active={view.shape === 'compact'}
                       mood={view.mood}
                       model={model}
-                      onState={setLineHead}
                       still={still}
                       {...(look === undefined ? {} : { look })}
                     />
                   )}
                 </span>
                 <span className="nib-island__lineText">{saidLine ?? ''}</span>
-                {/* Task progress: segmented bar and percentage, within the line height. */}
-                {view.line?.kind === 'task' && view.progress !== undefined && (
+                {/* Work: the percentage opposite him, and a bar of cells along the whole line. */}
+                {working && view.progress !== undefined && (
                   <>
-                    <span aria-hidden="true" className="nib-island__meter">
-                      <span
-                        className="nib-island__fill"
-                        data-unknown={view.progress === null ? '' : undefined}
-                        style={
-                          view.progress === null
-                            ? undefined
-                            : { width: `${String(Math.min(1, Math.max(0, view.progress)) * 100)}%` }
-                        }
-                      />
-                    </span>
                     {percent !== undefined && view.progress !== null && (
                       <span className="nib-island__percent">{percent}</span>
                     )}
+                    <Meter progress={view.progress} />
                   </>
                 )}
                 {view.mood === 'strained' && (
@@ -369,12 +369,7 @@ function Card({
                   {row.detail !== undefined && row.detail !== '' && (
                     <small className="nib-island__rowDetail">{row.detail}</small>
                   )}
-                  <span
-                    className="nib-island__bar"
-                    data-unknown={row.progress === null ? '' : undefined}
-                  >
-                    <span style={{ transform: `scaleX(${row.progress ?? 0.3})` }} />
-                  </span>
+                  <Meter progress={row.progress} />
                 </li>
               ))}
             </ul>
@@ -401,64 +396,6 @@ function Card({
       )}
     </div>
   );
-}
-
-/** Blinks every few seconds, slower when sleepy. */
-function useBlink(off: boolean, sleepy: boolean): boolean {
-  const [closed, setClosed] = useState(false);
-  useEffect(() => {
-    if (off) return;
-    let timer = 0;
-    const wait = () => {
-      const gap = (sleepy ? 6 : 2.6) + Math.random() * (sleepy ? 6 : 4.5);
-      timer = window.setTimeout(() => {
-        setClosed(true);
-        timer = window.setTimeout(
-          () => {
-            setClosed(false);
-            wait();
-          },
-          sleepy ? 320 : 130,
-        );
-      }, gap * 1000);
-    };
-    wait();
-    return () => {
-      window.clearTimeout(timer);
-      setClosed(false);
-    };
-  }, [off, sleepy]);
-  return closed;
-}
-
-/** Occasional brief glance elsewhere while at rest. */
-function useGlance(off: boolean): { x: number; y: number } | null {
-  const [at, setAt] = useState<{ x: number; y: number } | null>(null);
-  useEffect(() => {
-    if (off) return;
-    let timer = 0;
-    const wait = () => {
-      timer = window.setTimeout(
-        () => {
-          setAt({ x: Math.random() * 1.6 - 0.8, y: Math.random() * 0.9 - 0.3 });
-          timer = window.setTimeout(
-            () => {
-              setAt(null);
-              wait();
-            },
-            1100 + Math.random() * 900,
-          );
-        },
-        (7 + Math.random() * 9) * 1000,
-      );
-    };
-    wait();
-    return () => {
-      window.clearTimeout(timer);
-      setAt(null);
-    };
-  }, [off]);
-  return at;
 }
 
 /** Keeps the last non-null value for `ms` after it becomes null, so content can fade out. */

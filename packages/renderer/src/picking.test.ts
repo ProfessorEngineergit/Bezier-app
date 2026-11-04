@@ -72,7 +72,7 @@ describe('Picker', () => {
     const below = cameraAt(5, 5, -100);
     expect(picker.pointVisible(below, 5, 5, 0)).toBe(true);
     expect(picker.pointVisible(below, 5, 5, 10)).toBe(false);
-    picker.setSection(5);
+    picker.setSection({ axis: 'z', at: 5, flip: false });
     expect(picker.pointVisible(above, 5, 5, 10)).toBe(false);
     expect(picker.pointVisible(above, 5, 5, 0)).toBe(true);
   });
@@ -80,11 +80,11 @@ describe('Picker', () => {
     const picker = new Picker();
     picker.setGeometry(cube(), refs);
     const camera = overheadCamera();
-    picker.setSection(5);
+    picker.setSection({ axis: 'z', at: 5, flip: false });
     const hit = picker.pick(camera, 0, 0, 0.005, 'face');
     expect(hit?.point.z).toBeCloseTo(0);
     expect(hit?.distance).toBeCloseTo(120);
-    picker.setSection(-1);
+    picker.setSection({ axis: 'z', at: -1, flip: false });
     expect(picker.pick(camera, 0, 0, 0.005, 'face')).toBeNull();
     picker.setSection(null);
     expect(picker.pick(camera, 0, 0, 0.005, 'face')?.point.z).toBeCloseTo(10);

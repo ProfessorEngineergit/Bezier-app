@@ -12,6 +12,7 @@ export const OBSTACLES = [
   '.rail__popoverAnchor .popover',
   '.view-panel-dock',
   '.items-panel',
+  '.history-panel',
   '.sim-inspector',
   '.sim-bar',
 ].join(', ');

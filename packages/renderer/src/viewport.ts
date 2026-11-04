@@ -16,6 +16,7 @@ import { markCorner } from './corner-picking.js';
 import { DatumLine } from './datum-line.js';
 import { visibilityFor } from './display-mode.js';
 import { buildEdgeGeometry } from './edges.js';
+import { Exploded } from './exploded.js';
 import {
   type EdgeFrame,
   edgeFrameBetween,
@@ -28,6 +29,7 @@ import {
 import { axisUnderPointer } from './grid-lod.js';
 import type { GridPlane } from './helpers.js';
 import { BASE_COLOUR, Highlighter, OUTLINE_COLOUR } from './highlight.js';
+import { HoverFill } from './hover-fill.js';
 import { ImportPreview } from './import-preview.js';
 import { LodBody } from './lod-body.js';
 import { buildGeometry, type FaceVertices, indexFaceVertices, linearColours } from './mesh.js';
@@ -42,6 +44,7 @@ import { type ResultField, ResultOverlay } from './result-overlay.js';
 import type { CubeSide, ViewName, ViewportScene } from './scene.js';
 import { buildSeams } from './seams.js';
 import { SectionCaps } from './section-caps.js';
+import { pastCut, type SectionCut } from './section-cut.js';
 import { ShownSketches } from './shown-sketches.js';
 import { setSketchSelectionColour } from './sketch-draw.js';
 import type { PlaneName } from './sketch-planes.js';
@@ -56,6 +59,7 @@ import type {
   ViewPlane,
   Viewport,
 } from './viewport-api.js';
+import { WallMeasure } from './wall-field.js';
 import { worldPerPixel } from './world-per-pixel.js';
 
 /** How near an edge the cursor has to be, in pixels, to select it and not a face. */
@@ -122,10 +126,13 @@ export class ViewportImpl implements Viewport {
   readonly #highlighter = new Highlighter();
   /** Whether the pointer should be offered points to land on. */
   #snapping = false;
-  #sectionZ: number | null = null;
+  #section: SectionCut | null = null;
   #snapFace = '';
   #snapPoints: readonly { x: number; y: number; z: number }[] = [];
   readonly #outline = new Outliner(OUTLINE_COLOUR);
+  readonly #hoverFill = new HoverFill(OUTLINE_COLOUR);
+  readonly #exploded = new Exploded();
+  #hoveredKey = '';
 
   /** What the outline tracks: a picked edge holds it; otherwise it follows the pointer. */
   #hovered: StableRef | null = null;
@@ -149,6 +156,7 @@ export class ViewportImpl implements Viewport {
   #faces: FaceVertices | null = null;
   /** The mesh the body was built from, kept so results can be drawn over it. */
   #mesh: DisplayGeometry['mesh'] | null = null;
+  readonly #walls = new WallMeasure();
   /** Each face's own colour, linear, three a face; undefined for the default look. */
   #own: Float32Array | undefined;
   /** A part drawn anew while it is changed (`part-preview.ts`). */
@@ -194,6 +202,7 @@ export class ViewportImpl implements Viewport {
     scene.setSurfaceProbe((x, y) => this.pick(x, y)?.point ?? null);
     scene.setFrameHooks(
       () => {
+        if (scene.quality.moving) this.setHighlighted([]);
         const lod = this.#lod;
         if (lod === null) return;
         this.#view.update(scene.camera, this.#height);
@@ -216,6 +225,8 @@ export class ViewportImpl implements Viewport {
     });
     // On the scene, not in `content`, so framing never measures it.
     scene.scene.add(this.#outline.object);
+    scene.scene.add(this.#hoverFill.object);
+    scene.content.add(this.#exploded.group);
     scene.scene.add(this.#caps.object);
     scene.content.add(this.#part.group);
   }
@@ -227,7 +238,7 @@ export class ViewportImpl implements Viewport {
     const body = this.#body;
     this.#caps.set(
       body?.geometry ?? null,
-      this.#sectionZ,
+      this.#section,
       body?.visible === true && this.#mode === 'shaded',
     );
   }
@@ -251,6 +262,7 @@ export class ViewportImpl implements Viewport {
       this.#picker.setGeometry(null, []);
       this.#highlighter.setGeometry(null, null);
       this.#outline.setGeometry(null);
+      this.#hoverFill.setGeometry(null);
       return;
     }
 
@@ -287,6 +299,7 @@ export class ViewportImpl implements Viewport {
     this.#scene.setTriangleCount(triangles);
     this.#scene.quality.setHeavy(triangles > HEAVY_TRIANGLES);
     this.#highlighter.setGeometry(surface, this.#faces, own);
+    this.#hoverFill.setGeometry(geometry.mesh);
     const generation = ++this.#generation;
     this.#lod = new LodBody({
       body: this.#body,
@@ -303,6 +316,7 @@ export class ViewportImpl implements Viewport {
         const seams = buildSeams(mesh);
         this.#picker.adoptSeams(seams);
         this.#outline.adoptSeams(seams);
+        this.#hoverFill.setGeometry(mesh);
         this.#outlined = '\0'; // outlined again, from the new seams
         this.#refreshOutline();
       },
@@ -331,6 +345,17 @@ export class ViewportImpl implements Viewport {
   }
 
   /** What the pointer is over, shown as an outline. */
+  /** Lights the faces a history step made, or none. */
+  hoverStep(feature: string | null): void {
+    const prefix = feature === null ? null : `F:${feature}:`;
+    const faces = [...this.#indexByName]
+      .filter(([name]) => prefix !== null && name.startsWith(prefix))
+      .map(([, index]) => index);
+    this.#highlighter.setHovered(faces);
+    this.#scene.mark('stepHover', faces.length === 0 ? null : String(faces.length));
+    this.#scene.invalidate();
+  }
+
   showPartPreview(part: PartMesh | null, replaces: readonly StableRef[] = []): void {
     const body = this.#body;
     const mesh = this.#mesh;
@@ -353,6 +378,7 @@ export class ViewportImpl implements Viewport {
     this.#lod?.suspend(matrix !== null);
     // The outline of what is picked stays where the body was; it goes while the body is moved.
     this.#outline.object.visible = matrix === null;
+    if (matrix !== null) this.#hoverFill.show([]);
     const lifted = body &&
       mesh && { body, wireframe: this.#wireframe, mesh, faces, own: this.#own };
     this.#part.showMoved(
@@ -363,10 +389,20 @@ export class ViewportImpl implements Viewport {
   }
 
   setHighlighted(refs: readonly StableRef[]): void {
-    this.#hovered = refs[0] ?? null;
+    // A highlight does not turn with the view, so it goes when the view starts to.
+    const quiet = this.#exploded.showing || this.#scene.quality.moving;
+    const next = quiet ? null : (refs[0] ?? null);
+    // The same face under a moving pointer: nothing to rebuild, and every event would pay for it.
+    const key = next === null ? '' : formatRef(next);
+    if (key === this.#hoveredKey) return;
+    this.#hoveredKey = key;
+    this.#hovered = next;
+    this.#scene.mark('hover', key || null);
     const face = this.#hovered?.kind === 'face' ? [this.#hovered] : [];
     // A face under the pointer is filled, lighter than a picked one, as well as outlined.
-    this.#highlighter.setHovered(this.#facesOf(face));
+    const faces = this.#facesOf(face);
+    this.#highlighter.setHovered(faces);
+    this.#hoverFill.show(faces);
     this.#refreshOutline();
     this.#refreshSnapPoints(this.#hovered);
   }
@@ -394,6 +430,34 @@ export class ViewportImpl implements Viewport {
     this.#showWhatTheModeAsksFor();
   }
 
+  showWallThickness(limit: number | null): { thinnest: number; thin: number } | null {
+    const mesh = this.#mesh;
+    const walls =
+      limit === null || mesh === null
+        ? null
+        : this.#walls.at(mesh, limit, (solid) => this.#picker.wallThickness(solid));
+    this.setResultField(walls?.field ?? null);
+    this.#scene.invalidate();
+    return walls?.found ?? null;
+  }
+
+  /** Pulls the bodies apart, 0 together and 1 twice as far from the middle; nothing is changed. */
+  setExploded(bodies: readonly (readonly StableRef[])[], amount: number): void {
+    const body = this.#body;
+    const mesh = this.#mesh;
+    if (body === null || mesh === null) return;
+    const groups = bodies.map((faces) => this.#facesOf(faces));
+    const source = { body, surface: this.#surface, wireframe: this.#wireframe, mesh };
+    const apart = this.#exploded.show({ ...source, lines: this.#lines }, groups, amount);
+    this.#lod?.suspend(apart);
+    if (apart) this.setHighlighted([]);
+    this.#outline.object.visible = !apart;
+    if (this.#wireframe !== null) this.#wireframe.visible = !apart && this.#edgesVisible;
+    body.visible = !apart;
+    this.#scene.mark('exploded', apart ? String(amount) : null);
+    this.#scene.invalidate();
+  }
+
   sampleResult(screenX: number, screenY: number): number | null {
     return (
       this.#result?.sample(
@@ -418,22 +482,25 @@ export class ViewportImpl implements Viewport {
 
   #refreshOutline(): void {
     const target = this.#chosen.find((ref) => ref.kind !== 'face') ?? this.#hovered;
+    const picked = this.#chosen.filter((ref) => ref.kind === 'edge');
+    const seams = picked.length > 0 ? picked : target?.kind === 'edge' ? [target] : [];
 
     // Rebuilding a fat line is costly; skip it while the pointer stays on the same thing.
-    const key = target === null || target === undefined ? '' : formatRef(target);
+    const key = target ? (seams.length > 0 ? seams : [target]).map(formatRef).join() : '';
     if (key === this.#outlined) return;
     this.#outlined = key;
+    // What the pointer is on reads whole, even behind other parts; what is picked does not.
+    this.#outline.setInFront(target === this.#hovered);
 
     if (target === null || target === undefined) {
       this.#outline.clear();
       return;
     }
-    const faces = this.#indicesOf(target);
-    const [a, b] = faces;
-    if (target.kind === 'edge' && a !== undefined && b !== undefined) {
-      this.#outline.showSeam(a, b);
+    if (seams.length > 0) {
+      this.#outline.showSeams(seams.map((edge) => this.#indicesOf(edge)));
       return;
     }
+    const faces = this.#indicesOf(target);
     if (target.kind === 'vertex') {
       const corner = this.#picker.cornerOf(faces);
       if (corner === null) this.#outline.clear();
@@ -446,12 +513,7 @@ export class ViewportImpl implements Viewport {
   /** The face indices a single reference covers, in the order it names them. */
   #indicesOf(ref: StableRef): number[] {
     const parts = ref.kind === 'face' ? [ref] : ref.faces;
-    const out: number[] = [];
-    for (const face of parts) {
-      const index = this.#indexByName.get(formatRef(face));
-      if (index !== undefined) out.push(index);
-    }
-    return out;
+    return parts.flatMap((face) => this.#indexByName.get(formatRef(face)) ?? []);
   }
 
   pick(screenX: number, screenY: number, filter: PickFilter = 'any'): PickResult | null {
@@ -518,8 +580,9 @@ export class ViewportImpl implements Viewport {
     return viewOf(this.#scene);
   }
 
-  showCameraView(view: CameraView): void {
-    showView(this.#scene, view);
+  showCameraView(view: CameraView, animate = false): void {
+    if (animate) this.#scene.glideInto(() => showView(this.#scene, view));
+    else showView(this.#scene, view);
     this.#sketchPlaneForView = null;
   }
 
@@ -642,8 +705,8 @@ export class ViewportImpl implements Viewport {
     const points = this.#outline.cornersOf(faces);
     const centre = this.faceCentroid(ref);
     if (centre !== null) points.push(centre);
-    const sectionZ = this.#sectionZ;
-    this.#snapPoints = sectionZ === null ? points : points.filter((point) => point.z <= sectionZ);
+    const cut = this.#section;
+    this.#snapPoints = cut === null ? points : points.filter((point) => pastCut(cut, point) <= 0);
   }
 
   /**
@@ -774,6 +837,7 @@ export class ViewportImpl implements Viewport {
   setSelectionColour(hex: number): void {
     this.#highlighter.setColour(hex);
     this.#outline.setColour(hex);
+    this.#hoverFill.setColour(hex);
     setSketchSelectionColour(hex);
   }
 
@@ -794,12 +858,12 @@ export class ViewportImpl implements Viewport {
     return this.#scene.isOrthographic;
   }
 
-  setSection(at: number | null): void {
-    this.#sectionZ = at;
-    this.#picker.setSection(at);
+  setSection(cut: SectionCut | null): void {
+    this.#section = cut;
+    this.#picker.setSection(cut);
     this.#snapFace = '';
     this.#refreshSnapPoints(this.#hovered);
-    this.#scene.setSection(at);
+    this.#scene.setSection(cut);
     this.#refreshCaps();
   }
 
@@ -890,6 +954,7 @@ export class ViewportImpl implements Viewport {
     this.#clear();
     this.#importPreview.dispose();
     this.#outline.dispose();
+    this.#hoverFill.dispose();
     this.#caps.dispose();
     this.#surface.dispose();
     this.#lines.dispose();
@@ -906,11 +971,14 @@ export class ViewportImpl implements Viewport {
   #clear(): void {
     this.#lod?.dispose();
     this.#lod = null;
+    this.#hoveredKey = '';
     this.#part.clear();
     this.#outline.object.visible = true;
     this.#scene.mark('partPreview', null);
     this.#own = undefined;
     this.#dropResult();
+    this.#hoverFill.setGeometry(null);
+    this.#exploded.clear();
     this.#mesh = null;
     this.#snapFace = '';
     this.#snapPoints = [];

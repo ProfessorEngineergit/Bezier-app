@@ -245,4 +245,36 @@ Double-click a sketch row to draw in it again. See [change a sketch afterwards](
     actions: ['items'],
     places: ['items'],
   }),
+  define({
+    id: 'history',
+    title: 'History: every step, in order',
+    area: 'Getting around',
+    summary:
+      'The steps of the project down the right side, to play how it was built or go back to any of them.',
+    keywords:
+      'history timeline timelapse steps play pause rewind roll back rollback playhead order undo earlier state replay film',
+    body: `History lists every step of the project from the top down, the first one at the top. Use it to see how a part was built, or to go back to an earlier state and work from there.
+
+1. Press the history button at the top right, or {{key:history}}. The panel opens on the right and the view cube moves beside it.
+2. Press **Play** to watch the part being built, step by step. The list follows along. Press **Pause** to stop where you are.
+3. The arrows move one step at a time, the outer ones go to the start and the end.
+4. Drag the playhead, the line across the list, to any place between two steps. With the playhead selected, the up and down arrow keys move it too.
+
+## What the playhead does
+
+Steps below the playhead are paused, not removed, and the model shows the part as it was at that point. Nothing is changed until you edit, and a new step goes in at the playhead. Move it back to the end to see the whole model again.
+
+## Timelapse
+
+The small clock beside the count turns **Play** into a timelapse: the part is made again in front of you, quickly. Each step opens its tool in the rail, the view moves to where it stood when the step was made, and a sketch is drawn shape by shape. Press anywhere in the model or Escape to stop. Steps made before version 0.8 have no view of their own, so the model simply turns a little.
+
+## Change the steps
+
+- Click a step to open it, double-click to rename it.
+- Drag a step to another place, or right-click it to move it. A step cannot go above what it depends on.
+- The eye turns a step off, and the bin deletes it.
+
+> The steps are the model. Change one and everything after it is built again. See [change a sketch afterwards](doc:reopen-sketch).`,
+    actions: ['history'],
+  }),
 ] as const;

@@ -9,7 +9,6 @@ import type { Page } from '@playwright/test';
 import {
   addBox,
   canvasRect,
-  expectSaid,
   forwardFace,
   openApp,
   openItems,
@@ -135,15 +134,17 @@ test('D8: a second notice goes under the first and does not replace it', async (
   await expect(notices.nth(1)).toContainText('b.png');
 });
 
-test('D8 with Nib: a second notice waits its turn and replaces nothing', async ({ page }) => {
+test('D8 with Nib: a newer notice replaces the last, so there is no pile to click through', async ({
+  page,
+}) => {
   await openApp(page);
   await importFile(page, 'a.png', 'image/png', Buffer.from('not a picture'));
   await importFile(page, 'b.png', 'image/png', Buffer.from('not a picture'));
   const island = page.locator('.nib-island');
-  await expectSaid(page, 'One more after this');
-  await expect(island).toContainText('a.png');
-  await island.getByRole('button', { name: 'Close' }).click();
   await expect(island).toContainText('b.png');
+  await expect(island).not.toContainText('One more after this');
+  await island.getByRole('button', { name: 'Close' }).click();
+  await expect(island).not.toContainText('a.png');
   await expect(page.locator('.toast')).toHaveCount(0);
 });
 
@@ -821,12 +822,15 @@ test('D5: Visualize and Drawings have the quick settings at the foot of the pict
   /** The button sits left of the panel, low in the stage, and does not overlap it. */
   const besidePanel = async (panel: string) => {
     // Polled: the workspace reports its panel width to the shell as it appears, so the panel
-    // settles a moment later.
+    // settles a moment later, and in software GL Visualize holds the page while it filters its maps.
     await expect
-      .poll(async () => {
-        const [p, b] = [await page.locator(panel).boundingBox(), await button.boundingBox()];
-        return p === null || b === null ? 0 : p.x - (b.x + b.width);
-      })
+      .poll(
+        async () => {
+          const [p, b] = [await page.locator(panel).boundingBox(), await button.boundingBox()];
+          return p === null || b === null ? 0 : p.x - (b.x + b.width);
+        },
+        { timeout: 60_000 },
+      )
       .toBeGreaterThan(0);
     const p = await page.locator(panel).boundingBox();
     if (p === null) throw new Error('no panel');
@@ -988,10 +992,17 @@ test('D12: the outline along a seam is one colour, not striped with the black ed
       if (!context) return -1;
       context.drawImage(image, 0, 0);
       let count = 0;
+      // The picture has device pixels, the points CSS pixels (WebKit's device runs at 2x).
+      const scale = image.width / window.innerWidth;
       // Sample a few pixels around each point: the black edge is one pixel wide and the projection
       // is not pixel-exact.
       for (const p of points) {
-        const { data: px } = context.getImageData(Math.round(p.x) - 2, Math.round(p.y) - 2, 5, 5);
+        const { data: px } = context.getImageData(
+          Math.round(p.x * scale) - 2,
+          Math.round(p.y * scale) - 2,
+          5,
+          5,
+        );
         for (let i = 0; i < px.length; i += 4)
           if ((px[i] ?? 0) + (px[i + 1] ?? 0) + (px[i + 2] ?? 0) < 200) count += 1;
       }

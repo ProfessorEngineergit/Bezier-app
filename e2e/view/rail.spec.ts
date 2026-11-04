@@ -102,7 +102,7 @@ test('Scale works on a picked body and opens its factor', async ({ page }) => {
 test('future workspaces and power tools stay out of the modelling surface', async ({ page }) => {
   await openApp(page);
 
-  for (const label of ['Visualization', 'Drawings', 'Search', 'History', 'Screenshot']) {
+  for (const label of ['Visualization', 'Drawings', 'Search', 'Screenshot']) {
     await expect(railButton(page, label)).toHaveCount(0);
   }
 
@@ -125,7 +125,7 @@ test('a variant flyout takes the label column instead of landing on top of it', 
 
   const flyout = page.locator('.rail--left .rail__flyout');
   await expect(flyout).toBeVisible();
-  await expect(flyout.locator('.rail__label')).toHaveCount(2);
+  await expect(flyout.locator('.rail__label')).toHaveCount(3);
 
   // The flyout sits one column right of the icon band, where that band's label pills are, so those
   // labels must hide or the two sets of names overlap.

@@ -245,6 +245,22 @@ export interface GeometryKernel {
     distance: number,
   ): Promise<KernelResult<ShapeWithHistory>>;
 
+  /**
+   * Tilts faces away from the direction a mould pulls by `angle` radians.
+   */
+  draftFaces(
+    solid: ShapeId,
+    faces: readonly ShapeId[],
+    angle: number,
+    pull: Vec3,
+  ): Promise<KernelResult<ShapeId>>;
+
+  /**
+   * A band along the inside of a flat rim: from the rim's hole out by `width`, pushed `distance`
+   * along the face's normal. What a lid's lip and a box's groove are made of.
+   */
+  rimBand(face: ShapeId, width: number, distance: number): Promise<KernelResult<ShapeId>>;
+
   /** Scales about `center`, uniformly or per axis. Faces keep their identity. */
   scale(
     solid: ShapeId,

@@ -30,6 +30,7 @@ import { onSharpEdges, roundOrOverflow } from './overflow-round.js';
 import { faceFromProfile } from './profile-face.js';
 import { type DrawingDirection, type DrawingProjection, projectBrep } from './projection.js';
 import { COMBINE_REFUSED, mergedOrAsMade } from './refine-history.js';
+import { nearestFace, rimBand } from './rim-band.js';
 import type { ShapeStore } from './shape-store.js';
 import { boundsOf, type Counted, perSolid, SolidCache } from './tessellation.js';
 import { offsetFaces, tweakParts } from './tweak-parts.js';
@@ -516,6 +517,37 @@ export class OcctGeometryKernel implements GeometryKernel {
       const targets = faces.map(this.#resolve, this);
       const moved = offsetFaces(this.#occt, shape, targets, distance, hashes, HASH_UPPER_BOUND);
       return this.#withHistory(hashes, moved);
+    });
+  }
+
+  async draftFaces(
+    solid: ShapeId,
+    faces: readonly ShapeId[],
+    angle: number,
+    pull: Vec3,
+  ): Promise<KernelResult<ShapeId>> {
+    return attempt('invalid-result', 'These faces could not be tilted.', () => {
+      const original = this.#resolve(solid);
+      let shape = original;
+      for (const face of faces) {
+        // Every draft makes a new solid, so each face after the first is found again by where it is.
+        const target =
+          shape === original
+            ? this.#resolve(face)
+            : nearestFace(this.#occt, shape, this.#resolve(face));
+        const drafted = this.#occt.draft(shape, target, angle, pull);
+        if (shape !== original) this.#occt.release(shape);
+        shape = drafted;
+      }
+      return this.#track(shape);
+    });
+  }
+
+  async rimBand(face: ShapeId, width: number, distance: number): Promise<KernelResult<ShapeId>> {
+    return attempt('invalid-result', 'No band could be laid along this rim.', () => {
+      const rim = this.#resolve(face);
+      const { normal } = planeOfFace(this.#occt, rim);
+      return this.#track(rimBand(this.#occt, rim, normal, width, distance));
     });
   }
 

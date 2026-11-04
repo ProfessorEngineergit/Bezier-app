@@ -68,3 +68,24 @@ export function zip(files: readonly { name: string; data: Uint8Array }[]): Uint8
   }
   return out;
 }
+
+/** The entries of a zip this writer made: stored, not compressed. */
+export function unzip(bytes: Uint8Array): { name: string; data: Uint8Array }[] {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const decoder = new TextDecoder();
+  const end = bytes.byteLength - 22;
+  if (end < 0 || view.getUint32(end, true) !== 0x06054b50) throw new Error('Not a backup file.');
+  const count = view.getUint16(end + 10, true);
+  let at = view.getUint32(end + 16, true);
+  const files: { name: string; data: Uint8Array }[] = [];
+  for (let index = 0; index < count; index += 1) {
+    const size = view.getUint32(at + 24, true);
+    const nameLength = view.getUint16(at + 28, true);
+    const start = view.getUint32(at + 42, true);
+    const name = decoder.decode(bytes.subarray(at + 46, at + 46 + nameLength));
+    const data = start + 30 + nameLength;
+    files.push({ name, data: bytes.subarray(data, data + size) });
+    at += 46 + nameLength;
+  }
+  return files;
+}

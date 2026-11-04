@@ -1193,6 +1193,461 @@ export const BRAND_ICONS = {
       </g>
     </svg>
   ),
+  timelapse: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-timelapse-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-timelapse-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-timelapse-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-timelapse-sh)"
+        stroke="url(#bi-timelapse-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle cx="8" cy="9" r="5" />
+        <path d="M8 6.4V9l1.7 1.1" />
+        <path d="M6.4 2.2h3.2" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="9" r="5" />
+        <path d="M8 6.4V9l1.7 1.1" />
+        <path d="M6.4 2.2h3.2" />
+      </g>
+    </svg>
+  ),
+  play: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-play-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="bi-play-f" x1="2" y1="1" x2="14" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-play-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-play-sh)"
+        stroke="url(#bi-play-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5 3.4v9.2L12.4 8z" fill="url(#bi-play-f)" fillOpacity="0.66" stroke="none" />
+        <path d="M5 3.4v9.2L12.4 8z" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5 3.4v9.2L12.4 8z" fill="none" stroke="none" />
+        <path d="M5 3.4v9.2L12.4 8z" />
+      </g>
+    </svg>
+  ),
+  pause: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-pause-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-pause-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-pause-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-pause-sh)"
+        stroke="url(#bi-pause-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5.5 3.5v9" />
+        <path d="M10.5 3.5v9" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5.5 3.5v9" />
+        <path d="M10.5 3.5v9" />
+      </g>
+    </svg>
+  ),
+  'to-start': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-to-start-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-to-start-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-to-start-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-to-start-sh)"
+        stroke="url(#bi-to-start-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M3.5 3.5v9" />
+        <path
+          d="M12.5 3.8v8.4L6.5 8z"
+          fill="url(#bi-to-start-f)"
+          fillOpacity="0.66"
+          stroke="none"
+        />
+        <path d="M12.5 3.8v8.4L6.5 8z" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3.5 3.5v9" />
+        <path d="M12.5 3.8v8.4L6.5 8z" fill="none" stroke="none" />
+        <path d="M12.5 3.8v8.4L6.5 8z" />
+      </g>
+    </svg>
+  ),
+  'to-end': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-to-end-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-to-end-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-to-end-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-to-end-sh)"
+        stroke="url(#bi-to-end-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M12.5 3.5v9" />
+        <path d="M3.5 3.8v8.4L9.5 8z" fill="url(#bi-to-end-f)" fillOpacity="0.66" stroke="none" />
+        <path d="M3.5 3.8v8.4L9.5 8z" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M12.5 3.5v9" />
+        <path d="M3.5 3.8v8.4L9.5 8z" fill="none" stroke="none" />
+        <path d="M3.5 3.8v8.4L9.5 8z" />
+      </g>
+    </svg>
+  ),
+  'step-back': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-step-back-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-step-back-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-step-back-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-step-back-sh)"
+        stroke="url(#bi-step-back-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M10.5 3.5 6 8l4.5 4.5" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M10.5 3.5 6 8l4.5 4.5" />
+      </g>
+    </svg>
+  ),
+  'step-forward': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-step-forward-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-step-forward-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-step-forward-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-step-forward-sh)"
+        stroke="url(#bi-step-forward-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5.5 3.5 10 8l-4.5 4.5" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5.5 3.5 10 8l-4.5 4.5" />
+      </g>
+    </svg>
+  ),
   history: () => (
     <svg
       viewBox="0 0 16 16"
@@ -2570,6 +3025,2270 @@ export const BRAND_ICONS = {
         <path d="M2.5 13.5 L2.5 6 L6 2.5 L14 2.5 L14 10 L10.5 13.5 L2.5 13.5M2.5 6 L10.5 6 L10.5 13.5M10.5 6 L14 2.5" />
         <path d="M4.4 4.8h5.2l1.5-1.5H5.9z" fill="none" stroke="none" />
         <path d="M4.4 4.8h5.2l1.5-1.5H5.9z" strokeWidth="1" />
+      </g>
+    </svg>
+  ),
+  exploded: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-exploded-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-exploded-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-exploded-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-exploded-sh)"
+        stroke="url(#bi-exploded-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5 2.5h6v3H5z" fill="url(#bi-exploded-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M5 2.5h6v3H5z" />
+        <path d="M5 10.5h6v3H5z" fill="url(#bi-exploded-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M5 10.5h6v3H5z" />
+        <path d="M8 6.5v3" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5 2.5h6v3H5z" fill="none" stroke="none" />
+        <path d="M5 2.5h6v3H5z" />
+        <path d="M5 10.5h6v3H5z" fill="none" stroke="none" />
+        <path d="M5 10.5h6v3H5z" />
+        <path d="M8 6.5v3" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  boss: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-boss-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="bi-boss-f" x1="2" y1="1" x2="14" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-boss-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-boss-sh)"
+        stroke="url(#bi-boss-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2 12.5h12" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M5 12.5V5h6v7.5" fill="url(#bi-boss-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M5 12.5V5c0-1.6 6-1.6 6 0v7.5" />
+        <path d="M7 5.2c0 .6 2 .6 2 0" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2 12.5h12" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M5 12.5V5h6v7.5" fill="none" stroke="none" />
+        <path d="M5 12.5V5c0-1.6 6-1.6 6 0v7.5" />
+        <path d="M7 5.2c0 .6 2 .6 2 0" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  rib: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-rib-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="bi-rib-f" x1="2" y1="1" x2="14" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-rib-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-rib-sh)"
+        stroke="url(#bi-rib-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2 13.5h12" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M2 13.5V4" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M2 4l11 9.5H2z" fill="url(#bi-rib-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M2 4l11 9.5" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2 13.5h12" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M2 13.5V4" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M2 4l11 9.5H2z" fill="none" stroke="none" />
+        <path d="M2 4l11 9.5" />
+      </g>
+    </svg>
+  ),
+  draft: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-draft-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-draft-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-draft-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-draft-sh)"
+        stroke="url(#bi-draft-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5 3h6l2 10.5H3z" fill="url(#bi-draft-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M5 3l-2 10.5h10L11 3z" />
+        <path d="M5 3v10.5M11 3v10.5" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5 3h6l2 10.5H3z" fill="none" stroke="none" />
+        <path d="M5 3l-2 10.5h10L11 3z" />
+        <path d="M5 3v10.5M11 3v10.5" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  lip: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-lip-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="bi-lip-f" x1="2" y1="1" x2="14" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-lip-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-lip-sh)"
+        stroke="url(#bi-lip-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2.5 13.5V7h3v6.5z" fill="url(#bi-lip-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M2.5 13.5V7h1.5V4h1.5v3" />
+        <path d="M10.5 13.5V7h3v6.5" fill="url(#bi-lip-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M13.5 13.5V4H12v3.5h-1.5v6" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2.5 13.5V7h3v6.5z" fill="none" stroke="none" />
+        <path d="M2.5 13.5V7h1.5V4h1.5v3" />
+        <path d="M10.5 13.5V7h3v6.5" fill="none" stroke="none" />
+        <path d="M13.5 13.5V4H12v3.5h-1.5v6" />
+      </g>
+    </svg>
+  ),
+  'snap-fit': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-snap-fit-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-snap-fit-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-snap-fit-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-snap-fit-sh)"
+        stroke="url(#bi-snap-fit-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M3 13.5V3h2.5v6.5l3-1 -3-4.5"
+          fill="url(#bi-snap-fit-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <path d="M3 13.5V3h2.5l3.5 5.5H6v5" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3 13.5V3h2.5v6.5l3-1 -3-4.5" fill="none" stroke="none" />
+        <path d="M3 13.5V3h2.5l3.5 5.5H6v5" />
+      </g>
+    </svg>
+  ),
+  'fit-test': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-fit-test-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-fit-test-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-fit-test-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-fit-test-sh)"
+        stroke="url(#bi-fit-test-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2 5h12v6.5H2z" fill="url(#bi-fit-test-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M2 5h12v6.5H2z" />
+        <circle cx="4.7" cy="8.2" r="1.1" />
+        <circle cx="8" cy="8.2" r="1.35" />
+        <circle cx="11.3" cy="8.2" r="1.6" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2 5h12v6.5H2z" fill="none" stroke="none" />
+        <path d="M2 5h12v6.5H2z" />
+        <circle cx="4.7" cy="8.2" r="1.1" />
+        <circle cx="8" cy="8.2" r="1.35" />
+        <circle cx="11.3" cy="8.2" r="1.6" />
+      </g>
+    </svg>
+  ),
+  'solid-box': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-solid-box-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-solid-box-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-solid-box-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-solid-box-sh)"
+        stroke="url(#bi-solid-box-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2.5 6h8v7.5h-8z" fill="url(#bi-solid-box-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M2.5 6h8v7.5h-8zM2.5 6l3-3.5h8L10.5 6M13.5 2.5V10l-3 3.5" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2.5 6h8v7.5h-8z" fill="none" stroke="none" />
+        <path d="M2.5 6h8v7.5h-8zM2.5 6l3-3.5h8L10.5 6M13.5 2.5V10l-3 3.5" />
+      </g>
+    </svg>
+  ),
+  'solid-cylinder': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-solid-cylinder-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-solid-cylinder-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-solid-cylinder-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-solid-cylinder-sh)"
+        stroke="url(#bi-solid-cylinder-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M3.5 4v8.5c0 2 9 2 9 0V4"
+          fill="url(#bi-solid-cylinder-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <ellipse cx="8" cy="4" rx="4.5" ry="1.7" />
+        <path d="M3.5 4v8.5c0 2 9 2 9 0V4" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3.5 4v8.5c0 2 9 2 9 0V4" fill="none" stroke="none" />
+        <ellipse cx="8" cy="4" rx="4.5" ry="1.7" />
+        <path d="M3.5 4v8.5c0 2 9 2 9 0V4" />
+      </g>
+    </svg>
+  ),
+  'solid-sphere': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-solid-sphere-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-solid-sphere-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-solid-sphere-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-solid-sphere-sh)"
+        stroke="url(#bi-solid-sphere-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="5.5"
+          fill="url(#bi-solid-sphere-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <circle cx="8" cy="8" r="5.5" />
+        <path d="M2.5 8c0 2 11 2 11 0" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="8" r="5.5" fill="none" stroke="none" />
+        <circle cx="8" cy="8" r="5.5" />
+        <path d="M2.5 8c0 2 11 2 11 0" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  'solid-cone': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-solid-cone-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-solid-cone-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-solid-cone-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-solid-cone-sh)"
+        stroke="url(#bi-solid-cone-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M8 2.5L3 12c0 2 10 2 10 0z"
+          fill="url(#bi-solid-cone-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <path d="M8 2.5L3 12c0 2 10 2 10 0z" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M8 2.5L3 12c0 2 10 2 10 0z" fill="none" stroke="none" />
+        <path d="M8 2.5L3 12c0 2 10 2 10 0z" />
+      </g>
+    </svg>
+  ),
+  'solid-torus': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-solid-torus-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-solid-torus-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-solid-torus-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-solid-torus-sh)"
+        stroke="url(#bi-solid-torus-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <ellipse
+          cx="8"
+          cy="8"
+          rx="6"
+          ry="4"
+          fill="url(#bi-solid-torus-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <ellipse cx="8" cy="8" rx="6" ry="4" />
+        <path d="M5.5 7.5c1 1.4 4 1.4 5 0M6.2 8.3c1-.9 2.6-.9 3.6 0" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <ellipse cx="8" cy="8" rx="6" ry="4" fill="none" stroke="none" />
+        <ellipse cx="8" cy="8" rx="6" ry="4" />
+        <path d="M5.5 7.5c1 1.4 4 1.4 5 0M6.2 8.3c1-.9 2.6-.9 3.6 0" />
+      </g>
+    </svg>
+  ),
+  'param-teeth': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-teeth-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-teeth-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-teeth-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-teeth-sh)"
+        stroke="url(#bi-param-teeth-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2 12.5h12" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M2 9.5h1.6l1-5h2.2l1 5h1.4l1-5h2.2l1 5H14" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2 12.5h12" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M2 9.5h1.6l1-5h2.2l1 5h1.4l1-5h2.2l1 5H14" />
+      </g>
+    </svg>
+  ),
+  'param-module': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-module-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-module-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-module-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-module-sh)"
+        stroke="url(#bi-param-module-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M2 10.5h1.6l1-5h2.2l1 5h1.4l1-5h2.2l1 5H14"
+          strokeOpacity="0.42"
+          strokeWidth="0.95"
+          data-ghost=""
+        />
+        <path d="M5.7 13.5v-2M11.3 13.5v-2" />
+        <path d="M5.7 12.5h5.6" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2 10.5h1.6l1-5h2.2l1 5h1.4l1-5h2.2l1 5H14" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M5.7 13.5v-2M11.3 13.5v-2" />
+        <path d="M5.7 12.5h5.6" />
+      </g>
+    </svg>
+  ),
+  'param-width': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-width-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-width-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-width-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-width-sh)"
+        stroke="url(#bi-param-width-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M3 3v10" />
+        <path d="M13 3v10" />
+        <path d="M3 8h10" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3 3v10" />
+        <path d="M13 3v10" />
+        <path d="M3 8h10" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  'param-height': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-height-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-height-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-height-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-height-sh)"
+        stroke="url(#bi-param-height-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M3 3h10" />
+        <path d="M3 13h10" />
+        <path d="M8 3v10" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3 3h10" />
+        <path d="M3 13h10" />
+        <path d="M8 3v10" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  'param-diameter': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-diameter-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-diameter-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-diameter-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-diameter-sh)"
+        stroke="url(#bi-param-diameter-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="5.3"
+          fill="url(#bi-param-diameter-f)"
+          fillOpacity="0.35"
+          stroke="none"
+        />
+        <circle cx="8" cy="8" r="5.3" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M4.3 11.7l7.4-7.4" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="8" r="5.3" fill="none" stroke="none" />
+        <circle cx="8" cy="8" r="5.3" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M4.3 11.7l7.4-7.4" />
+      </g>
+    </svg>
+  ),
+  'param-radius': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-radius-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-radius-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-radius-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-radius-sh)"
+        stroke="url(#bi-param-radius-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle cx="8" cy="8" r="5.3" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M8 8l3.7-3.7" />
+        <circle cx="8" cy="8" r="0.7" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="8" r="5.3" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M8 8l3.7-3.7" />
+        <circle cx="8" cy="8" r="0.7" />
+      </g>
+    </svg>
+  ),
+  'param-angle': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-angle-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-angle-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-angle-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-angle-sh)"
+        stroke="url(#bi-param-angle-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M3 12.5h10.5" />
+        <path d="M3 12.5L10.5 4" />
+        <path
+          d="M8.2 12.5a5.2 5.2 0 0 0-1.6-3.9"
+          strokeOpacity="0.42"
+          strokeWidth="0.95"
+          data-ghost=""
+        />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M3 12.5h10.5" />
+        <path d="M3 12.5L10.5 4" />
+        <path d="M8.2 12.5a5.2 5.2 0 0 0-1.6-3.9" strokeOpacity="0" strokeWidth="0.95" />
+      </g>
+    </svg>
+  ),
+  'param-wall': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-wall-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-wall-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-wall-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-wall-sh)"
+        stroke="url(#bi-param-wall-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle cx="8" cy="8" r="5.3" />
+        <circle cx="8" cy="8" r="3.1" />
+        <path
+          d="M8 2.7a5.3 5.3 0 1 1 0 10.6 5.3 5.3 0 0 1 0-10.6zm0 2.2a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2z"
+          fill="url(#bi-param-wall-f)"
+          fillOpacity="0.44"
+          stroke="none"
+        />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="8" r="5.3" />
+        <circle cx="8" cy="8" r="3.1" />
+        <path
+          d="M8 2.7a5.3 5.3 0 1 1 0 10.6 5.3 5.3 0 0 1 0-10.6zm0 2.2a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2z"
+          fill="none"
+          stroke="none"
+        />
+      </g>
+    </svg>
+  ),
+  'param-wire': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-wire-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-wire-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-wire-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-wire-sh)"
+        stroke="url(#bi-param-wire-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M2.5 5.5c3-2 8-2 11 0" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M2.5 10.5c3 2 8 2 11 0" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <circle
+          cx="8"
+          cy="8"
+          r="2.6"
+          fill="url(#bi-param-wire-f)"
+          fillOpacity="0.44"
+          stroke="none"
+        />
+        <circle cx="8" cy="8" r="2.6" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M2.5 5.5c3-2 8-2 11 0" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M2.5 10.5c3 2 8 2 11 0" strokeOpacity="0" strokeWidth="0.95" />
+        <circle cx="8" cy="8" r="2.6" fill="none" stroke="none" />
+        <circle cx="8" cy="8" r="2.6" />
+      </g>
+    </svg>
+  ),
+  'param-pitch': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-pitch-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-pitch-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-pitch-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-pitch-sh)"
+        stroke="url(#bi-param-pitch-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M4 3.5h9.5" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M4 12.5h9.5" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M2.5 3.5v9" />
+        <path d="M1.5 3.5h2M1.5 12.5h2" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M4 3.5h9.5" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M4 12.5h9.5" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M2.5 3.5v9" />
+        <path d="M1.5 3.5h2M1.5 12.5h2" />
+      </g>
+    </svg>
+  ),
+  'param-turns': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-turns-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-turns-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-turns-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-turns-sh)"
+        stroke="url(#bi-param-turns-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M8 8a1.4 1.4 0 0 1 1.4 1.4A2.7 2.7 0 0 1 6.7 12 4 4 0 0 1 2.7 8a5.3 5.3 0 0 1 5.3-5.3A6 6 0 0 1 14 8.7" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M8 8a1.4 1.4 0 0 1 1.4 1.4A2.7 2.7 0 0 1 6.7 12 4 4 0 0 1 2.7 8a5.3 5.3 0 0 1 5.3-5.3A6 6 0 0 1 14 8.7" />
+      </g>
+    </svg>
+  ),
+  'param-plane': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-plane-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-plane-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-plane-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-plane-sh)"
+        stroke="url(#bi-param-plane-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5 3.5h9l-3 9H2z" fill="url(#bi-param-plane-f)" fillOpacity="0.40" stroke="none" />
+        <path d="M5 3.5h9l-3 9H2z" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5 3.5h9l-3 9H2z" fill="none" stroke="none" />
+        <path d="M5 3.5h9l-3 9H2z" />
+      </g>
+    </svg>
+  ),
+  'param-result': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-result-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-result-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-result-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-result-sh)"
+        stroke="url(#bi-param-result-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <rect
+          x="2.5"
+          y="2.5"
+          width="7.5"
+          height="7.5"
+          rx="1.2"
+          strokeOpacity="0.42"
+          strokeWidth="0.95"
+          data-ghost=""
+        />
+        <rect
+          x="6"
+          y="6"
+          width="7.5"
+          height="7.5"
+          rx="1.2"
+          fill="url(#bi-param-result-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <rect x="6" y="6" width="7.5" height="7.5" rx="1.2" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <rect
+          x="2.5"
+          y="2.5"
+          width="7.5"
+          height="7.5"
+          rx="1.2"
+          strokeOpacity="0"
+          strokeWidth="0.95"
+        />
+        <rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="none" />
+        <rect x="6" y="6" width="7.5" height="7.5" rx="1.2" />
+      </g>
+    </svg>
+  ),
+  'param-size': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-size-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-size-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-size-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-size-sh)"
+        stroke="url(#bi-param-size-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M4.5 2.5h7v3.5h-7z"
+          fill="url(#bi-param-size-f)"
+          fillOpacity="0.40"
+          stroke="none"
+        />
+        <path d="M4.5 2.5h7v3.5h-7z" />
+        <path d="M6.5 6v7.5h3V6" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M4.5 2.5h7v3.5h-7z" fill="none" stroke="none" />
+        <path d="M4.5 2.5h7v3.5h-7z" />
+        <path d="M6.5 6v7.5h3V6" />
+      </g>
+    </svg>
+  ),
+  'param-position': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-position-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-position-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-position-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-position-sh)"
+        stroke="url(#bi-param-position-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M8 2v3M8 11v3M2 8h3M11 8h3"
+          strokeOpacity="0.42"
+          strokeWidth="0.95"
+          data-ghost=""
+        />
+        <circle cx="8" cy="8" r="1.6" strokeWidth="1.15" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M8 2v3M8 11v3M2 8h3M11 8h3" strokeOpacity="0" strokeWidth="0.95" />
+        <circle cx="8" cy="8" r="1.6" strokeWidth="1.15" />
+      </g>
+    </svg>
+  ),
+  'param-more': () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-param-more-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-param-more-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-param-more-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-param-more-sh)"
+        stroke="url(#bi-param-more-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle cx="3.6" cy="8" r="0.9" fill="url(#bi-param-more-s)" stroke="none" />
+        <circle cx="8" cy="8" r="0.9" fill="url(#bi-param-more-s)" stroke="none" />
+        <circle cx="12.4" cy="8" r="0.9" fill="url(#bi-param-more-s)" stroke="none" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="3.6" cy="8" r="0.9" fill="none" stroke="none" />
+        <circle cx="8" cy="8" r="0.9" fill="none" stroke="none" />
+        <circle cx="12.4" cy="8" r="0.9" fill="none" stroke="none" />
+      </g>
+    </svg>
+  ),
+  gearwheel: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-gearwheel-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-gearwheel-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-gearwheel-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-gearwheel-sh)"
+        stroke="url(#bi-gearwheel-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="4.2"
+          fill="url(#bi-gearwheel-f)"
+          fillOpacity="0.48"
+          stroke="none"
+        />
+        <circle cx="8" cy="8" r="1.5" />
+        <path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6L5 5M11 11l1.4 1.4M12.4 3.6L11 5M5 11l-1.4 1.4" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <circle cx="8" cy="8" r="4.2" fill="none" stroke="none" />
+        <circle cx="8" cy="8" r="1.5" />
+        <path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6L5 5M11 11l1.4 1.4M12.4 3.6L11 5M5 11l-1.4 1.4" />
+      </g>
+    </svg>
+  ),
+  spring: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-spring-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-spring-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-spring-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-spring-sh)"
+        stroke="url(#bi-spring-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5 2.5l6 1.3-6 1.6 6 1.6-6 1.6 6 1.6-6 1.6 6 1.3" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5 2.5l6 1.3-6 1.6 6 1.6-6 1.6 6 1.6-6 1.6 6 1.3" />
+      </g>
+    </svg>
+  ),
+  pipe: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="bi-pipe-s" x1="0" y1="1" x2="0" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="bi-pipe-f" x1="2" y1="1" x2="14" y2="15" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-pipe-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-pipe-sh)"
+        stroke="url(#bi-pipe-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path
+          d="M2.5 5.5h4.5a3.5 3.5 0 0 1 3.5 3.5v4.5h3V9A6.5 6.5 0 0 0 7 2.5H2.5z"
+          fill="url(#bi-pipe-f)"
+          fillOpacity="0.48"
+          stroke="none"
+        />
+        <path d="M2.5 2.5v3" />
+        <path d="M10.5 13.5h3" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path
+          d="M2.5 5.5h4.5a3.5 3.5 0 0 1 3.5 3.5v4.5h3V9A6.5 6.5 0 0 0 7 2.5H2.5z"
+          fill="none"
+          stroke="none"
+        />
+        <path d="M2.5 2.5v3" />
+        <path d="M10.5 13.5h3" />
+      </g>
+    </svg>
+  ),
+  thread: () => (
+    <svg
+      viewBox="0 0 16 16"
+      width="20"
+      height="20"
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient
+          id="bi-thread-s"
+          x1="0"
+          y1="1"
+          x2="0"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient
+          id="bi-thread-f"
+          x1="2"
+          y1="1"
+          x2="14"
+          y2="15"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.55" />
+          <stop offset="0.55" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <filter id="bi-thread-sh" x="-20%" y="-20%" width="140%" height="150%">
+          <feDropShadow
+            dx="0"
+            dy="0.6"
+            stdDeviation="0.55"
+            floodColor="#0b1220"
+            floodOpacity="0.22"
+          />
+        </filter>
+      </defs>
+      <g
+        filter="url(#bi-thread-sh)"
+        stroke="url(#bi-thread-s)"
+        strokeWidth="1.25"
+        fill="none"
+        style={{ color: 'inherit' }}
+      >
+        <path d="M5.5 2.5h5v11h-5z" fill="url(#bi-thread-f)" fillOpacity="0.48" stroke="none" />
+        <path d="M5.5 2.5v11" />
+        <path d="M10.5 2.5v11" />
+        <path d="M5.5 6l5-1.6" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M5.5 9l5-1.6" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+        <path d="M5.5 12l5-1.6" strokeOpacity="0.42" strokeWidth="0.95" data-ghost="" />
+      </g>
+      <g
+        stroke="#fff"
+        strokeOpacity="0.55"
+        strokeWidth="0.45"
+        fill="none"
+        transform="translate(-0.22 -0.32)"
+      >
+        <path d="M5.5 2.5h5v11h-5z" fill="none" stroke="none" />
+        <path d="M5.5 2.5v11" />
+        <path d="M10.5 2.5v11" />
+        <path d="M5.5 6l5-1.6" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M5.5 9l5-1.6" strokeOpacity="0" strokeWidth="0.95" />
+        <path d="M5.5 12l5-1.6" strokeOpacity="0" strokeWidth="0.95" />
       </g>
     </svg>
   ),
@@ -4226,6 +6945,13 @@ export const BRAND_ICON_NAMES: Record<BrandIconKey, string> = {
   units: 'Units and grid',
   snap: 'Snapping',
   screenshot: 'Screenshot',
+  timelapse: 'Timelapse',
+  play: 'Play',
+  pause: 'Pause',
+  'to-start': 'To the start',
+  'to-end': 'To the end',
+  'step-back': 'Step back',
+  'step-forward': 'Step forward',
   history: 'History',
   line: 'Line',
   centerline: 'Centerline',
@@ -4245,6 +6971,38 @@ export const BRAND_ICON_NAMES: Record<BrandIconKey, string> = {
   fillet: 'Fillet',
   chamfer: 'Chamfer',
   shell: 'Shell',
+  exploded: 'Exploded view',
+  boss: 'Boss',
+  rib: 'Rib',
+  draft: 'Draft',
+  lip: 'Lip',
+  'snap-fit': 'Snap fit',
+  'fit-test': 'Fit test',
+  'solid-box': 'Box',
+  'solid-cylinder': 'Cylinder',
+  'solid-sphere': 'Sphere',
+  'solid-cone': 'Cone',
+  'solid-torus': 'Torus',
+  'param-teeth': 'Teeth',
+  'param-module': 'Module',
+  'param-width': 'Width',
+  'param-height': 'Height',
+  'param-diameter': 'Diameter',
+  'param-radius': 'Radius',
+  'param-angle': 'Angle',
+  'param-wall': 'Wall',
+  'param-wire': 'Wire',
+  'param-pitch': 'Pitch',
+  'param-turns': 'Turns',
+  'param-plane': 'Plane',
+  'param-result': 'Result',
+  'param-size': 'Size',
+  'param-position': 'Position',
+  'param-more': 'More',
+  gearwheel: 'Gear',
+  spring: 'Spring',
+  pipe: 'Pipe',
+  thread: 'Thread',
   hole: 'Hole',
   combine: 'Combine',
   split: 'Split',

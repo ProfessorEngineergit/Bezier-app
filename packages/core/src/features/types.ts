@@ -26,6 +26,16 @@ export interface FeatureRecord {
    * for when the expression is removed. Absent when none.
    */
   expressions?: Readonly<Record<string, string>>;
+  /** Where the camera stood when the step was made, for playing the history back. */
+  view?: StepCamera;
+}
+
+/** A camera as a saved view holds it, without a name. */
+export interface StepCamera {
+  position: readonly [number, number, number];
+  target: readonly [number, number, number];
+  parallel: boolean;
+  zoom: number;
 }
 
 /** What happened to one feature during a rebuild. */

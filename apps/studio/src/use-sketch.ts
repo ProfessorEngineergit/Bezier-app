@@ -57,6 +57,7 @@ import {
   solveInto,
   splineThrough,
   splitAt,
+  threePointRectangleAt,
   toggleConstruction,
   trimAt,
   unconstrain,
@@ -507,6 +508,26 @@ export function useSketch({
         return;
       }
       const current = draftRef.current;
+      if (tool === 'three-point-rectangle') {
+        const target = snapSketchPoint(current, at, hitRadius, gridStep);
+        const side = arcEnd.current;
+        if (side === null) {
+          setPending([from.at, target]);
+          return;
+        }
+        const [du, dv] = [side.at.u - from.at.u, side.at.v - from.at.v];
+        const length = Math.hypot(du, dv) || 1;
+        const height = ((target.u - from.at.u) * -dv + (target.v - from.at.v) * du) / length;
+        const [ou, ov] = [(-dv / length) * height, (du / length) * height];
+        setPending([
+          from.at,
+          side.at,
+          { u: side.at.u + ou, v: side.at.v + ov },
+          { u: from.at.u + ou, v: from.at.v + ov },
+          from.at,
+        ]);
+        return;
+      }
       if (tool === 'rectangle' || tool === 'center-rectangle') {
         const target = rectangleTarget(
           from.at,
@@ -671,6 +692,26 @@ export function useSketch({
 
       if (tool === 'trim') {
         commitDraft(trimAt(current, at, hitRadius));
+        anchor.current = null;
+        arcEnd.current = null;
+        setPending([]);
+        return;
+      }
+
+      if (tool === 'three-point-rectangle') {
+        const target = snapSketchPoint(current, at, hitRadius, gridStep);
+        // One side first, corner to corner; the third click says how far the other side stands.
+        if (from === null) {
+          anchor.current = { id: '', at: target, created: false };
+          setPending([target, target]);
+          return;
+        }
+        if (arcEnd.current === null) {
+          arcEnd.current = { id: '', at: target, created: false };
+          setPending([from.at, target]);
+          return;
+        }
+        commitDraft(threePointRectangleAt(current, from.at, arcEnd.current.at, target));
         anchor.current = null;
         arcEnd.current = null;
         setPending([]);

@@ -16,8 +16,8 @@ export interface WorkspaceProps {
   badge?: string;
   leftGroups: readonly RailGroup[];
   rightGroups: readonly RailGroup[];
-  activeLeftId: string | null;
-  activeRightId: string | null;
+  activeLeftId: string | readonly string[] | null;
+  activeRightId: string | readonly string[] | null;
   onActivateLeft: (id: string) => void;
   onActivateRight: (id: string) => void;
   showLabels?: boolean;

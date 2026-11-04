@@ -5,10 +5,11 @@
  */
 
 import { type FeatureRecord, formatRef, type StableRef } from '@bezier/core';
-import { PropertyPanel } from '@bezier/ui';
+import { PropertyPanel, stepIcon } from '@bezier/ui';
 import type { ComponentProps, RefObject } from 'react';
 import { ImageEditor } from './ImageEditor.js';
 import './move-gizmo.css';
+import './tool-bar.css';
 import type { Variables } from './use-variables.js';
 import type { ViewportHandle } from './Viewport.js';
 
@@ -45,6 +46,7 @@ export function FeatureInspector({
   return (
     <aside aria-label={feature.name} className="inspector move-gizmo__toolbar">
       <div className="move-gizmo__heading">
+        <span aria-hidden="true">{stepIcon(feature.type)}</span>
         <strong>{feature.name}</strong>
       </div>
       <PropertyPanel

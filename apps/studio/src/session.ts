@@ -20,6 +20,7 @@ import type {
   RebuildDeps,
   RebuildResult,
   StableRef,
+  StepCamera,
   TessellationChoice,
 } from '@bezier/core';
 import {
@@ -45,6 +46,7 @@ import type { DocumentStore } from '@bezier/storage';
 import { billOfMaterials, bomCsv } from './bill-of-materials.js';
 import { threeMf } from './formats/three-mf.js';
 import { listBodiesNamed } from './import-part-names.js';
+import { largestFit } from './largest-fit.js';
 import { loadDocument } from './load-document.js';
 import { joinStl, referenceTriangles, trianglesStl } from './mesh-stl.js';
 import { Drawings, drawingsFor, drawsTheSame } from './session-drawn.js';
@@ -66,6 +68,7 @@ import {
 } from './session-part-edit.js';
 import { atMarker, rolledBack } from './session-rollback.js';
 import { stepParts } from './session-step-parts.js';
+import { withCamera } from './step-camera.js';
 import { traced } from './trace.js';
 
 export interface SessionDeps {
@@ -82,6 +85,8 @@ export interface SessionDeps {
   onPreview?: RebuildDeps['onPreview'];
   /** Documents are in OPFS, so a worker can load them (`load-document.ts`). */
   loadOffThread?: boolean;
+  /** Where the camera stands now, kept with each new step (`step-camera.ts`). */
+  camera?: () => StepCamera | undefined;
 }
 
 /** What the UI needs after a rebuild. */
@@ -352,7 +357,7 @@ export class Session {
       (next: Operation) => {
         const placed = atMarker(next, this.#rollback);
         this.#rollback = placed.at;
-        return placed.operation;
+        return withCamera(placed.operation, this.#deps.camera?.());
       },
     );
     const inverse = await traced('write', () => this.#writeAll(operations));
@@ -600,6 +605,33 @@ export class Session {
    */
   partPreview(edit: PartEdit, replacing?: FeatureId): Promise<PartPreview | null> {
     return this.#enqueue(async () => {
+      const editing = await this.#partFor(edit, replacing);
+      return editing === null ? null : traced('part', () => editing.at(edit));
+    });
+  }
+
+  /** Holds the solid for an edit before the drag, so its first step does not wait for it. */
+  preparePart(edit: PartEdit, replacing?: FeatureId): Promise<void> {
+    return this.#enqueue(async () => {
+      await this.#partFor(edit, replacing);
+    });
+  }
+
+  /** The largest round or bevel that fits this edge, up to a size that did not. */
+  largestEdgeSize(
+    edit: Extract<PartEdit, { kind: 'fillet' | 'chamfer' }>,
+    replacing?: FeatureId,
+  ): Promise<number | null> {
+    return this.#enqueue(async () => {
+      const part = await this.#partFor(edit, replacing);
+      if (part === null) return null;
+      return largestFit(edit.size, (size) => part.fits({ ...edit, size }));
+    });
+  }
+
+  /** The held solid for this edit, extracted once per drag. Caller holds the queue. */
+  async #partFor(edit: PartEdit, replacing?: FeatureId): Promise<PartEditPreview | null> {
+    {
       const on = editedRef(edit);
       const key = `${formatRef(on)}|${replacing ?? ''}`;
       let part = this.#part;
@@ -622,9 +654,8 @@ export class Session {
         );
         this.#part = part;
       }
-      const editing = part;
-      return editing === null ? null : traced('part', () => editing.at(edit));
-    });
+      return part;
+    }
   }
 
   /** Releases what `partPreview` held for the drag. */
@@ -871,10 +902,18 @@ export class Session {
   async export3mf(
     faces: readonly StableRef[] | null = null,
     tolerance?: TessellationOptions,
+    colours: Readonly<Record<string, string>> = {},
   ): Promise<Uint8Array | null> {
     return this.#enqueue(async () => {
       const rebuilt = await this.#build();
-      const meshes = await bodyMeshes(this.#deps.kernel, rebuilt, this.#document, faces, tolerance);
+      const meshes = await bodyMeshes(
+        this.#deps.kernel,
+        rebuilt,
+        this.#document,
+        faces,
+        tolerance,
+        colours,
+      );
       return meshes.length === 0 ? null : threeMf(meshes);
     });
   }

@@ -11,6 +11,8 @@ export interface MeshObject {
   positions: Float32Array;
   /** Triangle indices into `positions`. */
   indices: Uint32Array;
+  /** Its colour as `#RRGGBB`, if it has one of its own. */
+  colour?: string;
 }
 
 const CONTENT_TYPES = `<?xml version="1.0" encoding="UTF-8"?>
@@ -41,8 +43,22 @@ export function modelXml(objects: readonly MeshObject[]): string {
     '<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">',
     '  <resources>',
   ];
+  // One material per coloured body; slicers offer these as the filaments to start from.
+  const materials = objects.length + 1;
+  const coloured = objects.filter((object) => object.colour !== undefined);
+  if (coloured.length > 0) {
+    lines.push(`    <basematerials id="${materials}">`);
+    for (const { name, colour } of coloured) {
+      lines.push(`      <base name="${escapeXml(name)}" displaycolor="${colour}"/>`);
+    }
+    lines.push('    </basematerials>');
+  }
   objects.forEach((object, index) => {
-    lines.push(`    <object id="${index + 1}" name="${escapeXml(object.name)}" type="model">`);
+    const material = coloured.indexOf(object);
+    const paint = material === -1 ? '' : ` pid="${materials}" pindex="${material}"`;
+    lines.push(
+      `    <object id="${index + 1}" name="${escapeXml(object.name)}" type="model"${paint}>`,
+    );
     lines.push('      <mesh>', '        <vertices>');
     for (let i = 0; i + 2 < object.positions.length; i += 3) {
       lines.push(

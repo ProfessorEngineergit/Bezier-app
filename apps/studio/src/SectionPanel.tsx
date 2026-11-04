@@ -1,5 +1,12 @@
 /** Section view placement for inspection; never cuts or changes the document. */
-import { toDisplay, toMillimetres, typedNumber, type ViewSettings } from '@bezier/ui';
+import {
+  SegmentedChoice,
+  Toggle,
+  toDisplay,
+  toMillimetres,
+  typedNumber,
+  type ViewSettings,
+} from '@bezier/ui';
 import { useEffect, useRef, useState } from 'react';
 import { InspectionPanel } from './InspectionPanel.js';
 import { useScrub } from './scrub.js';
@@ -8,13 +15,17 @@ export function SectionPanel({
   at,
   settings,
   onChange,
+  onPlane,
   onCenter,
 }: {
   at: number;
   settings: ViewSettings;
   onChange: (at: number | null) => void;
+  /** The plane's axis or side; the position stays unless a new axis moves it to the model. */
+  onPlane: (plane: Partial<Pick<ViewSettings, 'sectionAxis' | 'sectionFlip'>>) => void;
   onCenter: () => number;
 }) {
+  const axis = settings.sectionAxis;
   const [text, setText] = useState('');
   const [invalid, setInvalid] = useState(false);
   const cancelBlur = useRef(false);
@@ -54,12 +65,24 @@ export function SectionPanel({
   };
   return (
     <InspectionPanel label="Section View" title="Section View" onClose={() => onChange(null)}>
-      <p className="inspection-panel__eyebrow">Horizontal section · XY plane</p>
-      <p className="measure-hint">
-        Inspect the model below the plane. Your geometry stays unchanged.
-      </p>
-      <label className="section-position">
-        Z position{' '}
+      <SegmentedChoice
+        label="Cut across"
+        onChange={(next) => onPlane({ sectionAxis: next })}
+        options={[
+          { value: 'z', label: 'Z' },
+          { value: 'y', label: 'Y' },
+          { value: 'x', label: 'X' },
+        ]}
+        value={axis}
+      />
+      <Toggle
+        checked={settings.sectionFlip}
+        label="Flip side"
+        onChange={(sectionFlip) => onPlane({ sectionFlip })}
+      />
+      <p className="measure-hint">Your geometry stays unchanged.</p>
+      <label className="inspection-number section-position">
+        {axis.toUpperCase()} position{' '}
         <span>
           <input
             {...scrub}

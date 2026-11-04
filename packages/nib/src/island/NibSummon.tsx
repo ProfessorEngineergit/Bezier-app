@@ -5,10 +5,8 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { type HeadState, NibHead } from '../NibHead.js';
+import { NibHead } from '../NibHead.js';
 import type { NibLook } from '../stage.js';
-import { FACES } from './face.js';
-import { NibFace } from './NibFace.js';
 
 /** Hover time at the top before he appears, in milliseconds. */
 export const SUMMON_AFTER_MS = 650;
@@ -27,7 +25,6 @@ export function NibSummon({ onSummon, label, model, still, look }: NibSummonProp
   const [out, setOut] = useState(false);
   // His stage (WebGL context and model) is created the first time he appears.
   const [wanted, setWanted] = useState(false);
-  const [head, setHead] = useState<HeadState>('loading');
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => {
@@ -57,14 +54,12 @@ export function NibSummon({ onSummon, label, model, still, look }: NibSummonProp
         onFocus={() => later(true, 0)}
         type="button"
       >
-        <span className="nib-summon__bust" data-head={head}>
-          <NibFace face={FACES.rest} />
+        <span className="nib-summon__bust">
           {wanted && (
             <NibHead
               active={out}
               model={model}
               mood="rest"
-              onState={setHead}
               still={still}
               {...(look === undefined ? {} : { look })}
             />

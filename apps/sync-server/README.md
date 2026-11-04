@@ -49,7 +49,7 @@ server over **HTTPS** (below).
 | `BEZIER_SYNC_REPLICAS` | More directories, `:`-separated; every write goes to all | none |
 | `BEZIER_SYNC_HOST` / `BEZIER_SYNC_PORT` | Where to listen | `127.0.0.1` / `8787` |
 | `BEZIER_SYNC_ENROLLMENT` | Code that lets someone create an account without an invite (16+ chars) | invites only |
-| `BEZIER_SYNC_QUOTA_MB` | Space one vault may use | unlimited |
+| `BEZIER_SYNC_QUOTA_MB` | Space one vault may use; set it on anything reachable by others | unlimited |
 | `BEZIER_SYNC_TRUST_PROXY` | `1` behind a proxy that sets `X-Forwarded-For` (the Caddy setup) | off |
 | `BEZIER_SYNC_ORIGINS` | Origins Bezier may call from, `,`-separated; every call needs a token anyway | any |
 
@@ -77,12 +77,47 @@ cp deploy/.env.example deploy/.env      # set the domain and the enrollment code
 docker compose -f deploy/compose.yaml up -d
 ```
 
+On Linux the server runs as user 1000 inside the container, so give it its folders first, or it
+starts and cannot write:
+
+```bash
+mkdir -p deploy/data deploy/replica && sudo chown 1000:1000 deploy/data deploy/replica
+```
+
 Caddy in front gets a Let's Encrypt certificate; only ports 80 and 443 are open. In
 Bezier, create your account with `https://your-domain` and the enrollment code, then
 consider emptying `BEZIER_SYNC_ENROLLMENT` and inviting everyone else by link.
 
+Then check it from another machine. This reaches the server the way a stranger would, tries the
+doors that should be shut, and has two people share a vault:
+
+```bash
+node deploy/check.ts https://your-domain your-enrollment-code
+```
+
+Keep it current with `docker compose -f deploy/compose.yaml build --pull` followed by `up -d`:
+Node and Caddy get their security fixes that way. The server has no dependencies of its own.
+
 Even on a VPS you do not fully trust, the provider sees ciphertext only. HTTPS still
 matters: it hides session tokens and the shape of the traffic.
+
+## Offer parts
+
+Bezier's library can show parts from a server: your company's screws, or the fittings you always
+use. The Docker setup serves the `parts` folder for that, read-only, at `/parts/`. Put the STEP files
+and pictures (PNG, JPEG or WebP) in it, with a `parts.json` beside them:
+
+```json
+{
+  "parts": [
+    { "name": "Bracket 40", "model": "bracket-40.step", "picture": "bracket-40.webp" }
+  ]
+}
+```
+
+Anyone with the address can read these files, so keep private parts in a vault. In Bezier: Parts →
+Library → From a server, and enter `https://your-domain/parts`. Any web server that serves a folder
+over HTTPS with `Access-Control-Allow-Origin: *` does the same job; it need not be this one.
 
 ## Back it up
 
@@ -91,6 +126,10 @@ Everything in the data directory is already encrypted, so it can go anywhere: `r
 makes incremental backup cheap. Keep your **identity backup** (Account → Download backup)
 somewhere other than your computer: without a member's key nobody can open a vault, not
 even the server's owner.
+
+To restore, stop the server, put the directory back, and start it. Sessions are not kept, so
+everyone logs in again by themselves. With a replica, a damaged file heals when it is read and
+`scrub` finds the rest.
 
 ## Tests
 

@@ -1,0 +1,223 @@
+/*
+ * The history down the right side, the Items panel's mirror: the same pane, inset from the edges,
+ * in the same glass (`@bezier/ui` shell.css). The right rail steps aside through `--side-panel`.
+ */
+.history-panel {
+  position: absolute;
+  top: var(--edge);
+  right: var(--rail-inset);
+  bottom: var(--floor);
+  /* Over the on-canvas gizmos, which follow the model behind the panel. */
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-panel);
+  animation: history-panel-in 140ms var(--ease);
+}
+
+@keyframes history-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+/* The cube stands in the panel's place, so this is the one time it moves: to the panel's left. */
+.stage:has(.history-panel) .viewcube {
+  right: calc(var(--side-panel) + var(--utility-size) + var(--pad-lg) * 3);
+}
+
+/* The floating bars centre on what is left of the canvas. */
+.stage:has(.history-panel) .move-gizmo__toolbar {
+  left: calc(50% - var(--side-panel) / 2);
+}
+
+.stage[data-left-panel]:has(.history-panel) .move-gizmo__toolbar {
+  left: calc(50% + (var(--items-width, var(--panel-width)) + var(--pad) - var(--side-panel)) / 2);
+}
+
+.history-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-panel__tail {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-xs);
+}
+
+/* Quiet until wanted: a faint mark beside the count, on with the selection band. */
+.history-panel__timelapse {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-faint);
+  transition: color var(--fast) var(--ease);
+}
+
+.history-panel__timelapse svg {
+  width: 15px;
+  height: 15px;
+}
+
+.history-panel__timelapse:hover {
+  color: var(--text);
+}
+
+.history-panel__timelapse[aria-pressed="true"] {
+  background: var(--brand-selected-band);
+  color: var(--brand-selected-text);
+}
+
+.history-panel__count {
+  color: var(--text-faint);
+  font: var(--text-size-sm) / 1 var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The controls, one raised band like the Items filter, with play in the middle. */
+.history-panel__transport {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  flex: none;
+  margin: 0 var(--pad) var(--pad-sm);
+  padding: 2px;
+  border-radius: var(--radius-control);
+  background: var(--panel-control);
+}
+
+.history-panel__control {
+  display: grid;
+  height: 28px;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: none;
+  color: var(--text);
+}
+
+.history-panel__control svg {
+  width: 18px;
+  height: 18px;
+}
+
+.history-panel__control:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+
+.history-panel__control:disabled {
+  color: var(--text-faint);
+  opacity: 0.5;
+}
+
+/*
+ * The steps hang on one line down the left of the list, which stops at the playhead: what comes
+ * after it is not built. Only the gaps between the icons are drawn, so the line does not run
+ * through a glyph on glass.
+ */
+.history-panel .items-entry {
+  position: relative;
+}
+
+.history-panel .items-list > li + li .items-entry::before {
+  position: absolute;
+  top: -3px;
+  left: calc(var(--pad-sm) + 9.5px);
+  width: 1px;
+  height: 6px;
+  background: var(--text-faint);
+  content: "";
+}
+
+.history-panel .items-entry[data-paused]::before {
+  opacity: 0.4;
+}
+
+/*
+ * The playhead: a line across the list, with a grip where the steps' line meets it. It lies over the
+ * rows and glides between them; while dragged it follows the pointer's gap at once.
+ */
+.history-panel__list {
+  position: relative;
+  padding-top: var(--pad-xs);
+}
+
+.history-head {
+  position: absolute;
+  top: -7px;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 14px;
+  outline: none;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.history-head[data-placed]:not([data-dragging]) {
+  transition: transform var(--medium) var(--ease);
+}
+
+.history-head::before {
+  position: absolute;
+  top: 6px;
+  right: calc(var(--pad-sm) * 2);
+  left: calc(var(--pad-sm) * 2);
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  content: "";
+}
+
+.history-head::after {
+  position: absolute;
+  top: 3px;
+  left: calc(var(--pad-sm) * 2 + 6px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--glass-bg-opaque);
+  content: "";
+  transition: transform var(--fast) var(--ease);
+}
+
+.history-head:hover::after,
+.history-head:focus-visible::after,
+.history-head[data-dragging]::after {
+  transform: scale(1.3);
+}
+
+.history-panel .items-row {
+  transition: opacity var(--medium) var(--ease);
+}
+
+/* The same lit edge as the Items panel, on the left. */
+.history-panel::after {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  width: calc(var(--radius-panel) + 1px);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-right: none;
+  border-radius: calc(var(--radius-panel) + 1px) 0 0 calc(var(--radius-panel) + 1px);
+  content: "";
+  pointer-events: none;
+  transition: border-color var(--medium) var(--ease);
+}
+
+.history-panel:has(.history-panel__resize:hover)::after,
+.history-panel:has(.history-panel__resize:focus-visible)::after,
+.history-panel:has(.history-panel__resize:active)::after {
+  border-color: var(--accent);
+}

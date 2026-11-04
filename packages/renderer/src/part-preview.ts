@@ -317,7 +317,7 @@ export class PartPreview {
  * A point rounded to `SAME_POINT`, hashed to one number. Collisions can hide a stray neighbouring
  * edge during a drag; accepted to avoid a string key per segment.
  */
-function pointKey(x: number, y: number, z: number): number {
+export function pointKey(x: number, y: number, z: number): number {
   const i = Math.round(x / SAME_POINT);
   const j = Math.round(y / SAME_POINT);
   const k = Math.round(z / SAME_POINT);

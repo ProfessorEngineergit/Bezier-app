@@ -92,7 +92,6 @@ export function NibSettings({ prefs, set }: { prefs: AppPrefs; set: Setter }) {
                 look={{ body: style.body, eyes: style.eyes }}
                 model="/nib/nib.glb"
                 mood="curious"
-                onState={() => undefined}
                 still={false}
               />
             )}

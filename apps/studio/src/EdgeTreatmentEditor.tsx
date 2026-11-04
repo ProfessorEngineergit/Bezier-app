@@ -2,7 +2,7 @@
 import { type FeatureRecord, readRef, type StableRef } from '@bezier/core';
 import { type RefObject, useEffect, useRef, useState } from 'react';
 import { coalescePreview } from './coalesce-preview.js';
-import { EdgeGizmo, type EdgeOp } from './EdgeGizmo.js';
+import { type EdgeApplied, EdgeGizmo, type EdgeOp } from './EdgeGizmo.js';
 import type { Session, SessionView } from './session.js';
 import type { PartPreview } from './session-part-edit.js';
 import type { ViewportHandle } from './Viewport.js';
@@ -14,14 +14,16 @@ export function EdgeTreatmentEditor({
   sessionRef,
   run,
   setView,
+  say,
   onRemoved,
 }: {
   feature: FeatureRecord;
   face: StableRef;
   handleRef: RefObject<ViewportHandle | null>;
   sessionRef: RefObject<Session | null>;
-  run: (change: (session: Session) => Promise<SessionView>) => void;
+  run: (change: (session: Session) => Promise<SessionView>) => Promise<unknown>;
   setView: (view: SessionView) => void;
+  say: (message: string) => void;
   onRemoved: () => void;
 }) {
   const [anchor] = useState(() => handleRef.current?.faceCentroid(face) ?? null);
@@ -89,17 +91,28 @@ export function EdgeTreatmentEditor({
       initialSize={Number(feature.params[key])}
       lockKind
       handleRef={handleRef}
-      onApply={(_, size) => {
+      onApply={async (_, size) => {
         // A step still on its way would land on the result.
         sizePreview.cancel();
-        void run(async (session) => {
+        let applied: EdgeApplied = {};
+        await run(async (session) => {
           if (size === 0) {
             const view = await session.apply({ op: 'removeFeature', id: feature.id });
             onRemoved();
             return view;
           }
-          return session.apply(operation(size));
+          const tried = await session.tryApply(operation(size), feature.id);
+          if (tried.refused === null) return tried.view;
+          // Too large: the part keeps the size it had, and the largest that fits is offered.
+          handleRef.current?.showPartPreview(null);
+          say(`${kind === 'fillet' ? 'Fillet' : 'Chamfer'} could not be changed: ${tried.refused}`);
+          const edge = edgeRef.current;
+          const largest =
+            edge === null ? null : await session.largestEdgeSize({ kind, edge, size }, feature.id);
+          if (largest !== null) applied = { largest };
+          return tried.view;
         });
+        return applied;
       }}
       onPreview={(_, size) => sizePreview.request(size)}
     />

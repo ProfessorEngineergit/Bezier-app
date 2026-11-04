@@ -69,3 +69,29 @@ it('cuts the band into the face when the depth is negative', async () => {
   const box = value(await kernel.bounds(tool));
   expect(box.min.y).toBeGreaterThan(-20.01);
 });
+
+it('reaches a face that does not stand at the sketch origin', async () => {
+  // The same band, drawn on a plane whose origin is 40 mm along from the cylinder.
+  const shifted: Profile = {
+    ...band,
+    loops: [
+      [
+        { kind: 'line', start: { x: -55, y: -3 }, end: { x: -25, y: -3 } },
+        { kind: 'line', start: { x: -25, y: -3 }, end: { x: -25, y: 3 } },
+        { kind: 'line', start: { x: -25, y: 3 }, end: { x: -55, y: 3 } },
+        { kind: 'line', start: { x: -55, y: 3 }, end: { x: -55, y: -3 } },
+      ],
+    ],
+    origin: { x: 40, y: -30, z: 20 },
+  };
+  const tool = value(await kernel.wrapTool(wall, shifted, 1));
+  const box = value(await kernel.bounds(tool));
+  expect(box.max.x).toBeCloseTo(20 * Math.sin(0.75), 1);
+  expect(box.min.y).toBeCloseTo(-21, 1);
+  expect(value(await kernel.massProperties(tool)).volume).toBeGreaterThan(170);
+});
+
+it('says so when the shape misses the face along its axis', async () => {
+  const above: Profile = { ...band, origin: { x: 0, y: -30, z: 80 } };
+  expect((await kernel.wrapTool(wall, above, 1)).ok).toBe(false);
+});

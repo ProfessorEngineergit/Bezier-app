@@ -3,6 +3,7 @@
 import type { SavedView } from '@bezier/core';
 import {
   type DetailChoice,
+  MODEL_RIGHT_RAIL,
   QUICK_SETTINGS,
   type RailGroup,
   RIGHT_RAIL,
@@ -33,6 +34,7 @@ export function viewTabsFor(workspace: string): readonly ViewTab[] {
 
 /** The right rail for a workspace: the quick settings, if they offer anything there. */
 export function rightRailFor(workspace: string): readonly RailGroup[] {
+  if (workspace === 'design') return MODEL_RIGHT_RAIL;
   return viewTabsFor(workspace).length > 0 ? rightRail : [];
 }
 

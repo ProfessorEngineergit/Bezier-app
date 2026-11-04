@@ -334,6 +334,17 @@ export class WorkerKernel implements GeometryKernel {
   ): Promise<KernelResult<ShapeWithHistory>> {
     return this.#call('offsetFaces', [solid, faces, distance]);
   }
+  draftFaces(
+    solid: ShapeId,
+    faces: readonly ShapeId[],
+    angle: number,
+    pull: Vec3,
+  ): Promise<KernelResult<ShapeId>> {
+    return this.#call('draftFaces', [solid, faces, angle, pull]);
+  }
+  rimBand(face: ShapeId, width: number, distance: number): Promise<KernelResult<ShapeId>> {
+    return this.#call('rimBand', [face, width, distance]);
+  }
   facePlane(face: ShapeId): Promise<KernelResult<{ origin: Vec3; normal: Vec3 }>> {
     return this.#call('facePlane', [face]);
   }

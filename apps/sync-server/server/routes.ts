@@ -4,6 +4,7 @@
  * in `PUBLIC`, before any body is read.
  */
 
+import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import { isHexId } from '../protocol/bytes.ts';
 import type {
@@ -70,6 +71,13 @@ export interface RouteDeps {
   raw: (req: IncomingMessage, limit: number) => Promise<Uint8Array>;
 }
 
+/** Compared by hash, so how long a guess took says nothing about how close it was. */
+function sameSecret(given: unknown, secret: string): boolean {
+  if (typeof given !== 'string') return false;
+  const hash = (text: string) => createHash('sha256').update(text).digest();
+  return timingSafeEqual(hash(given), hash(secret));
+}
+
 const V = '/v1/vaults/([0-9a-f]{32})';
 const USER = '([0-9a-f]{32})';
 const CH = '([0-9a-f]{32})';
@@ -112,7 +120,8 @@ export function routes(d: RouteDeps): Route[] {
       '/v1/users',
       async (req) => {
         const body = await json<RegisterRequest>(req);
-        const byCode = d.enrollmentCode !== undefined && body.enrollment === d.enrollmentCode;
+        const byCode =
+          d.enrollmentCode !== undefined && sameSecret(body.enrollment, d.enrollmentCode);
         const byInvite =
           body.invite !== undefined &&
           (await vaults.invite(body.invite.vault, body.invite.token)) !== null;

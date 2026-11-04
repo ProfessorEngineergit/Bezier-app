@@ -77,7 +77,7 @@ Beside each variable is what it comes to. A mistake is written there in words in
 
 ## Use a variable in a step
 
-Open a step in Items, such as an Extrude. A number field, such as a length or an angle, takes an expression as well as a number.
+Open a step in History, such as an Extrude. A number field, such as a length or an angle, takes an expression as well as a number.
 
 1. Click the field.
 2. Type an expression, for example \`wall * 3\`. A leading \`=\` is allowed.
@@ -114,7 +114,7 @@ The trigonometry functions take and give degrees, so \`sin(30)\` is 0.5. \`min\`
 
 A variable may use another one, in any order. Two that lead back to each other are refused, and the loop is named.
 
-> Expressions are written in the number fields of a step's panel in Items.`,
+> Expressions are written in the number fields of a step's bar.`,
     shots: {
       panel: 'The Variables panel with a variable wall equal to 4 mm',
       field: 'An Extrude distance written as wall * 3, with its result',
@@ -254,7 +254,7 @@ With the picture selected, press {{key:move-rotate}}. The move arrows appear. Al
 
 ## Bring one in
 
-Import an STL or an OBJ file. See [import a file](doc:import). A notice says As a reference mesh to model against, and a row appears in Items, under History, with the name of the file.
+Import an STL or an OBJ file. See [import a file](doc:import). A notice says As a reference mesh to model against, and a row appears in Items with the name of the file.
 
 ## How it looks
 

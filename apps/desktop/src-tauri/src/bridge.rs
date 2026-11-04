@@ -22,9 +22,9 @@ pub fn run_command(window: &WebviewWindow, command: &str) {
     }
     let script = match command {
         "preferences" => key_script(",", false),
-        "undo" => key_script("z", false),
-        "redo" => key_script("z", true),
-        "select-all" => key_script("a", false),
+        "undo" => text_or_key("undo", "z", false),
+        "redo" => text_or_key("redo", "z", true),
+        "select-all" => text_or_key("selectAll", "a", false),
         "duplicate" => key_script("d", false),
         "deselect" => key_script(".", false),
         "projects" => r#"document.querySelector('[aria-label="Projects"]')?.click();"#.to_owned(),
@@ -81,6 +81,21 @@ pub fn handle_download(_webview: Webview, _event: DownloadEvent<'_>) -> bool {
 fn key_script(key: &str, shift: bool) -> String {
     format!(
         "window.dispatchEvent(new KeyboardEvent('keydown', {{ key: '{key}', metaKey: true, shiftKey: {shift}, bubbles: true }}));"
+    )
+}
+
+/// The menu claims these keys before the page sees them, so a field that has the
+/// keyboard gets the text command here and the model is left alone.
+fn text_or_key(command: &str, key: &str, shift: bool) -> String {
+    format!(
+        r#"
+(() => {{
+  const typing = 'input:not([type=checkbox],[type=radio],[type=range]),textarea,[contenteditable]';
+  if (document.activeElement?.matches(typing)) document.execCommand('{command}');
+  else {}
+}})();
+"#,
+        key_script(key, shift)
     )
 }
 
@@ -151,6 +166,13 @@ mod tests {
             script,
             "(window.__bezierImport ?? ((name, token) => (window.__bezierPending ||= []).push([name, token])))('it\\'s a part.step', 'import-3');"
         );
+    }
+
+    #[test]
+    fn a_field_with_the_keyboard_gets_the_text_command() {
+        let script = text_or_key("selectAll", "a", false);
+        assert!(script.contains("execCommand('selectAll')"));
+        assert!(script.contains("key: 'a'"));
     }
 
     #[test]

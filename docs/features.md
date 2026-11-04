@@ -19,11 +19,18 @@ parts listed under Alpha only.**
 
 ## In every channel
 
+**History.** Every step down the right side of the model: play how the part was built, step through
+it, or drag the playhead to look at any earlier state. Nothing changes until you edit. A timelapse
+plays it as if it were being made, with the tools opening and the camera moving as it did.
+
 **Modelling.** A history of steps where an earlier step can be changed and the later ones follow: sketch,
 extrude, face extrude, revolve (also with a rise per turn), loft, sweep, wrap onto a round face, fillet,
-chamfer, shell, hole, delete face, move a face or an edge, change a cylinder's radius, mirror, pattern,
+chamfer, shell, hole with metric sizes, thread, boss, rib, lip and groove, draft, gear, spring, pipe, snap fit, fit test, standard screws, nuts and washers to their ISO tables, plain solids, delete face, move a face or an edge, change a cylinder's radius, mirror, pattern,
 move, rotate, scale, align, joint, copy, combine, split, remove body. A fillet keeps the edge it was
 given when something before it changes ([how](../packages/core/README.md)).
+
+**Variables.** Name a number, use it in any dimension, and keep sets of values as variants: one model
+in several sizes, one click apart.
 
 **Sketches.** Drawing, dimensions and constraints, solved by planegcs. Sketches can stand on any flat
 surface of a body.
@@ -42,7 +49,7 @@ its own.
 
 **The wiki.** The app's own documentation, in the app, searchable with ⌘K.
 
-**Projects.** Local only: no account, nothing uploaded. Folders, search, the last projects left are kept
+**Projects.** Local only: no account, nothing uploaded. All of them can be saved into one backup file. Folders, search, the last projects left are kept
 ready, a crash loses at most the step being made.
 
 **Desktop apps.** macOS, Windows, Linux. Unsigned for now.
@@ -69,6 +76,5 @@ machine (never about the user), and an offer to send it after a crash.
 | Windows | Built and started in CI, importing and the rest not yet used by hand |
 | Signing and updates | Builds are unsigned and there is no updater |
 | First start film and introduction | The film is made; showing it on the first start is being built, and Nib (the guide) moves from the start page into the introduction |
-| A new Items panel | History, as direct modellers have it, with a place of its own at the right or the bottom. The old list of steps is hidden and is only used by the browser tests |
 | Reference (non-driving) dimensions and more constraint kinds | Open in `packages/solver` |
 | Benchmarks against other modellers | Import, export, move, reopen are measured on one Mac; the rest and weaker hardware are still to do |

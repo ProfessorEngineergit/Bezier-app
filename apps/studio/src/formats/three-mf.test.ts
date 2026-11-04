@@ -37,3 +37,24 @@ describe('3MF', () => {
     expect(model).toBe(modelXml([triangle]));
   });
 });
+
+describe('colours in 3MF', () => {
+  const body = {
+    name: 'Lid',
+    positions: Float32Array.of(0, 0, 0, 1, 0, 0, 0, 1, 0),
+    indices: Uint32Array.of(0, 1, 2),
+  };
+  it('names a material for each coloured body and points the object at it', () => {
+    const xml = modelXml([
+      { ...body, colour: '#C0392B' },
+      { ...body, name: 'Base' },
+    ]);
+    expect(xml).toContain('<basematerials id="3">');
+    expect(xml).toContain('<base name="Lid" displaycolor="#C0392B"/>');
+    expect(xml).toContain('<object id="1" name="Lid" type="model" pid="3" pindex="0">');
+    expect(xml).toContain('<object id="2" name="Base" type="model">');
+  });
+  it('writes no materials when nothing has a colour', () => {
+    expect(modelXml([body])).not.toContain('basematerials');
+  });
+});

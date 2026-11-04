@@ -26,6 +26,7 @@ import {
 } from '@bezier/kernel';
 import type { DetailSource, DisplayGeometry } from '@bezier/renderer';
 import { colourCopies } from './copy-colours.js';
+import type { MeshObject } from './formats/three-mf.js';
 import { listBodiesNamed } from './import-part-names.js';
 import type { BodyContact } from './session.js';
 
@@ -287,14 +288,15 @@ export async function bodyMeshes(
   document: CadDocument,
   faces: readonly StableRef[] | null,
   tolerance?: TessellationOptions,
-): Promise<{ name: string; positions: Float32Array; indices: Uint32Array }[]> {
+  colours: Readonly<Record<string, string>> = {},
+): Promise<MeshObject[]> {
   if (result.body === null) return [];
   const listed = await listBodiesNamed(kernel, result.body, result.naming, document);
   if (listed.visible !== null && listed.visible !== result.body) {
     await kernel.dispose(listed.visible);
   }
   const wanted = faces === null ? null : new Set(faces.map(formatRef));
-  const meshes: { name: string; positions: Float32Array; indices: Uint32Array }[] = [];
+  const meshes: MeshObject[] = [];
   for (const body of listed.bodies) {
     if (body.hidden) continue;
     if (wanted !== null && !body.faces.some((face) => wanted.has(formatRef(face)))) continue;
@@ -307,6 +309,7 @@ export async function bodyMeshes(
           name: body.label,
           positions: mesh.value.positions,
           indices: mesh.value.indices,
+          ...(colours[body.key] === undefined ? {} : { colour: colours[body.key] as string }),
         });
       }
     } finally {

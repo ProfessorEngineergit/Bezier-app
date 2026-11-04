@@ -10,6 +10,7 @@ import {
   type BufferGeometry,
   Color,
   DecrementWrapStencilOp,
+  DoubleSide,
   FrontSide,
   Group,
   IncrementWrapStencilOp,
@@ -20,6 +21,7 @@ import {
   ReplaceStencilOp,
   ShaderMaterial,
 } from 'three';
+import type { SectionAxis, SectionCut } from './section-cut.js';
 
 /** Distance between hatch lines, in CSS pixels. */
 const HATCH_SPACING = 9;
@@ -49,8 +51,9 @@ export class SectionCaps {
   readonly #line = { value: new Color('#8a9099') };
   readonly #spacing = { value: HATCH_SPACING * 2 };
   readonly #material = new ShaderMaterial({
-    // Not clipped by the section plane it lies in.
+    // Not clipped by the section plane it lies in, and seen from either side of it.
     clipping: false,
+    side: DoubleSide,
     uniforms: { fill: this.#fill, line: this.#line, spacing: this.#spacing },
     vertexShader: /* glsl */ `
       void main() {
@@ -94,11 +97,11 @@ export class SectionCaps {
   }
 
   /**
-   * Close the cut of `geometry` at height `at`, or show nothing. The body's own geometry is
-   * borrowed and never disposed here.
+   * Close the cut of `geometry`, or show nothing. The body's own geometry is borrowed and never
+   * disposed here.
    */
-  set(geometry: BufferGeometry | null, at: number | null, shown: boolean): void {
-    if (geometry === null || at === null || !shown) {
+  set(geometry: BufferGeometry | null, cut: SectionCut | null, shown: boolean): void {
+    if (geometry === null || cut === null || !shown) {
       this.object.visible = false;
       return;
     }
@@ -111,10 +114,21 @@ export class SectionCaps {
       return;
     }
     // Wider than the body by a margin, so its whole cut is under the plane.
-    const width = Math.max(box.max.x - box.min.x, 1) * 1.2;
-    const depth = Math.max(box.max.y - box.min.y, 1) * 1.2;
-    this.#cap.position.set((box.min.x + box.max.x) / 2, (box.min.y + box.max.y) / 2, at);
-    this.#cap.scale.set(width, depth, 1);
+    const span = (axis: SectionAxis) => Math.max(box.max[axis] - box.min[axis], 1) * 1.2;
+    const middle = (axis: SectionAxis) =>
+      axis === cut.axis ? cut.at : (box.min[axis] + box.max[axis]) / 2;
+    this.#cap.position.set(middle('x'), middle('y'), middle('z'));
+    // The plane is drawn in XY: stood up for the other two, across their two free axes.
+    if (cut.axis === 'z') {
+      this.#cap.rotation.set(0, 0, 0);
+      this.#cap.scale.set(span('x'), span('y'), 1);
+    } else if (cut.axis === 'y') {
+      this.#cap.rotation.set(Math.PI / 2, 0, 0);
+      this.#cap.scale.set(span('x'), span('z'), 1);
+    } else {
+      this.#cap.rotation.set(0, Math.PI / 2, 0);
+      this.#cap.scale.set(span('z'), span('y'), 1);
+    }
     this.object.visible = true;
   }
 

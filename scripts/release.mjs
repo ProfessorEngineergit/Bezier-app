@@ -24,11 +24,13 @@ import {
   copyFileSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readdirSync,
   readFileSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -225,6 +227,38 @@ if (Object.keys(extraConfig).length > 0) {
   bundleArgs.push('--config', 'src-tauri/target/build.conf.json');
 }
 run('pnpm', bundleArgs);
+
+// On CI tauri leaves out the installer window's layout; dmgbuild writes it without Finder
+// (scripts/dmg-background/window.py). DMGBUILD is the tool's path; a build on a Mac needs neither.
+if (process.env.DMGBUILD && process.platform === 'darwin') {
+  const dmg = files(targetDir).find((path) => path.endsWith('.dmg'));
+  const app = files(targetDir).find((path) => path.endsWith('.app'));
+  if (dmg === undefined || app === undefined) {
+    console.error('dmgbuild found no .dmg or .app to rebuild. Nothing was released.');
+    process.exit(1);
+  }
+  run(process.env.DMGBUILD, [
+    '-s',
+    'scripts/dmg-background/window.py',
+    '-D',
+    `app=${app}`,
+    'Bezier',
+    dmg,
+  ]);
+}
+
+// tauri exits 0 without the layout (`--skip-jenkins` when CI=true), so the image itself is checked:
+// without these two files it opens as a plain window.
+for (const dmg of files(targetDir).filter((path) => path.endsWith('.dmg'))) {
+  const mounted = mkdtempSync(join(tmpdir(), 'bezier-dmg-'));
+  run('hdiutil', ['attach', '-nobrowse', '-readonly', '-mountpoint', mounted, dmg]);
+  const inside = readdirSync(mounted);
+  run('hdiutil', ['detach', mounted]);
+  if (!inside.includes('.DS_Store') || !inside.some((name) => name.startsWith('.background'))) {
+    console.error(`${basename(dmg)} has no window layout. Nothing was released.`);
+    process.exit(1);
+  }
+}
 
 const out = join(root, 'release', version);
 mkdirSync(out, { recursive: true });

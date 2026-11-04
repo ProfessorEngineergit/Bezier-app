@@ -6,6 +6,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CUBE_HALF } from './ViewCube.js';
+import { CANVAS_MARGIN, CANVAS_SIZE } from './view-cube-canvas.js';
+import { AXIS_PARTS } from './view-cube-model.js';
 
 const TOKENS = readFileSync(
   new URL('../../../packages/ui/src/tokens.css', import.meta.url),
@@ -26,5 +28,23 @@ describe('the view cube agrees with its stylesheet', () => {
 
   it('keeps the cube half at exactly half its edge', () => {
     expect(pixels('--cube-half') * 2).toBe(pixels('--cube-size'));
+  });
+
+  it('paints on a canvas the size CSS shows it', () => {
+    expect(CANVAS_MARGIN).toBe(pixels('--cube-margin'));
+  });
+
+  it('has room for every axis letter at any camera angle', () => {
+    const glyph = 7;
+    const perspective = pixels('--cube-perspective');
+    for (const part of AXIS_PARTS) {
+      const [x, y, z] = part.labelAt;
+      // The letter's distance from the middle, turned straight across the view, and as near the
+      // camera as the same distance lets it come (`project` in view-cube-canvas.ts).
+      const reach = Math.hypot(x, y, z);
+      const nearest = perspective / (perspective - Math.SQRT1_2 * reach);
+      expect(reach * Math.SQRT1_2 * nearest + glyph).toBeLessThan(CANVAS_SIZE / 2);
+      expect(reach + glyph).toBeLessThan(CANVAS_SIZE / 2);
+    }
   });
 });

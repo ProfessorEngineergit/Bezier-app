@@ -129,6 +129,8 @@
      stays close to the reference's ~46 px. */
   --cube-size: 48px;
   --cube-half: 24px;
+  /* Around the cube on its canvas, enough for an axis letter at any camera angle. */
+  --cube-margin: 52px;
   /* Perspective distance in front of the cube. Mirrored in ViewCube.tsx, which projects the gnomon
      the same way. */
   --cube-perspective: 320px;

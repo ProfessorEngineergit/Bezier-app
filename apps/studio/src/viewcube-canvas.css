@@ -2,10 +2,10 @@
    arms need; the pointer passes through to the model except over a face (ViewCube.tsx). */
 .viewcube__canvas {
   position: absolute;
-  top: -30px;
-  left: -30px;
-  width: calc(var(--cube-size) + 60px);
-  height: calc(var(--cube-size) + 60px);
+  top: calc(var(--cube-margin) * -1);
+  left: calc(var(--cube-margin) * -1);
+  width: calc(var(--cube-size) + var(--cube-margin) * 2);
+  height: calc(var(--cube-size) + var(--cube-margin) * 2);
   cursor: pointer;
   pointer-events: none;
 }
