@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <video src="docs/assets/marketing/trailer.mp4" width="880" controls muted playsinline></video>
+  <a href="https://github.com/ProfessorEngineergit/Bezier/blob/main/docs/assets/marketing/trailer.mp4"><img src="docs/assets/marketing/trailer-poster.jpg" alt="Watch the Bezier 1.0 trailer, 58 seconds" width="880"></a><br>
+  <sub><a href="https://github.com/ProfessorEngineergit/Bezier/blob/main/docs/assets/marketing/trailer.mp4">Watch the trailer</a> · 58 s</sub>
 </p>
 
 <h1 align="center">Bezier</h1>
