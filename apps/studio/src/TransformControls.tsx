@@ -20,6 +20,7 @@ export function TransformControls({
   onSelectionChange,
   onMoved,
   say,
+  bare,
 }: {
   sketch: FeatureRecord | undefined;
   /** A selected reference image; it moves with the same gizmo. */
@@ -35,6 +36,8 @@ export function TransformControls({
   onSelectionChange: (refs: readonly StableRef[]) => void;
   onMoved: (face: StableRef) => void;
   say?: (message: string) => void;
+  /** A selected sketch's handle alone, while its inspector stays open. */
+  bare?: boolean;
 }) {
   if (picture !== undefined)
     return (
@@ -63,6 +66,7 @@ export function TransformControls({
         run={run}
         setView={setView}
         onClose={onClose}
+        bare={bare === true}
       />
     );
   return (

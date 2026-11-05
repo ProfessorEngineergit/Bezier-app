@@ -19,6 +19,7 @@ export function SketchTransform({
   run,
   setView,
   onClose,
+  bare,
 }: {
   feature: FeatureRecord;
   basis: PlaneBasis;
@@ -28,6 +29,7 @@ export function SketchTransform({
   run: (change: (session: Session) => Promise<SessionView>) => void;
   setView: (view: SessionView) => void;
   onClose: () => void;
+  bare?: boolean;
 }) {
   const [copy, setCopy] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -105,6 +107,7 @@ export function SketchTransform({
       copy={copy}
       busy={busy}
       translationOnly
+      bare={bare === true}
       onCopyChange={setCopy}
       onClose={() => {
         unpicture();

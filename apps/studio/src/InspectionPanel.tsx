@@ -4,10 +4,12 @@
  * an edge it snaps to exactly one gap away (`panel-place.ts`). When something opens where it is, it
  * glides aside and returns once that closes. It may pass under the view cube. Corners resize it.
  */
+
 import { CrossIcon } from '@bezier/ui';
 import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { obstaclesIn } from './floating-place.js';
 import { type Box, drawIn, keepClear, resizeFrom } from './panel-place.js';
+import { useCoveredRailLabels } from './use-covered-rail-labels.js';
 
 const LEAST = { width: 220, height: 120 };
 const GLIDE_MS = 160;
@@ -106,28 +108,7 @@ export function InspectionPanel({
     [current, put, surroundings],
   );
 
-  // A rail's names appear on hover and may land on this panel: those stay hidden while it is there,
-  // as they do under an open flyout.
-  useEffect(() => {
-    const check = () => {
-      const panel = ref.current?.getBoundingClientRect();
-      if (panel === undefined) return;
-      for (const labels of document.querySelectorAll('.rail__group > .rail__labels')) {
-        const { left, right, top, bottom } = labels.getBoundingClientRect();
-        const covers =
-          left < panel.right && panel.left < right && top < panel.bottom && panel.top < bottom;
-        labels.toggleAttribute('data-covered', covers);
-      }
-    };
-    check();
-    document.addEventListener('pointerover', check);
-    return () => {
-      document.removeEventListener('pointerover', check);
-      for (const labels of document.querySelectorAll('[data-covered]')) {
-        labels.removeAttribute('data-covered');
-      }
-    };
-  }, []);
+  useCoveredRailLabels(ref);
 
   // Re-settle when anything on the stage opens or closes, or the stage or panel resizes. At most
   // once per frame.

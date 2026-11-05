@@ -857,8 +857,8 @@ export function App() {
       />
       {partsLibrary.open && <PartsLibrary {...partsLibrary.props} />}
 
-      {/* Transforms own the interaction while open; face tools stay out of the way. */}
-      {moveMode && (
+      {/* Transforms own the interaction while open; face tools stay out of the way. A selected sketch carries its handle. */}
+      {(moveMode || (selectedSketch !== undefined && category === null)) && (
         <TransformControls
           sketch={selectedSketch}
           picture={selectedPicture}
@@ -866,7 +866,8 @@ export function App() {
           view={view}
           selectedRefs={selectedRefs}
           onSelectionChange={setSelectedRefs}
-          onClose={() => setMoveMode(false)}
+          bare={!moveMode}
+          onClose={() => (selectedSketch === undefined ? setMoveMode(false) : deselectAll())}
           handleRef={viewportRef}
           sessionRef={sessionRef}
           run={run}

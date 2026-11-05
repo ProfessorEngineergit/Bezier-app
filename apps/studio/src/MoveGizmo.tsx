@@ -17,6 +17,7 @@ import {
   smoothSpeed,
 } from './move-gizmo-math.js';
 import type { TransformEdit } from './TransformTool.js';
+import { useCoveredRailLabels } from './use-covered-rail-labels.js';
 import { useMoveGizmoFrame } from './use-move-gizmo-frame.js';
 import type { MoveSnap } from './use-move-snap.js';
 import { useWheelThrough } from './use-wheel-through.js';
@@ -58,6 +59,8 @@ interface MoveGizmoProps {
   onCancel: () => void;
   /** Snap targets on other bodies and the grid, if any. */
   snapTo?: MoveSnap | undefined;
+  /** Only the handle: no toolbar, for a selected sketch whose inspector is open beside it. */
+  bare?: boolean;
 }
 const ARC = 'M61 39 Q52 55 39 61 M53 37L61 39L63 31 M37 53L39 61L31 63';
 /** Formats degrees with an explicit sign, so the direction of a turn is clear. */
@@ -82,9 +85,12 @@ export function MoveGizmo({
   translationOnly = false,
   copyable = true,
   snapTo,
+  bare = false,
 }: MoveGizmoProps) {
   const frame = useMoveGizmoFrame(handleRef, initialPivot);
   useWheelThrough(frame.root);
+  const toolbar = useRef<HTMLDivElement | null>(null);
+  useCoveredRailLabels(toolbar);
   const drag = useRef<Drag | null>(null);
   const pending = useRef<TransformEdit | null>(null);
   const [selected, setSelected] = useState<Control | null>(null);
@@ -502,79 +508,86 @@ export function MoveGizmo({
           </svg>,
           document.body,
         )}
-      <div className="move-gizmo__toolbar" role="toolbar" aria-label="Move and rotate">
-        <div className="move-gizmo__heading">
-          <strong>{copy ? 'Copy & move' : 'Move / Rotate'}</strong>
-          {selected && (
-            <span>
-              {selected.kind === 'plane'
-                ? `${selected.a.toUpperCase()}${selected.b.toUpperCase()} plane`
-                : `${selected.axis.toUpperCase()} ${selected.kind === 'rotate' ? 'rotation' : 'axis'}`}
-            </span>
-          )}
-          {lastTurn !== null && selected?.kind !== 'plane' && (
-            <span className="move-gizmo__last">
-              Last {lastTurn.axis.toUpperCase()} {signed(lastTurn.degrees)}°
-            </span>
-          )}
-          {snapNote !== null && (
-            <span className="move-gizmo__snap" role="status">
-              {snapNote}
-            </span>
-          )}
-        </div>
-        {selected && selected.kind !== 'plane' && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const n = typedNumber(value);
-              if (busy || n === null || n === 0) return;
-              pending.current = editFor(selected, n);
-              finish(true);
-            }}
-          >
-            <label className="move-gizmo__entry">
-              <input
-                ref={input}
-                aria-label={selected.kind === 'rotate' ? 'Rotation angle' : 'Move distance'}
-                // Text input so `2in` or `10*2` can be typed; still exposed as a spinbutton.
-                role="spinbutton"
-                aria-valuenow={typedNumber(value) ?? undefined}
-                inputMode="decimal"
-                type="text"
-                value={value}
-                disabled={dragging || busy}
-                onChange={(e) => setValue(e.target.value)}
-              />
-              <span>{selected.kind === 'rotate' ? '°' : 'mm'}</span>
-            </label>
-          </form>
-        )}
-        {copyable && (
-          <button
-            className="move-gizmo__copy-toggle"
-            type="button"
-            aria-label="Copy"
-            aria-pressed={copy}
-            disabled={dragging || busy}
-            onClick={() => onCopyChange(!copy)}
-          >
-            <svg width="17" height="17" viewBox="0 0 20 20" aria-hidden="true">
-              <rect x="7" y="7" width="10" height="10" rx="2" />
-              <path d="M12 4V3H3v9h1" />
-            </svg>
-            Copy
-          </button>
-        )}
-        <button
-          className="move-gizmo__done"
-          type="button"
-          onClick={onClose}
-          disabled={dragging || busy}
+      {!bare && (
+        <div
+          className="move-gizmo__toolbar"
+          role="toolbar"
+          aria-label="Move and rotate"
+          ref={toolbar}
         >
-          Done
-        </button>
-      </div>
+          <div className="move-gizmo__heading">
+            <strong>{copy ? 'Copy & move' : 'Move / Rotate'}</strong>
+            {selected && (
+              <span>
+                {selected.kind === 'plane'
+                  ? `${selected.a.toUpperCase()}${selected.b.toUpperCase()} plane`
+                  : `${selected.axis.toUpperCase()} ${selected.kind === 'rotate' ? 'rotation' : 'axis'}`}
+              </span>
+            )}
+            {lastTurn !== null && selected?.kind !== 'plane' && (
+              <span className="move-gizmo__last">
+                Last {lastTurn.axis.toUpperCase()} {signed(lastTurn.degrees)}°
+              </span>
+            )}
+            {snapNote !== null && (
+              <span className="move-gizmo__snap" role="status">
+                {snapNote}
+              </span>
+            )}
+          </div>
+          {selected && selected.kind !== 'plane' && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const n = typedNumber(value);
+                if (busy || n === null || n === 0) return;
+                pending.current = editFor(selected, n);
+                finish(true);
+              }}
+            >
+              <label className="move-gizmo__entry">
+                <input
+                  ref={input}
+                  aria-label={selected.kind === 'rotate' ? 'Rotation angle' : 'Move distance'}
+                  // Text input so `2in` or `10*2` can be typed; still exposed as a spinbutton.
+                  role="spinbutton"
+                  aria-valuenow={typedNumber(value) ?? undefined}
+                  inputMode="decimal"
+                  type="text"
+                  value={value}
+                  disabled={dragging || busy}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+                <span>{selected.kind === 'rotate' ? '°' : 'mm'}</span>
+              </label>
+            </form>
+          )}
+          {copyable && (
+            <button
+              className="move-gizmo__copy-toggle"
+              type="button"
+              aria-label="Copy"
+              aria-pressed={copy}
+              disabled={dragging || busy}
+              onClick={() => onCopyChange(!copy)}
+            >
+              <svg width="17" height="17" viewBox="0 0 20 20" aria-hidden="true">
+                <rect x="7" y="7" width="10" height="10" rx="2" />
+                <path d="M12 4V3H3v9h1" />
+              </svg>
+              Copy
+            </button>
+          )}
+          <button
+            className="move-gizmo__done"
+            type="button"
+            onClick={onClose}
+            disabled={dragging || busy}
+          >
+            Done
+          </button>
+        </div>
+      )}
     </div>
   );
 }

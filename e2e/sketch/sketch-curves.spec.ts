@@ -49,6 +49,33 @@ test('a spline closed on its first point extrudes', async ({ page }) => {
   await extrudeAll(page);
 });
 
+test('the text bar takes typing at once, also after the click that places it, and fits a narrow window', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 960, height: 640 });
+  await fromTop(page);
+  await railButton(page, 'Text').click();
+  const bar = page.getByRole('region', { name: 'Text' });
+  const field = bar.getByLabel('Text', { exact: true });
+  await expect(field).toBeFocused();
+  await expect(bar.getByRole('button', { name: 'Done' })).toBeDisabled();
+  const rect = await canvasRect(page);
+  await page.mouse.click(rect.x + rect.width * 0.45, rect.y + rect.height * 0.45);
+  await expect(bar).toContainText('Starts at');
+  await expect(field).toBeFocused();
+  await page.keyboard.type('Hi');
+  await expect(field).toHaveValue('Hi');
+  // Clear of both rails and inside the window.
+  const box = await bar.boundingBox();
+  const left = await page.locator('.rail__icon').first().boundingBox();
+  if (box === null || left === null) throw new Error('no bar');
+  expect(box.x).toBeGreaterThan(left.x + left.width);
+  expect(box.x + box.width).toBeLessThan(960);
+  await page.screenshot({ path: test.info().outputPath('text-bar.png') });
+  await bar.getByRole('button', { name: 'Done' }).click();
+  await expect(bar).toHaveCount(0);
+});
+
 test('text set in the bar extrudes into letters', async ({ page }) => {
   await fromTop(page);
   await railButton(page, 'Text').click();

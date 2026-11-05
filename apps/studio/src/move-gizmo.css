@@ -169,17 +169,22 @@
   background: none;
   font: 500 12px var(--font);
 }
-/* The text being placed grows with its lines, up to four, instead of hiding all but the first. */
+/* The text being placed grows with its lines, up to four, instead of hiding all but the first. One
+   line is as tall as the other fields. */
 .sketch-action-bar__text {
   height: auto;
-  min-height: 32px;
-  align-items: flex-start;
-  padding-block: 7px;
+  /* 20 + 2 × 6 padding: the 32 px of the other fields. */
+  min-height: 20px;
+  padding-block: 6px;
 }
 .sketch-action-bar__text textarea {
-  width: 160px;
+  width: 140px;
+  overflow: hidden;
   resize: none;
   line-height: 18px;
+}
+.sketch-action-bar__text textarea::placeholder {
+  color: var(--text-dim);
 }
 .move-gizmo__entry input::-webkit-inner-spin-button {
   -webkit-appearance: none;

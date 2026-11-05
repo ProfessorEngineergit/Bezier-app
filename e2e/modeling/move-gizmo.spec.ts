@@ -470,3 +470,34 @@ test('a sketch with a body on it is dragged as a picture, and the model is rebui
   expect((await canvas.screenshot()).equals(before)).toBe(false);
   expect(dragged.length).toBeGreaterThan(0);
 });
+
+test('a selected sketch carries its own handle, and the inspector stays', async ({ page }) => {
+  await openApp(page);
+  await page.getByRole('button', { name: 'Top', exact: true }).dispatchEvent('click');
+  await page.waitForTimeout(600);
+  await railButton(page, 'Sketch').click();
+  const rect = await canvasRect(page);
+  await page.keyboard.press('r');
+  await page.mouse.click(rect.x + rect.width * 0.4, rect.y + rect.height * 0.4);
+  await page.mouse.click(rect.x + rect.width * 0.6, rect.y + rect.height * 0.6);
+  await page.keyboard.press('Escape');
+  await railButton(page, 'Finish Sketch').click();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await openItems(page);
+  await page.locator('.items-row', { hasText: 'Sketch 1' }).click();
+  // The handle alone: no Move / Rotate toolbar, and the sketch's own panel is not displaced.
+  const plane = page.getByRole('button', { name: 'Move XY plane', exact: true });
+  await expect(plane).toBeVisible();
+  await expect(page.getByRole('toolbar', { name: 'Move and rotate' })).toHaveCount(0);
+  await expect(page.getByText('Offset', { exact: true })).toBeVisible();
+  const canvas = page.locator('canvas.viewport');
+  const before = await canvas.screenshot();
+  const box = await plane.boundingBox();
+  if (box === null) throw new Error('Missing plane handle');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 90, box.y + box.height / 2 + 50, { steps: 10 });
+  await page.mouse.up();
+  await expect(page.locator('html[data-busy]')).toHaveCount(0);
+  await expect.poll(async () => (await canvas.screenshot()).equals(before)).toBe(false);
+});

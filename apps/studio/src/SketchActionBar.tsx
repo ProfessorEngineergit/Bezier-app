@@ -14,9 +14,10 @@ import {
   transformSelection,
   typedNumber,
 } from '@bezier/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './move-gizmo.css';
 import { SKETCH_FONTS, type SketchFontName, sketchFont } from './sketch-font.js';
+import { useCoveredRailLabels } from './use-covered-rail-labels.js';
 
 export type SketchAction = 'sketch-offset' | 'sketch-pattern' | 'sketch-transform' | 'sketch-text';
 
@@ -53,17 +54,25 @@ export function SketchActionBar({
     mv: '0',
     turn: '0',
     scale: '1',
-    text: 'Text',
+    text: '',
     height: '10',
     x: '0',
     y: '0',
   });
   const [polar, setPolar] = useState(false);
   const [fontName, setFontName] = useState<SketchFontName>('Archivo');
+  const typed = useRef<HTMLTextAreaElement | null>(null);
+  const bar = useRef<HTMLElement | null>(null);
+  useCoveredRailLabels(bar);
+  // Typing goes straight into the text, from the moment Text opens.
+  useEffect(() => typed.current?.focus(), []);
   useEffect(() => {
     if (placeAt === null) return;
     const mm = (n: number) => String(Math.round(n * 100) / 100);
     setValues((current) => ({ ...current, x: mm(placeAt.u), y: mm(placeAt.v) }));
+    // The click in the sketch takes the focus once it ends; typing carries on in the field.
+    const frame = requestAnimationFrame(() => typed.current?.focus());
+    return () => cancelAnimationFrame(frame);
   }, [placeAt]);
   // Closes itself on Escape, like an open panel; the app's own Escape ignores it.
   useEffect(() => {
@@ -141,6 +150,7 @@ export function SketchActionBar({
     if (onApply(result)) onClose();
   };
 
+  const lines = Math.min(4, Math.max(1, (values.text ?? '').split('\n').length));
   const field = (key: string, label: string, unit: string) => (
     <label className="move-gizmo__entry" key={key}>
       <span>{label}</span>
@@ -160,12 +170,18 @@ export function SketchActionBar({
   );
 
   return (
-    <section aria-label={TITLES[action]} className="move-gizmo__toolbar sketch-action-bar">
+    <section
+      aria-label={TITLES[action]}
+      className="move-gizmo__toolbar sketch-action-bar"
+      ref={bar}
+    >
       <div className="move-gizmo__heading">
         <strong>{TITLES[action]}</strong>
         <span>
           {action === 'sketch-text'
-            ? 'Click in the sketch where it starts'
+            ? placeAt === null
+              ? 'Click where it starts'
+              : `Starts at ${values.x ?? '0'}, ${values.y ?? '0'} mm`
             : selected.length === 0
               ? 'Select elements first'
               : `${selected.length} selected`}
@@ -174,16 +190,19 @@ export function SketchActionBar({
       {action === 'sketch-offset' && field('distance', 'Distance', 'mm')}
       {action === 'sketch-text' && [
         <label className="move-gizmo__entry sketch-action-bar__text" key="text">
-          <span>Text</span>
           {/* Multi-line: Enter adds a line, ⌘ or Ctrl with Enter places the text. */}
           <textarea
             aria-label="Text"
+            ref={typed}
+            placeholder="Type here"
             onChange={(event) => setValues((current) => ({ ...current, text: event.target.value }))}
             onKeyDown={(event) => {
               if (event.key !== 'Escape') event.stopPropagation();
               if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) apply();
             }}
-            rows={Math.min(4, Math.max(1, (values.text ?? '').split('\n').length))}
+            rows={lines}
+            // `rows` alone leaves room for a second line in Chromium; one line matches the fields.
+            style={{ height: `${String(lines * 18)}px` }}
             value={values.text ?? ''}
           />
         </label>,
@@ -202,8 +221,6 @@ export function SketchActionBar({
           </select>
         </label>,
         field('height', 'Height', 'mm'),
-        field('x', 'X', 'mm'),
-        field('y', 'Y', 'mm'),
       ]}
       {action === 'sketch-pattern' && (
         <>
@@ -232,7 +249,9 @@ export function SketchActionBar({
       </button>
       <button
         className="move-gizmo__done"
-        disabled={selected.length === 0 && action !== 'sketch-text'}
+        disabled={
+          action === 'sketch-text' ? (values.text ?? '').trim() === '' : selected.length === 0
+        }
         onClick={apply}
         type="button"
       >
