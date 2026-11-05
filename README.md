@@ -2,6 +2,10 @@
   <img src="docs/assets/marketing/voron-section.webp" alt="Bezier with a Voron 3D printer assembly open, cut through by a section view" width="880">
 </p>
 
+<p align="center">
+  <video src="docs/assets/marketing/trailer.mp4" width="880" controls muted playsinline></video>
+</p>
+
 <h1 align="center">Bezier</h1>
 
 <p align="center">
